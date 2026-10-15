@@ -187,22 +187,11 @@ export class SharedPool {
 /** Shared equipment stock, derived from actual ownership. Merges, equips and returns cannot lose a reservation:
  * normal equipment occupies one, upgraded equipment two. Shop/choice displays reserve nothing. Source: the original
  * experiment BV1eLXXBqEgF, 1:30 and 2:30. [ASSUMED] An item that is consumed/destroyed or removed by elimination no
- * longer occupies stock, consistently with the video's ownership model; this is not a per-match purchase limit.
- *
- * Every owned normal/advanced item occupies 1/2 copies, an effect-generated gift included (0.2.5's official rule; the
- * derived arithmetic stays `left = cap - held` and `held ≤ cap`, invariants.js). The ONE exception is the fixed operator
- * gifts (`gamedata.js isUnlimitedGiftItem`: the 8 SERVER_GAIN_EQUIP garrisons — 迅捷作战粮, 变形同构体, 谢拉格不融冰,
- * 盟约之币): they are handed out even at the cap and may leave `held > cap`, which invariants.js allows for exactly
- * those ids. Random subset gifts and 马克维茨's 商业包装方案 are not exempt. */
+ * longer occupies stock, consistently with the video's ownership model; this is not a per-match purchase limit. */
 export class SharedItemPool {
   constructor(gd, players) { this.gd = gd; this.players = players; }
   cap(id) { return this.gd.itemPoolCopies(id); }
   need(id) { return this.gd.isGolden(id) ? 2 : 1; }
-  /** Stock copies an owned item occupies: a normal item 1, a golden 2. */
-  copiesOf(piece) {
-    const n = piece && piece.stockCopies;
-    return Number.isInteger(n) ? Math.max(0, n) : this.need(piece.id);
-  }
   held(id) {
     const base = this.gd.baseIdOf(id);
     let count = 0;

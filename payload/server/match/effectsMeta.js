@@ -586,14 +586,6 @@ export function makeCtx(m, ps, source, hook, ev = null) {
       }
       return p ? view(p) : null;
     },
-    /**
-     * Grant an item. 0.2.5's official rule: the fixed operator-gift families (卡涅利安 / 蜜蜡 / 缪尔赛思 / 耶拉 /
-     * 诗怀雅〈获得时〉 and 变形者集群's 变形同构体) are never blocked by the shared equipment stock — they still count
-     * toward it, but are handed out even at the cap (`GameData.isUnlimitedGiftItem`, PlayerState.acquireItem
-     * `requirePool: false`, the default here). A caller that hands out an item taken FROM the shelf instead — a 机变 card
-     * (道具补给 / 机密商店), a tactic card's item roll — passes `requirePool: true` and consumes a copy as before, like
-     * the shop, the reward offers and 整备 (马克维茨's 商业包装方案 stays stock-limited).
-     */
     grantItem: (itemId, opts = {}) => {
       if (!ps.alive || !gd.item(itemId)) return null;
       const p = ps.acquireItem(itemId, {

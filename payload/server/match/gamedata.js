@@ -17,7 +17,6 @@ import { heroAvailable } from '../../shared/heroPowers.js';
 import { spellShopEnabled } from '../../shared/spells.js';
 import { isShopItem } from '../sim/simdata.js';
 import { standInRecord } from '../../shared/standIn.js';
-import { MAX_SEATS } from '../../shared/constants.js';
 
 const own = (map, id) => (map && typeof map === 'object' && typeof id === 'string' && Object.hasOwn(map, id) && map[id] && typeof map[id] === 'object' ? map[id] : null);
 const numOr = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -65,8 +64,7 @@ export const COMBAT_TIME_SCALE = 2;
  *   solo   `solo` (1: the table value — one player's share);
  *   co-op  `perPlayer` true (the owner's decision of 2026-10-06, adopting PR #209 by @qingjingshenghuo): `coop` (1) × the
  *          players alive when the fight starts — bots and AI 托管 seats count, eliminated and departed seats do not —
- *          at most the room's seat bound (MAX_SEATS; the 4-player game's `aliveFull` (4) is the floor of that clamp, so a
- *          room of at most four players is unchanged); a count left out means a full team;
+ *          at most `aliveFull` (4); a count left out means a full team;
  *          `perPlayer` false: the fixed pool of 0.1.x (「保持固定血量」, restorable with `solo` 0.25): `coop` whatever the
  *          count, × min(alive, aliveFull) / aliveFull with `aliveScaling`.
  * @param {object|null|undefined} modeScale config.modes[modeId].bossHpScale
@@ -83,15 +81,8 @@ export function bossPoolShareOf(modeScale, cfgScale, isSolo, aliveCount) {
   if (isSolo) return pick('solo', 1);
   const full = Math.max(1, Math.floor(pick('aliveFull', 4)));
   const n = Number(aliveCount);
-  const given = Number.isFinite(n) && n >= 1;
-  if (flag('perPlayer', true)) {
-    // 0.2.6-capacity: a room larger than the 4-player baseline scales past `aliveFull` up to the seat bound. A room of
-    // at most four players, and a count left out (a full team), keep exactly the old value.
-    const cap = Math.max(full, MAX_SEATS);
-    return pick('coop', 1) * (given ? Math.min(cap, Math.floor(n)) : full);
-  }
-  // the restored fixed pool of 0.1.x keeps its own `aliveFull` denominator (× alive / aliveFull with aliveScaling)
-  const alive = given ? Math.min(full, Math.floor(n)) : full;
+  const alive = Number.isFinite(n) && n >= 1 ? Math.min(full, Math.floor(n)) : full;
+  if (flag('perPlayer', true)) return pick('coop', 1) * alive;
   return pick('coop', 1) * (flag('aliveScaling', false) ? alive / full : 1);
 }
 
@@ -109,12 +100,6 @@ export class GameData {
     this.config = getConfig(this.raw) || {};
     this.modeId = modeId;
     this.mode = getMode(modeId, this.raw) || {};
-    /**
-     * Seat scale of this match (0.2.6-capacity, Match.js sets it from the occupied seats): the room-wide shared
-     * resources — the shared card pool's copies and the hidden-core layer threshold — are multiplied by it. 1 for the
-     * 1–4 player game, so every rule below is the identity for a room of at most BASE_SEATS players.
-     */
-    this.seatScale = 1;
     this.economy = this.config.economy && typeof this.config.economy === 'object' ? this.config.economy : {};
     const chess = this.raw.chess && typeof this.raw.chess === 'object' ? this.raw.chess : {};
     this._chess = chess;
@@ -325,9 +310,7 @@ export class GameData {
     const base = Number.isInteger(v) && v >= 0 ? v : (DEFAULTS.poolCopies[tier] ?? 10);
     // The measured doubled pool is shared by the whole co-op team, independent of team size. DIY is private stock.
     const multiplier = this.isSolo || this.chess(baseId)?.isDiy ? 1 : posIntOr(this.economy.coopPoolMultiplier, 1);
-    // 0.2.6-capacity: a room bigger than the 4-player baseline gets proportionally more copies (12 seats → ×3, 16 → ×4);
-    // a room of at most BASE_SEATS players keeps exactly the pool it had (seatScale 1).
-    return base * multiplier * this.seatScale;
+    return base * multiplier;
   }
 
   /** Normal equipment copies in the shared pool; effect-only items have no shop stock limit. */
@@ -335,8 +318,7 @@ export class GameData {
     const base = this.baseIdOf(id), rec = this.item(base);
     if (!rec || !isShopItem(rec)) return null;
     const count = this.economy.itemPoolCopiesOverrides?.[base] ?? this.economy.itemPoolCopies?.[rec.tier];
-    // 0.2.6-capacity: the shared equipment stock scales with the room like the operator pool does (seatScale 1 at ≤4).
-    return Number.isInteger(count) && count >= 0 ? count * (this.isSolo ? 1 : this.seatScale) : null;
+    return Number.isInteger(count) && count >= 0 ? count : null;
   }
 
   /** Whether a fixed trait gift may be produced beyond stock (including the advanced version of that item). */

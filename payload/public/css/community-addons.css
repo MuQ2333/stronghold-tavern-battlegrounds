@@ -1,8 +1,0 @@
-.community-prefs{display:contents}
-.community-host--chat{position:absolute;left:.15rem;bottom:.72rem;width:min(3rem,42vw);z-index:35;pointer-events:none}
-.community-host--chat .chatbub{position:relative;left:0;bottom:0;width:100%;font-size:.13rem}
-.community-host--chat .chatbub__input{padding:.06rem .08rem}
-.community-host--chat .chatbub__send{padding:.06rem .12rem}
-.community-host--chat .chatbub__list:empty{display:none}
-.community-host--damage{width:100%;overflow:auto;max-width:100%}
-.community-host--damage .dmg-board{max-width:100%;overflow:auto}

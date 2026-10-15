@@ -173,7 +173,7 @@ import { HERO_BANDS } from '../../shared/heroCatalog.js';
 //   common.js        what the modules share (FLOW_TICKER_PRIORITY, DELAYS, BAND_TURN_SECONDS — re-exported here, OK,
 //                    fail, BOSS_CLOCK_MS)
 
-import { PHASE, modeIdFor, seatScale } from '../../shared/constants.js';
+import { PHASE, modeIdFor } from '../../shared/constants.js';
 import { Battle } from '../sim/Battle.js';
 import { DataSource } from '../sim/simdata.js';
 import { createRng, deriveSeed } from '../sim/rng.js';
@@ -247,13 +247,6 @@ export class Match {
     this.data = opts.data && typeof opts.data === 'object' ? opts.data : {};
     if (this.heroMod) this.data = { ...this.data, bands: { ...this.data.bands, ...HERO_BANDS } };
     this.gd = new GameData(this.data, this.modeId, this.spellShop);
-    // 0.2.6-capacity: the room-wide shared resources (card-pool copies, the hidden-core layer threshold) scale with the
-    // seats this match actually has. seatScale is 1 for a room of at most BASE_SEATS players, so the ≤4-player game —
-    // and the golden results — is untouched.
-    this.gd.seatScale = seatScale(opts.seats.length);
-    // 0.2.6-capacity: the hidden-core layer requirement is a room-wide total, so it needs its own ladder — the owner's
-    // choice of 2026-10-11: the 4-player 1200 stands, the 8-seat room asks for 1200 x 1.5 (1800) and 9-12 seats x 3.
-    this.gd.hiddenScale = opts.seats.length <= 4 ? 1 : opts.seats.length <= 8 ? 1.5 : 3;
     if (!this.difficulty) this.difficulty = this.gd.difficulty;
     this.isSolo = this.mode === 'solo' || this.gd.isSolo;
     /** 「AI 队友最后选择」 (opts.aiPicksLast, GitHub #338): humans draft before AI seats (MatchPhases.humansFirst) */

@@ -49,34 +49,6 @@
   padding: .3rem .6rem .24rem;
 }
 .seats--solo { grid-template-columns: 3.8rem minmax(0, 6.4rem); }
-/* A bigger room (0.2.4 capacity): 8 seats in 4×2, 12 in 6×2, each card scaled down by `.seats--compact` (the 4-seat
-   grid above is untouched). The column count is fixed per capacity, so the grid keeps the seat order (P1…P12) in rows. */
-.seats--cap8 { grid-template-columns: repeat(4, minmax(0, 3.1rem)); grid-template-rows: repeat(2, minmax(0, 3.4rem)); gap: .22rem; overflow: auto; }
-.seats--cap12 { grid-template-columns: repeat(6, minmax(0, 2.6rem)); grid-template-rows: repeat(2, minmax(0, 3.4rem)); gap: .22rem; overflow: auto; }
-.seats--compact .seat { gap: .03rem; padding: .08rem .1rem .1rem; animation-delay: calc(var(--seat-i, 0) * 25ms); }
-.seats--compact .seat__head { gap: .05rem; }
-.seats--compact .seat__no { padding-left: .05rem; border-left-width: 2px; font-size: calc(.15 * var(--t)); }
-.seats--compact .seat__head .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; overflow: hidden; text-overflow: ellipsis; }
-.seats--compact .seat__host { gap: .02rem; padding: 0 .04rem; font-size: calc(.09 * var(--t)); }
-.seats--compact .seat__host .icon { width: .11rem; height: .11rem; }
-.seats--compact .seat__art { margin: .03rem 0 0; }
-.seats--compact .seat__art .avatar { --av: 1.05rem; }
-.seats--compact .seat__stripes { height: .07rem; }
-.seats--compact .seat__radar { width: .78rem; height: .78rem; }
-.seats--compact .seat__wait { font-size: calc(.13 * var(--t)); letter-spacing: .04em; }
-.seats--compact .seat__art .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; }
-.seats--compact .seat__bot-label { gap: .02rem; padding: 0 .04rem; font-size: calc(.1 * var(--t)); }
-.seats--compact .seat__bot-label .icon { width: .11rem; height: .11rem; }
-.seats--compact .seat__who { gap: .04rem; }
-.seats--compact .seat__name { max-width: 100%; font-size: calc(.17 * var(--t)); }
-.seats--compact .seat__you { padding: 0 .04rem; font-size: calc(.1 * var(--t)); }
-.seats--compact .seat > .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; }
-.seats--compact .seat__foot { gap: .04rem; min-height: .3rem; margin-top: .03rem; padding-top: .04rem; }
-.seats--compact .seat__state { gap: .03rem; font-size: calc(.12 * var(--t)); letter-spacing: 0; }
-.seats--compact .seat__state .icon { width: .14rem; height: .14rem; }
-.seats--compact .seat__foot .btn { min-width: 0; height: .3rem; padding: 0 .08rem; font-size: calc(.12 * var(--t)); letter-spacing: .02em; }
-.seats--compact .seat__foot .btn .icon { width: .15rem; height: .15rem; }
-.seats--compact .seat__foot .tt-anchor { right: .06rem; bottom: .06rem; }
 
 .seat {
   --bk-c: var(--line-3);
@@ -332,31 +304,6 @@
 .ailast__opt .icon { opacity: .25; }
 .ailast__opt .icon.is-on { opacity: 1; }
 
-/* 同盟席位 (0.2.4 capacity): occupied / capacity for everyone, 4 / 8 / 12 for the host (room.setCapacity) */
-.cap { display: flex; align-items: center; gap: .12rem; font-size: calc(.14 * var(--t)); }
-.cap--ro { gap: .1rem; }
-.cap__label { display: flex; align-items: center; gap: .06rem; font-size: calc(.15 * var(--t)); font-weight: 700; color: var(--text-md); white-space: nowrap; }
-.cap__opts { display: flex; border: 1px solid var(--line-2); background: rgba(0, 0, 0, .3); }
-.cap__slot { display: inline-flex; }
-.cap__opt {
-  height: .34rem;
-  padding: 0 .12rem;
-  border: 0;
-  border-right: 1px solid var(--line);
-  background: transparent;
-  color: var(--text-lo);
-  font-size: calc(.14 * var(--t));
-  font-weight: 700;
-  letter-spacing: .04em;
-  transition: color var(--t-fast), background-color var(--t-fast), box-shadow var(--t-med);
-}
-.cap__slot:last-child .cap__opt { border-right: 0; }
-.cap__opt:hover:not(:disabled) { color: var(--text-hi); background: rgba(255, 255, 255, .03); }
-.cap__opt.is-active { color: var(--mint-400); box-shadow: inset 0 -2px 0 var(--mint-400); }
-.cap__opt:disabled { cursor: default; color: var(--text-dim); }
-.cap__count { font-size: calc(.16 * var(--t)); font-weight: 700; color: var(--text-hi); white-space: nowrap; }
-.cap__count .t-dim { font-size: calc(.14 * var(--t)); font-weight: 400; }
-
 .ready-count[hidden] { display: none; }
 .ready-count { display: flex; align-items: baseline; gap: .06rem; font-size: calc(.16 * var(--t)); }
 .ready-count b { font-size: calc(.36 * var(--t)); line-height: 1; color: var(--mint-400); text-shadow: 0 0 .14rem rgba(23, 249, 183, .45); }
@@ -364,12 +311,6 @@
 .ready-count__icons { display: flex; gap: .02rem; margin-left: .12rem; align-self: center; }
 .ready-count__icons .icon { width: .28rem; height: .28rem; color: var(--line-3); transition: color var(--t-med); }
 .ready-count__icons .icon.is-on { color: var(--mint-400); filter: drop-shadow(0 0 4px var(--mint-glow)); }
-
-/* 已入座 occupied / capacity (0.2.4 capacity; co-op rooms only) */
-.seat-count[hidden] { display: none; }
-.seat-count { display: flex; align-items: baseline; gap: .06rem; font-size: calc(.15 * var(--t)); }
-.seat-count b { font-size: calc(.26 * var(--t)); line-height: 1; color: var(--text-hi); }
-.seat-count .t-dim { font-size: calc(.18 * var(--t)); }
 
 .room-bar .btn--xl { min-width: 3.2rem; letter-spacing: .2em; }
 

@@ -1,4 +1,3 @@
-import {startCommunityAddons} from './ui/communityAddons.js';
 // Client entry: boot (fonts, identity, socket), net → store wiring, router, global overlays.
 //
 // Router (derived from the store, no URL routes):
@@ -411,7 +410,6 @@ async function boot() {
   }
 }
 
-startCommunityAddons();
 boot().catch((err) => {
   console.error('[app] boot failed', err);
   const el = document.getElementById('boot-err');

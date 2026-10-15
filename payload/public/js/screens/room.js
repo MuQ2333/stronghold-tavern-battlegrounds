@@ -1,13 +1,6 @@
-import {CommunityPreferences} from '../ui/communityAddons.js';
-// Room screen (同盟等待室): the room's seat cards (avatar frame, name, ready state, AI badge, host crown) — 4, 12 or 16
-// of them (0.2.4 capacity; a solo room shows a single seat),
-// host controls (difficulty picker, 同盟席位 capacity picker, add/remove AI and the 「AI 队友最后选择」 switch in co-op,
-// start), invite code with copy code / copy link, ready toggle and leave.
-//
-// 0.2.4 capacity: room.state carries `capacity` (a number) next to `seats` (an array of that length). The seat list
-// follows it (roomCapacity), the host changes it before the match with room.setCapacity — a value below the highest
-// OCCUPIED seat is refused by the server (BAD_TARGET), so those options are disabled with the reason — and everyone
-// sees 已入座 occupied / capacity. A match is sized by its occupied seats, never by the capacity.
+// Room screen (同盟等待室): 4 seat cards (avatar frame, name, ready state, AI badge, host crown),
+// host controls (difficulty picker, add/remove AI and the 「AI 队友最后选择」 switch in co-op, start), invite code with
+// copy code / copy link, ready toggle and leave.
 //
 // Start rule (server/lobby.js): room.start needs every *other* human connected and ready; the
 // host's start counts as the host's ready. So 开始模拟 is enabled exactly then and sends room.start
@@ -19,9 +12,7 @@ import {CommunityPreferences} from '../ui/communityAddons.js';
 // Texts go through t() (docs/I18N.md).
 
 import { useEffect, useRef, useState } from '../../vendor/hooks.module.js';
-import {
-  DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, MAX_SEATS, MAX_SPECTATORS, ROOM_CAPACITIES, DEFAULT_SEATS,
-} from '../../../shared/constants.js';
+import { DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, MAX_SEATS, MAX_SPECTATORS } from '../../../shared/constants.js';
 import {
   html, Button, Icon, MicroLabel, PingPill, AvatarFrame, DifficultyTag, DifficultyIcon, Tooltip, confirmDialog, doctorNo,
 } from '../ui/components.js';
@@ -40,26 +31,12 @@ import {normalizeTavernMods} from '../../../shared/tavernMods.js';
 import {BobPreference} from '../ui/bobShopkeeper.js';
 
 /**
- * The room's capacity: `room.state.capacity` (a number, 4 / 8 / 12 — 1 in a solo room), clamped to MAX_SEATS.
- * A payload without it is an older server (or a hand-made one): the seats it sent are the truth, and a room that
- * carries none at all is the 4-seat game (`DEFAULT_SEATS`), never a 16-seat one invented out of thin air.
- * @param {any} room room.state payload
- * @returns {number}
- */
-export function roomCapacity(room) {
-  const n = Number(room?.capacity);
-  if (Number.isInteger(n) && n > 0) return Math.min(n, MAX_SEATS);
-  const seats = Array.isArray(room?.seats) ? room.seats.length : 0;
-  return seats > 0 ? Math.min(seats, MAX_SEATS) : DEFAULT_SEATS;
-}
-
-/**
- * Seats padded to the room's capacity (co-op 4 / 8 / 12, solo 1), each null or a seat record.
+ * Seats padded to the room's capacity (co-op 4, solo 1), each null or a seat record.
  * @param {any} room room.state payload
  * @returns {(null | {seat:number, playerId:any, name:string, isBot:boolean, ready:boolean, connected:boolean})[]}
  */
 export function normalizeSeats(room) {
-  const cap = room?.mode === 'solo' ? 1 : roomCapacity(room);
+  const cap = room?.mode === 'solo' ? 1 : MAX_SEATS;
   const src = Array.isArray(room?.seats) ? room.seats : [];
   const out = [];
   for (let i = 0; i < cap; i++) {
@@ -67,19 +44,6 @@ export function normalizeSeats(room) {
     out.push(s && typeof s === 'object' ? { ...s, seat: Number.isInteger(s.seat) ? s.seat : i } : null);
   }
   return out;
-}
-
-/**
- * Index of the highest OCCUPIED seat (−1 when nobody is seated): the smallest capacity that still holds every doctor
- * already in the room is this + 1 (the server refuses anything below, ERR.BAD_TARGET — server/lobby.js setCapacity).
- * @param {any} room room.state payload
- * @returns {number}
- */
-export function highestOccupiedSeat(room) {
-  const seats = Array.isArray(room?.seats) ? room.seats : [];
-  let hi = -1;
-  for (let i = 0; i < seats.length; i++) if (seats[i]) hi = i;
-  return hi;
 }
 
 /**
@@ -101,7 +65,6 @@ export function roomFacts(room, myId) {
   const othersReady = others.every((s) => s.ready && s.connected !== false);
   return {
     seats, occupied, humans, mine, isHost, readyHumans, isReady,
-    capacity: seats.length,
     emptySeats: seats.filter((s) => !s).length,
     canStart: isHost && othersReady && !!mine,
     othersReady,
@@ -259,42 +222,6 @@ function AiLastToggle({ option, busy, onToggle }) {
   </div>`;
 }
 
-/**
- * 同盟席位 (0.2.4 capacity): 已入座 occupied / capacity for everyone; the host picks 4 / 8 / 12 (room.setCapacity)
- * before the match. A capacity below the highest OCCUPIED seat would leave that doctor without a seat — the server
- * refuses it (BAD_TARGET) — so those options are disabled and their tooltip says which seat blocks them.
- * Solo rooms have exactly one seat and no capacity control.
- */
-function CapacityPicker({ room, facts, busy, onPick }) {
-  if (room.mode === 'solo') return null;
-  const cap = facts.capacity;
-  const used = facts.occupied.length;
-  const count = html`<span class="cap__count num">${used}<span class="t-dim"> / ${cap}</span></span>`;
-  if (!facts.isHost) {
-    return html`<div class="cap cap--ro">
-      <span class="cap__label">${t('同盟席位')}<${MicroLabel}>CAPACITY<//></span>
-      <${Tooltip} text=${t('由创建者设置')}>${count}<//>
-    </div>`;
-  }
-  // the smallest capacity that still holds every seated doctor (the server's own guard)
-  const min = highestOccupiedSeat(room) + 1;
-  return html`<div class="cap" role="radiogroup" aria-label=${t('同盟席位')}>
-    <label class="tavern-mod"><input type="checkbox" checked=${cap>4} disabled=${!!busy||min>4} onChange=${e=>onPick(e.target.checked?8:4)} />${t('多人房间')}</label>
-    <div class="cap__opts">
-      ${ROOM_CAPACITIES.map((n) => {
-        const blocked = n < min;
-        const btn = html`<button type="button" role="radio" aria-checked=${cap === n ? 'true' : 'false'}
-          class=${`cap__opt${cap === n ? ' is-active' : ''}`} disabled=${!!busy || blocked}
-          onClick=${() => !blocked && cap !== n && onPick(n)}>${t('{n} 人', { n })}</button>`;
-        return blocked
-          ? html`<${Tooltip} key=${n} class="cap__slot" text=${t('席位不能少于已占用的最高席位（P{n}）', { n: min })}>${btn}<//>`
-          : html`<span key=${n} class="cap__slot">${btn}</span>`;
-      })}
-    </div>
-    ${count}
-  </div>`;
-}
-
 /** Room screen component. */
 export function RoomScreen() {
   const room = useStore((s) => s.room);
@@ -335,8 +262,6 @@ export function RoomScreen() {
     if (ok) run(`kick${seat}`, () => net.request('room.kick', { seat, playerId }));
   };
   const setDifficulty = (difficulty) => run('diff', () => net.request('room.setDifficulty', { difficulty }));
-  // 同盟席位 (0.2.4 capacity): host-only, before the match; the server refuses a value below the highest occupied seat
-  const setCapacity = (capacity) => run('cap', () => net.request('room.setCapacity', { capacity }));
   const setAiLast = (on) => run('ailast', () => net.request('room.setAiPicksLast', { on }));
   // spectator seats: the host frees one; a spectator takes a free player seat with room.join of this room
   const removeSpectator = (playerId) => run(`rs${playerId}`, () => net.request('room.removeSpectator', { playerId }));
@@ -399,7 +324,7 @@ export function RoomScreen() {
       </div>
     </header>
 
-    <main class=${['seats', coop ? '' : 'seats--solo', facts.capacity === 8 ? 'seats--compact seats--cap8' : facts.capacity === 12 ? 'seats--compact seats--cap12' : ''].filter(Boolean).join(' ')}>
+    <main class=${`seats${coop ? '' : ' seats--solo'}`}>
       ${facts.seats.map((s, i) => html`<${SeatCard} key=${s ? `p${s.playerId}` : `e${i}`} seat=${s} index=${i} room=${room} facts=${facts}
         myId=${me.playerId} busy=${busy} onAddBot=${addBot} onRemoveBot=${removeBot} onKick=${kick} />`)}
       ${coop ? null : html`<aside class="solo-brief brackets">
@@ -418,7 +343,7 @@ export function RoomScreen() {
     <section class="tavern-mods" aria-label=${t('卫戍协议酒馆战旗整合模组')}>
       <strong>${t('卫戍协议酒馆战旗整合模组')}</strong>
       ${[['spells',t('酒馆法术')],['heroes',t('酒馆英雄策略')]].map(([key,label])=>html`<label class="tavern-mod"><input type="checkbox" checked=${normalizeTavernMods(room.tavernMods)[key]} disabled=${!facts.isHost||!!busy||room.inMatch} onChange=${e=>run('tavern',()=>net.request('room.setTavernMods',{mods:{...normalizeTavernMods(room.tavernMods),[key]:e.target.checked}}))} />${label}</label>`)}
-      <${BobPreference} /><${CommunityPreferences} />
+      <${BobPreference} />
       <small>${t('玩法模组由房主设置，下局生效；鲍勃仅影响自己的界面和语音。')}</small>
     </section>
     <footer class="room-bar">
@@ -427,14 +352,9 @@ export function RoomScreen() {
         <div class="room-bar__opts">
           <${DifficultyPicker} room=${room} isHost=${facts.isHost} busy=${busy} onPick=${setDifficulty} />
           <${AiLastToggle} option=${aiLastOption(room, me.playerId)} busy=${busy} onToggle=${setAiLast} />
-          <${CapacityPicker} room=${room} facts=${facts} busy=${busy} onPick=${setCapacity} />
         </div>
       </div>
       <div class="room-bar__center">
-        <div class="seat-count" hidden=${!coop}>
-          <span class="t-lo">${t('已入座')}</span>
-          <b class="num">${facts.occupied.length}</b><span class="num t-dim">/${facts.capacity}</span>
-        </div>
         <div class="ready-count" hidden=${!coop}>
           <span class="t-lo">${t('已就绪')}</span>
           <b class="num">${facts.readyHumans}</b><span class="num t-dim">/${facts.humans.length}</span>

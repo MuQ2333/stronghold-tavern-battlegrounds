@@ -3,7 +3,7 @@
 ## Windows 一键导入
 
 1. 准备一份**能正常启动的原版卫戍协议 0.2.6**，关闭它的服务端窗口。不要使用已经安装独立法术、英雄策略或其他修改的副本。
-2. 从本仓库 Releases 下载 `Tavern-Battlegrounds-0.2.0-compat.1-Server.zip`，完整解压到游戏目录以外的位置。不要直接运行 ZIP 里面的脚本。
+2. 从本仓库 Releases 下载 `Tavern-Battlegrounds-0.1.0-Windows.zip`，完整解压到游戏目录以外的位置。不要直接运行 ZIP 里面的脚本。
 3. 双击 `Import.cmd`，粘贴游戏目录路径并回车。应选包含 `package.json`、`server`、`public` 的目录；如果整合发行版外面还有一层启动器，应选里面实际的游戏目录。
 4. 看到“导入完成”后，双击游戏目录新增的 `Start-TavernBundle.cmd`，保持窗口开启，打开 http://127.0.0.1:3013/ 。
 5. 房主在开局前选择是否开启法术、英雄策略；鲍勃由每位玩家自己开关，点击头像可屏蔽。三项默认开启。
@@ -29,7 +29,7 @@
 - 找不到 Node：安装 Node.js 22 或以上后重新运行。
 - 文件不一致：用一份干净的原版 0.2.6；不要用覆盖文件来解决冲突。
 - 3013 已被占用：关闭自己此前启动的 3013 游戏服务，再启动本次副本。
-- 图标或语音缺失：确认下载的是 Releases 的 Server ZIP；GitHub 的 Source code / Code → Download ZIP 只有源码，不含游戏素材。
+- 图标或语音缺失：确认下载的是 Releases 的 Windows ZIP；GitHub 的 Source code / Code → Download ZIP 只有源码，不含游戏素材。
 - 多人联机：本启动脚本默认仅本机可访问。联机服务部署沿用上游说明，主机必须安装整合模组；此脚本不会自动开放防火墙或端口。
 
 ## 开发者

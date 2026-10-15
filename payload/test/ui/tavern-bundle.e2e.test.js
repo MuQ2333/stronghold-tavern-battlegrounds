@@ -64,7 +64,7 @@ test('bundle controls, hero power, Bob preference and in-hand locks render on de
    globalThis.__tavernRequests=[];net.request=async(type,fields)=>{globalThis.__tavernRequests.push({type,...fields});if(type==='room.setTavernMods')store.patch('room',{tavernMods:fields.mods});return{t:'ok'};};
    render(html`<${RoomScreen} />`,document.querySelector('#app'));
   });
-  await page.waitForSelector('.tavern-mods input');assert.equal(await page.$$eval('.tavern-mods input',a=>a.length),5);
+  await page.waitForSelector('.tavern-mods input');assert.equal(await page.$$eval('.tavern-mods input',a=>a.length),3);
   assert.ok(await page.$$eval('.tavern-mods input',a=>a.every(n=>n.checked)));
   await page.click('.tavern-mods input');await page.waitForFunction(()=>globalThis.__tavernRequests.length===1);
   assert.deepEqual(await page.evaluate(()=>globalThis.__tavernRequests[0].mods),{spells:false,heroes:true});
