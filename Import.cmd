@@ -7,4 +7,6 @@ if errorlevel 1 (
  exit /b 1
 )
 node "%~dp0install.mjs" %*
-pause
+set "TAVERN_EXIT=%ERRORLEVEL%"
+if "%~1"=="" pause
+exit /b %TAVERN_EXIT%

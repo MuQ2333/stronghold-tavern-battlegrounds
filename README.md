@@ -12,7 +12,7 @@
 
 ## 下载与安装
 
-适配原版 **0.2.6**。从 [Releases](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.1.0) 下载模组 ZIP，解压后运行 Import.cmd，选择游戏目录。卸载使用 Uninstall.cmd。详细步骤见[安装说明](INSTALL.md)。
+适配原版 **0.2.6**。从 [Releases](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.1.1) 下载 Full.zip 并解压。Windows 运行 Import.cmd；Linux 运行 bash install.sh <游戏目录>。卸载分别使用 Uninstall.cmd 或 uninstall.sh。安装后沿用原有开服方式。详细步骤见[安装说明](INSTALL.md)。
 
 本仓库只发布酒馆战棋模组。第三方多人、聊天、伤害统计的兼容测试包及个人开服脚本不在这里发布。
 

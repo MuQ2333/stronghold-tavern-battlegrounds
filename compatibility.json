@@ -1,8 +1,8 @@
 {
   "name": "卫戍协议酒馆战旗整合模组",
   "version": "0.2.6",
-  "bundleVersion": "0.1.0",
-  "status": "playtest release",
+  "bundleVersion": "0.1.1",
+  "status": "tavern module with cross-platform installer",
   "upstream": "https://github.com/sganggs/Stronghold-Protocol",
   "commit": "488db49f11daf862b67ce26fa4cf89aa6cba2466",
   "versionBase": "0.2.6",
@@ -165,6 +165,22 @@
     "artHttp": {
       "checked": 100,
       "failed": 0
+    },
+    "installer": {
+      "restoreScenarios": 6,
+      "entrypoints": [
+        "Windows CMD",
+        "Bash (Git Bash on Windows)"
+      ],
+      "checks": [
+        "Chinese and spaced paths",
+        "exit code propagation",
+        "read-only integrity check",
+        "invalid options",
+        "noninteractive missing path",
+        "installed version mismatch"
+      ],
+      "nativeLinuxHost": false
     }
   },
   "pending": [
