@@ -1,0 +1,23 @@
+{
+  "version": "0.1.10",
+  "source": "workshop/hero-strategies",
+  "notes": "Selective 0.1.10 UI and content sync; integrated spell pool, automatic casts, locks and switch guards retained.",
+  "files": [
+    {
+      "file": "public/js/ui/heroPower.js",
+      "sha256": "bea4fa9fbb5bb474d64b88e80733e29f7b708e9b1df015852ee2a6d0bb188cf6"
+    },
+    {
+      "file": "public/js/ui/heroDiscovery.js",
+      "sha256": "42e7d95a1b73bc30173d5a7f92e47d0bca255ce798da2ee0ca97a3eb239857cd"
+    },
+    {
+      "file": "workshop/hero-strategies/bands.json",
+      "sha256": "6ea2c2b177bcef921e218c76e97c3d19fd2f33f22ecec704c171aae63f190848"
+    },
+    {
+      "file": "workshop/hero-strategies/pack.json",
+      "sha256": "ba495f95ee72edf8939a1fec5c05d7becd4785662f59792c515b969dfb4211df"
+    }
+  ]
+}

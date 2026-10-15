@@ -1,0 +1,698 @@
+{
+  "band_hs_gallywix": {
+    "bandId": "band_hs_gallywix",
+    "sortId": 100,
+    "name": "贸易亲王加里维克斯",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 10,
+    "effectId": null,
+    "effectName": "理财之道",
+    "desc": "在你出售一名干员后，下回合额外获得1资金。",
+    "descRaw": "在你出售一名干员后，下回合额外获得1资金。",
+    "buffs": [],
+    "params": {
+      "heroPower": "gallywix"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_sindragosa": {
+    "bandId": "band_hs_sindragosa",
+    "sortId": 101,
+    "name": "辛达苟萨",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 20,
+    "effectId": null,
+    "effectName": "冰冷静滞",
+    "desc": "购买干员消耗资金减1（无法和远见叠加）。调度中心中提供的干员减少一名，且每次休整期结束时都会冻结。",
+    "descRaw": "购买干员消耗资金减1（无法和远见叠加）。调度中心中提供的干员减少一名，且每次休整期结束时都会冻结。",
+    "buffs": [],
+    "params": {
+      "heroPower": "sindragosa"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_millhouse": {
+    "bandId": "band_hs_millhouse",
+    "sortId": 102,
+    "name": "米尔豪斯·法力风暴",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 24,
+    "effectId": null,
+    "effectName": "法力风暴",
+    "desc": "购买干员消耗资金减1（无法和远见叠加）。刷新的消耗改为2资金。升级调度中心所需的资金增加1。",
+    "descRaw": "购买干员消耗资金减1（无法和远见叠加）。刷新的消耗改为2资金。升级调度中心所需的资金增加1。",
+    "buffs": [],
+    "params": {
+      "heroPower": "millhouse"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_toki": {
+    "bandId": "band_hs_toki",
+    "sortId": 103,
+    "name": "永恒者托奇",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "时空酒馆",
+    "desc": "刷新调度中心，其中包含两名比当前调度中心等级高一级的干员。",
+    "descRaw": "刷新调度中心，其中包含两名比当前调度中心等级高一级的干员。",
+    "buffs": [],
+    "params": {
+      "heroPower": "toki"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_mukla": {
+    "bandId": "band_hs_mukla",
+    "sortId": 104,
+    "name": "穆克拉",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 29,
+    "effectId": null,
+    "effectName": "香蕉明猩",
+    "desc": "进入休整期时，获取2张随身身份牌，并使其他所有队友各获得1张。",
+    "descRaw": "进入休整期时，获取2张随身身份牌，并使其他所有队友各获得1张。",
+    "buffs": [],
+    "params": {
+      "heroPower": "mukla"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_elise": {
+    "bandId": "band_hs_elise",
+    "sortId": 105,
+    "name": "伊莉斯·逐星",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "探险者领队",
+    "desc": "发现一名当前调度中心等级的干员。每次使用后消耗的资金增加1。",
+    "descRaw": "发现一名当前调度中心等级的干员。每次使用后消耗的资金增加1。",
+    "buffs": [],
+    "params": {
+      "heroPower": "elise"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_tess": {
+    "bandId": "band_hs_tess",
+    "sortId": 106,
+    "name": "苔丝·格雷迈恩",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 29,
+    "effectId": null,
+    "effectName": "鲍勃的豪夺",
+    "desc": "刷新调度中心，使其中的干员变为本轮队友上一场战斗阵容中干员的原始版复制。（每回合都会更换队友！）",
+    "descRaw": "刷新调度中心，使其中的干员变为本轮队友上一场战斗阵容中干员的原始版复制。（每回合都会更换队友！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "tess"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_flurgl": {
+    "bandId": "band_hs_flurgl",
+    "sortId": 107,
+    "name": "菌菇术士弗洛格尔",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 19,
+    "effectId": null,
+    "effectName": "愿者上钩",
+    "desc": "在你出售5名干员后，随机获取一名当前层数最高的盟约所属干员。",
+    "descRaw": "在你出售5名干员后，随机获取一名当前层数最高的盟约所属干员。",
+    "buffs": [],
+    "params": {
+      "heroPower": "flurgl"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_alexstrasza": {
+    "bandId": "band_hs_alexstrasza",
+    "sortId": 108,
+    "name": "阿莱克丝塔萨",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 24,
+    "effectId": null,
+    "effectName": "红龙女王",
+    "desc": "发现一名炎盟约干员。（调度中心等级4时解锁。）",
+    "descRaw": "发现一名炎盟约干员。（调度中心等级4时解锁。）",
+    "buffs": [],
+    "params": {
+      "heroPower": "alexstrasza"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_nozdormu": {
+    "bandId": "band_hs_nozdormu",
+    "sortId": 109,
+    "name": "诺兹多姆",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 27,
+    "effectId": null,
+    "effectName": "洞察未来",
+    "desc": "进入休整期时，获得一次免费的刷新。",
+    "descRaw": "进入休整期时，获得一次免费的刷新。",
+    "buffs": [],
+    "params": {
+      "heroPower": "nozdormu"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_maiev": {
+    "bandId": "band_hs_maiev",
+    "sortId": 110,
+    "name": "玛维·影歌",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 30,
+    "effectId": null,
+    "effectName": "禁锢",
+    "desc": "选择调度中心中的一张牌锁入你的整备区，2回合后解锁。",
+    "descRaw": "选择调度中心中的一张牌锁入你的整备区，2回合后解锁。",
+    "buffs": [],
+    "params": {
+      "heroPower": "maiev"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_eudora": {
+    "bandId": "band_hs_eudora",
+    "sortId": 111,
+    "name": "尤朵拉船长",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "埋藏的宝藏",
+    "desc": "挖出一名精锐干员！（还要挖4次）",
+    "descRaw": "挖出一名精锐干员！（还要挖4次）",
+    "buffs": [],
+    "params": {
+      "heroPower": "eudora"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_omu": {
+    "bandId": "band_hs_omu",
+    "sortId": 112,
+    "name": "林地守护者欧穆",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 19,
+    "effectId": null,
+    "effectName": "永远绽放",
+    "desc": "在你升级调度中心后，获得2资金。",
+    "descRaw": "在你升级调度中心后，获得2资金。",
+    "buffs": [],
+    "params": {
+      "heroPower": "omu"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_zephrys": {
+    "bandId": "band_hs_zephrys",
+    "sortId": 113,
+    "name": "了不起的杰弗里斯",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 29,
+    "effectId": null,
+    "effectName": "三个愿望",
+    "desc": "如果你有两名相同的干员，找到第三名。（还剩3个愿望）",
+    "descRaw": "如果你有两名相同的干员，找到第三名。（还剩3个愿望）",
+    "buffs": [],
+    "params": {
+      "heroPower": "zephrys"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_guff": {
+    "bandId": "band_hs_guff",
+    "sortId": 114,
+    "name": "古夫·符文图腾",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 20,
+    "effectId": null,
+    "effectName": "自然的平衡",
+    "desc": "在你购买总计20阶的卡牌后，获取一份精锐化奖励。（还剩20阶！）",
+    "descRaw": "在你购买总计20阶的卡牌后，获取一份精锐化奖励。（还剩20阶！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "guff"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_tamsin": {
+    "bandId": "band_hs_tamsin",
+    "sortId": 115,
+    "name": "塔姆辛·罗姆",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 25,
+    "effectId": null,
+    "effectName": "香氛护命匣",
+    "desc": "战斗开始时：使你攻击力最低的干员获得“退场时：使你的其他干员获得本干员的攻击力和最大生命值。”",
+    "descRaw": "战斗开始时：使你攻击力最低的干员获得“退场时：使你的其他干员获得本干员的攻击力和最大生命值。”",
+    "buffs": [],
+    "params": {
+      "heroPower": "tamsin"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_galewing": {
+    "bandId": "band_hs_galewing",
+    "sortId": 116,
+    "name": "狂风之翼",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 22,
+    "effectId": null,
+    "effectName": "杜加尔的狮鹫",
+    "desc": "选择一条新航线，完成飞行时获得特效！\n西部荒野：1回合后，随机获取一张消耗1资金的法术牌。（还剩1回合！）\n铁炉堡：2回合后，获得2资金。（还剩2回合！）\n东瘟疫之地：3回合后，发现一名当前调度中心等级的干员。（还剩3回合！）",
+    "descRaw": "选择一条新航线，完成飞行时获得特效！\n西部荒野：1回合后，随机获取一张消耗1资金的法术牌。（还剩1回合！）\n铁炉堡：2回合后，获得2资金。（还剩2回合！）\n东瘟疫之地：3回合后，发现一名当前调度中心等级的干员。（还剩3回合！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "galewing"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_cookie": {
+    "bandId": "band_hs_cookie",
+    "sortId": 117,
+    "name": "厨师曲奇",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 24,
+    "effectId": null,
+    "effectName": "搅动汤锅",
+    "desc": "将一名干员投入你的锅中。当你集齐3名干员时，从它们的盟约类型中发现一名干员。（还剩3名！）",
+    "descRaw": "将一名干员投入你的锅中。当你集齐3名干员时，从它们的盟约类型中发现一名干员。（还剩3名！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "cookie"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_faelin": {
+    "bandId": "band_hs_faelin",
+    "sortId": 118,
+    "name": "费林大使",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "远行计划",
+    "desc": "跳过你的第一个回合。发现等阶6、4和2的干员各一名，当你达到对应调度中心等级时才可使用。",
+    "descRaw": "跳过你的第一个回合。发现等阶6、4和2的干员各一名，当你达到对应调度中心等级时才可使用。",
+    "buffs": [],
+    "params": {
+      "heroPower": "faelin"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_togwaggle": {
+    "bandId": "band_hs_togwaggle",
+    "sortId": 119,
+    "name": "劫匪之王托瓦格尔",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "完美犯罪",
+    "desc": "偷取调度中心中的所有牌。每个回合，你的下一个英雄技能消耗的资金减少1。",
+    "descRaw": "偷取调度中心中的所有牌。每个回合，你的下一个英雄技能消耗的资金减少1。",
+    "buffs": [],
+    "params": {
+      "heroPower": "togwaggle"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_sylvanas": {
+    "bandId": "band_hs_sylvanas",
+    "sortId": 120,
+    "name": "希尔瓦娜斯·风行者",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 25,
+    "effectId": null,
+    "effectName": "重拾灵魂",
+    "desc": "发现一名在上一场战斗中退场的干员的原始版复制。（第3回合解锁。）",
+    "descRaw": "发现一名在上一场战斗中退场的干员的原始版复制。（第3回合解锁。）",
+    "buffs": [],
+    "params": {
+      "heroPower": "sylvanas"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_voone": {
+    "bandId": "band_hs_voone",
+    "sortId": 121,
+    "name": "摇滚教父沃恩",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "蓄势和声",
+    "desc": "每3个回合，在休整期结束时获取你整备区最左边干员或装备的一张原始版复制。（还剩3回合！）",
+    "descRaw": "每3个回合，在休整期结束时获取你整备区最左边干员或装备的一张原始版复制。（还剩3回合！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "voone"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_hoggarr": {
+    "bandId": "band_hs_hoggarr",
+    "sortId": 122,
+    "name": "霍格船长",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 24,
+    "effectId": null,
+    "effectName": "我当船长啦",
+    "desc": "在你购买一名远见、奇迹或投资人干员后，获得1资金。",
+    "descRaw": "在你购买一名远见、奇迹或投资人干员后，获得1资金。",
+    "buffs": [],
+    "params": {
+      "heroPower": "hoggarr"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_snakeeyes": {
+    "bandId": "band_hs_snakeeyes",
+    "sortId": 123,
+    "name": "蛇眼",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 22,
+    "effectId": null,
+    "effectName": "好运当投",
+    "desc": "投一枚6面骰，获得等量的资金。（在相应数量的回合内无法再次使用！）",
+    "descRaw": "投一枚6面骰，获得等量的资金。（在相应数量的回合内无法再次使用！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "snakeeyes"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_cenarius": {
+    "bandId": "band_hs_cenarius",
+    "sortId": 124,
+    "name": "森林之王塞纳留斯",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 27,
+    "effectId": null,
+    "effectName": "古树的智慧",
+    "desc": "每轮开始时额外获得1资金。",
+    "descRaw": "每轮开始时额外获得1资金。",
+    "buffs": [],
+    "params": {
+      "heroPower": "cenarius"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_thelan": {
+    "bandId": "band_hs_thelan",
+    "sortId": 125,
+    "name": "泰瑟兰·血望者",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "神圣遗物学会研究",
+    "desc": "你每购买三张法术牌，第三张消耗的资金为0。（还剩2张！）",
+    "descRaw": "你每购买三张法术牌，第三张消耗的资金为0。（还剩2张！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "thelan"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_hollidae": {
+    "bandId": "band_hs_hollidae",
+    "sortId": 126,
+    "name": "荷利戴医生",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 26,
+    "effectId": null,
+    "effectName": "九蛙赐福",
+    "desc": "随机获取一张法术牌。",
+    "descRaw": "随机获取一张法术牌。",
+    "buffs": [],
+    "params": {
+      "heroPower": "hollidae"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_yogg": {
+    "bandId": "band_hs_yogg",
+    "sortId": 127,
+    "name": "尤格-萨隆",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 24,
+    "effectId": null,
+    "effectName": "谜之匣",
+    "desc": "在你的休整期开始时，随机施放一个法术。（第3回合解锁。）",
+    "descRaw": "在你的休整期开始时，随机施放一个法术。（第3回合解锁。）",
+    "buffs": [],
+    "params": {
+      "heroPower": "yogg"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  },
+  "band_hs_scabbs": {
+    "bandId": "band_hs_scabbs",
+    "sortId": 128,
+    "name": "斯卡布斯·刀油",
+    "iconId": "",
+    "modeTypeList": [
+      "LOCAL",
+      "SINGLE",
+      "MULTI"
+    ],
+    "totalHp": 28,
+    "effectId": null,
+    "effectName": "间谍探查",
+    "desc": "从本轮队友上一场战斗阵容中发现一名干员的原始版复制。（每回合都会更换队友！）",
+    "descRaw": "从本轮队友上一场战斗阵容中发现一名干员的原始版复制。（每回合都会更换队友！）",
+    "buffs": [],
+    "params": {
+      "heroPower": "scabbs"
+    },
+    "victorCount": 3,
+    "rewardModulus": 1,
+    "unlockDesc": null,
+    "bondIds": []
+  }
+}
