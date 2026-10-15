@@ -276,3 +276,5 @@ Bob portrait anchoring fix (2026-10-15): speech captions are absolutely position
 2026-10-15 Bob frequency tuning [ASSUMED]: no per-round total cap. Routine cues share 8 seconds; refresh has 20 seconds between played lines and 10% chance. Failed rolls may retry on subsequent actions after the 3-second attempt gap. Purchase chance 20%; see BOB.md for other categories.
 
 2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
+
+Community compatibility preview: sp-mp 1.2.1 provides 4/8/12-seat rooms with population-scaled pools; room capacity is independent of tavern spells/heroes. Independent chat-bubble and dmg-board packages use a narrowly scoped adapter; local switches unmount their panels. Chat transport validates room membership and server-owned identity, limits input and rate; it never changes gameplay. See [community compatibility](../COMMUNITY-COMPAT.md).

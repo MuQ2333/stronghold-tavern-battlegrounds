@@ -32,7 +32,7 @@ async function main(){
  if(fs.existsSync(statePath)){console.log('已安装。请先卸载旧版，再导入新版。');return;}
  const manifest=JSON.parse(fs.readFileSync(path.join(packageRoot,'install-manifest.json'),'utf8'));
  const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
- if(pkg.version!==manifest.gameVersion||!fs.existsSync(path.join(root,'server/index.js')))throw Error('需要可正常启动的原版卫戍协议 '+manifest.gameVersion+'；不支持 Forge 目录。');
+ if(pkg.version!==manifest.gameVersion||!fs.existsSync(path.join(root,'server/index.js')))throw Error('需要可正常启动的原版卫戍协议 '+manifest.gameVersion+'；请选择适配的原版目录。');
  const files=[];
  for(const f of manifest.files){
   const dest=safe(root,f.path),source=safe(packageRoot,'payload/'+f.path),current=read(dest);
@@ -55,7 +55,7 @@ async function main(){
   for(const f of files){const dest=safe(root,f.path);fs.mkdirSync(path.dirname(dest),{recursive:true});written.push(f);fs.copyFileSync(safe(packageRoot,(f.asset?'assets/':'payload/')+f.path),dest);}
   fs.writeFileSync(statePath,JSON.stringify({version:manifest.version,files},null,2));
  }catch(error){for(const f of written.reverse()){const dest=safe(root,f.path);if(f.before===null){if(fs.existsSync(dest))fs.unlinkSync(dest);}else fs.copyFileSync(safe(stateDir,'files/'+f.path),dest);}throw error;}
- console.log('导入完成。请双击游戏目录内 Start-TavernBundle.cmd，浏览器打开 http://127.0.0.1:3013/ 。');
+ console.log('导入完成。开服使用 start.sh 或启动脚本，地址以服务器实际监听端口为准。');
  if(!fs.existsSync(assetManifest))console.log('这是源码包，不含游戏素材；完整试玩请下载 Releases 中的 Windows ZIP。');
 }
 main().catch(e=>{console.error(e.message);process.exitCode=1;});

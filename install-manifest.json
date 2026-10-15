@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0-compat.1",
   "gameVersion": "0.2.6",
   "upstreamCommit": "488db49f11daf862b67ce26fa4cf89aa6cba2466",
   "files": [
@@ -11,7 +11,7 @@
     {
       "path": "Start-TavernBundle.ps1",
       "before": null,
-      "after": "e226a9ed547b3a27a993df27b3e9770e716cb905443ec1dd04a2e279a3ba1a66"
+      "after": "f692994988fd6dca8ef634e2dba9b72d4feaf7ef5bf430edc24d7748891e4f4a"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -22,6 +22,11 @@
       "path": "docs/BOB.md",
       "before": null,
       "after": "0bdeec6cf3c51120030bd9f2e3df8eacfba93ae5e2408074ea9e599e5a1aaaca"
+    },
+    {
+      "path": "docs/COMMUNITY-COMPAT.md",
+      "before": null,
+      "after": "1a951e4411af8446828f876a5ee2a18ccf301a13683c0cec141a9421aaca4c41"
     },
     {
       "path": "docs/DATA.md",
@@ -56,12 +61,12 @@
     {
       "path": "docs/design/client.md",
       "before": "aad046b99040a9f03d51645d067a95ec6fd039bf7b3a69b40be03501aa625b2f",
-      "after": "c03773962ffbfd7cb064526053a6865a4bbc3209651196a392ca33aeccbace6b"
+      "after": "c24894cdfe4f71ea7c2f56dd948ff948d6f4e1b24fe10d8fa0ad5eeda8953174"
     },
     {
       "path": "docs/design/match.md",
       "before": "1df27cd794538e531d3aebf638b012b86639557fb7959d23ae6bf7c681fb1b12",
-      "after": "9a01636b8b970f7b16f0115601b1a825ddb804f3faeef7f91bc87cd5b97be30f"
+      "after": "13a3158b4fb287588df04655bf81a1e5de81ae8f8b81c930dde5e83c47a7bea5"
     },
     {
       "path": "docs/design/network.md",
@@ -71,7 +76,7 @@
     {
       "path": "docs/history/0.2.6.md",
       "before": "71768e159dbd696a5813c73281d9fa4f80c675dcaa7f523b72a40cdf2d486449",
-      "after": "976c9a5b52a881c61888bb6303033101ec0e74789fa69b408a6e253215133cab"
+      "after": "d03cb5e0537863dde0dcc37c3364d487fcff8f4e5128e3e5874dcf7fc787d381"
     },
     {
       "path": "mods/hero-strategies/README.md",
@@ -99,9 +104,69 @@
       "after": "e9e1c881ac0286ce2f69912d93aa254ff8db38e93250cf64810df137a0113ddf"
     },
     {
+      "path": "public/community/chat-bubble/README.md",
+      "before": null,
+      "after": "6fa3b92d3a3867a0f46b4959bee7ed232db3d33d2179a3bd891d365d51c593a0"
+    },
+    {
+      "path": "public/community/chat-bubble/client/chat.css",
+      "before": null,
+      "after": "cd9db7178a44151bbf5387141e484cee3b9e5ba128e06fb551290c5af9f8fbd2"
+    },
+    {
+      "path": "public/community/chat-bubble/client/chat.js",
+      "before": null,
+      "after": "14fe6162ea9374806619b1f4da5e4260f3fb6312beeff508b1d0da8850419752"
+    },
+    {
+      "path": "public/community/chat-bubble/pack.json",
+      "before": null,
+      "after": "bcf5a94dd64925a55e30d701a2021e3d5380d5ef5d13bb00c6e16e07aade1ddb"
+    },
+    {
+      "path": "public/community/dmg-board/PROVENANCE.md",
+      "before": null,
+      "after": "23284dc184159f278f1aef42623dddc500040d9bd3ce31121dd98798883ea279"
+    },
+    {
+      "path": "public/community/dmg-board/README.md",
+      "before": null,
+      "after": "cf59d3ba40e33941407117a257190b8cf8e979f2bb1efe289d7b76050607b73f"
+    },
+    {
+      "path": "public/community/dmg-board/client/board.css",
+      "before": null,
+      "after": "a00c3d295f78d94d6751525e8dfdb94fcf325f6cfae293c44175dc43d26b4c84"
+    },
+    {
+      "path": "public/community/dmg-board/client/board.js",
+      "before": null,
+      "after": "883cd50176d943d3d13a39bea5c1f36e53a3f99c9a319648f3b0edbe12f97ec3"
+    },
+    {
+      "path": "public/community/dmg-board/pack.json",
+      "before": null,
+      "after": "ac51123d0b7142085d63a0da3d8b697143d91ffb8d1747e8c83a67e6ea6ec95a"
+    },
+    {
+      "path": "public/community/dmg-board/test/board.test.mjs",
+      "before": null,
+      "after": "49a5d89b43e1ac6ddee8ed8badfc2aa16ad311169b47bb91dd0a9a297835b274"
+    },
+    {
+      "path": "public/css/community-addons.css",
+      "before": null,
+      "after": "24823cc17b5336e28c2c472e0ff3dc71788a068b69ea7bc33c49d1ce486c7af0"
+    },
+    {
+      "path": "public/css/screens/draft.css",
+      "before": "679f014932c19c0946aaa2bf29c9ff39b6bf59fde6c9fcc8bbeba2522ee96a14",
+      "after": "7e1bd844da255a70a0b27221274520b405fdf3af725253098e1514b26f5c5260"
+    },
+    {
       "path": "public/css/screens/game-panels.css",
       "before": "341dc68869dfd72e5b431b19cbff5b1b3fd0f9671d22049d8237619db77724f0",
-      "after": "e15eeb840f71efddbb1e7a2dea59c9fd7300eb7bc4eea05210ad9529d3d68a04"
+      "after": "13f7e9be748ecce7cc6037db492cac74196d3aa0dac17153011a7405c776aabf"
     },
     {
       "path": "public/css/screens/game-shop.css",
@@ -114,9 +179,14 @@
       "after": "02bc203e41c42b67b075d4918118592d44b4265da8ccd5ef0a562e92f87cb6fd"
     },
     {
+      "path": "public/css/screens/lobby.css",
+      "before": "26a297d064796aa779e174e6903d999e6b90028cf1ce0db538772875efadf4a2",
+      "after": "341512dcdc7dfeafc8f81b157ee8d9b929e75c18a2de6a299afd6f10200093db"
+    },
+    {
       "path": "public/css/screens/room.css",
       "before": "4d828fbb40bb00c34554cb30dd4c8a0513b728c801ccad64ea8527eaff9443c3",
-      "after": "d773dcb6a6937fc9f53733be2c2cefa46e67594947b1037e3907c1969f0f8e74"
+      "after": "546b955291b6bd85fa49514147d5200eb1486c9b7ea33a1265f072b7172f16d9"
     },
     {
       "path": "public/css/screens/spell-preview.css",
@@ -126,22 +196,22 @@
     {
       "path": "public/i18n/en.json",
       "before": "d6ab71accdfcfab35e775544f5edf7311f5f9607b1c0093c5ed31ff53363dab1",
-      "after": "624868e9a5681ea56c89cb57c8c6a101a69e3af48993ce707a44b10965dd0401"
+      "after": "0c3addb6efc0bda219200d5360e7c22c497422956fb576952a4e80439e52fa33"
     },
     {
       "path": "public/i18n/ja.json",
       "before": "49eecd42dd4f31f16d2f1a68f7bbebcc7b1adab6d358b6ff677c0e3fbe9a81c6",
-      "after": "00b20baccc085bb898edf48aadfcb12dbb42657c8a780a75f43947324cfdeb37"
+      "after": "bf4926f3e98e6fb91c4e2e04bd33f982ef3578b8c69522de8be16bab5dd7ebf8"
     },
     {
       "path": "public/i18n/ko.json",
       "before": "d433e6ee3471e4e92fde909d5fece2d3f78aaa7321dd4bd1eac0fe1d38f4e7dc",
-      "after": "4a9d727e5a63ea3ebe24473a807887ee766eb1b93bc39a2b03dc0defdebcc4ed"
+      "after": "729ba5711dca5c43038fbadfec5ac01b0da49613937300068d7bd30c7f2d139d"
     },
     {
       "path": "public/i18n/zh-TW.json",
       "before": "650034f086c921d29ef8c00e220e882fabdb5fdf912b58c78a8bc5c4da056357",
-      "after": "430be72b377005b8deba85dce80702a7bb0fb783272a2cc3f823d4504524178d"
+      "after": "b8d03929ba77cfc60722b646baa7803e270e880461f0d0ed88f822abb6ffcadc"
     },
     {
       "path": "public/index.html",
@@ -166,7 +236,7 @@
     {
       "path": "public/js/main.js",
       "before": "fe9e2ed29f125cf66c7f31b17b3416384a11bd5793713bd52801a81a3e611470",
-      "after": "4dd1e1b673d5e8f9bf72119052b608dbb639153613f0ed24197dc96579e228b4"
+      "after": "6c8694b417b0510c29d1937ad2bed012400b87c17f8aa84c4fb0ef84f0e360c5"
     },
     {
       "path": "public/js/render/app.js",
@@ -191,7 +261,7 @@
     {
       "path": "public/js/screens/bandDraft.js",
       "before": "fb5a7a93d524178605de211a46a54d8e69ef12b5be8860a6913a1f6217fe4791",
-      "after": "4917ca59260a036f83ac0fd78bac7b23a76296b1b9dcc9f5cb998aac1fe94019"
+      "after": "3f18658f591650c2fc1ce298477986643596431cd990dc7d7502ee3df2cb2f6c"
     },
     {
       "path": "public/js/screens/game.js",
@@ -201,12 +271,12 @@
     {
       "path": "public/js/screens/lobby.js",
       "before": "d0c2baaee73c8cfeda00c6d1e4f436b5b367fc98f4ebecfeb56383f655eb6737",
-      "after": "fae587cb9e444f3e974fb796244eb190916a3997a8bc3e35907c205f6e347e6f"
+      "after": "7ecc55320ba60b4637bed47675f837e3aa457df97575d63c8232f2df0d6cdd23"
     },
     {
       "path": "public/js/screens/room.js",
       "before": "a0e669ce9d7fcb8d83ec40257e793353b570e0c05dc1c74d24019a2463d1ffbb",
-      "after": "9e0fe2ebb56df1c1ee8ecdbca92c94f05646735a71566b71d51e46e22f9bb373"
+      "after": "e6c224f500f0ae889fc34b186878a643d8b9677becbc5b42c3f50324d58bb4d7"
     },
     {
       "path": "public/js/screens/spellPreview.js",
@@ -227,6 +297,16 @@
       "path": "public/js/ui/bobVoiceManifest.js",
       "before": null,
       "after": "619b3f7ba4d481a72a7e85ceea45f75c79d3c0738379044736d645a479b3e3a0"
+    },
+    {
+      "path": "public/js/ui/choiceOverlay.js",
+      "before": "349349ce0b4c04bac6de6b8fd66453245f940dec191015ce1ea1970e476968bd",
+      "after": "cca95581fdff633f91ad20c33c3aabd1d747fb2db15f048ed0786795862bcfe2"
+    },
+    {
+      "path": "public/js/ui/communityAddons.js",
+      "before": null,
+      "after": "33f4e519c96c26dfc93ff79678f11958de2ce781b15cd1a78ac6fa309721b737"
     },
     {
       "path": "public/js/ui/detailPanel.js",
@@ -252,6 +332,11 @@
       "path": "public/js/ui/gameActions.js",
       "before": "d69537563c367e39e59d107e84c4a29916900356ff5611dd824c43ee0e213cc0",
       "after": "1167e157817e8748579607ff7f36a208e9b1a0802245aa865330efd58eba008a"
+    },
+    {
+      "path": "public/js/ui/gameLogic/draft.js",
+      "before": "eda468e82593d4060ea0d59bb2c7daa058874b891e645131b48ca44397f48d02",
+      "after": "f19c2e01e242dade772681653574c73e588e9b431bea4e3fa5d5220e0585e949"
     },
     {
       "path": "public/js/ui/gameLogic/placement.js",
@@ -299,14 +384,29 @@
       "after": "574065cd516533496aa0dc69e070de0ae920a26cf01d87f8e0e062fd9610a56e"
     },
     {
+      "path": "public/js/ui/stats.js",
+      "before": "d07e81d567858a853409eb65bb1028ec158091b742df445ca5b4bd087769530d",
+      "after": "f16965524a08fc5f4a27ae782b8d19d108254527742bbfb697369abce9d97086"
+    },
+    {
+      "path": "public/js/ui/teamPanel.js",
+      "before": "9c9a523fc8a830076f2d91311a728c21986a97e8ce9d41b0794b31192e8ebea0",
+      "after": "3e5c1c424083c9628b063ce492368d375a6cf863140760b3355f484871b18dbc"
+    },
+    {
+      "path": "server/communityChat.js",
+      "before": null,
+      "after": "c643d90f8266276d681781337d9a0efa20af4ed3c31e9c700636346f12a34936"
+    },
+    {
       "path": "server/lobby.js",
       "before": "ea18a04542a43df5cbfb449c9c6dbe694bc941dc98134ce9ccb3744abecf1e61",
-      "after": "f321310c9eac758d188a9fed4e495dd59addf991428f8a0d4ebd02233b52069c"
+      "after": "14067b617e5a8fac437b5d34d804481c0e249ee2baf3eb709239d2abf70f7de3"
     },
     {
       "path": "server/match/Match.js",
       "before": "1393697ac8cc313bbc91f535fa46b2d71a53b244e094e9fdec9eaceb8232520d",
-      "after": "40d76cc20842917eecdc548b09a5bc17085f7c0f5bc19152e147fc0575e7f585"
+      "after": "124e43374599961749939e013b78614ffa982842eafe9c782b87a4f17a802099"
     },
     {
       "path": "server/match/PlayerState.js",
@@ -324,9 +424,14 @@
       "after": "1cac5a98ef7bf189f76fdc42221c09a5bf5c4643c33b172694a633ab9f1be2d4"
     },
     {
+      "path": "server/match/choices.js",
+      "before": "585f4f78457b83e1e5698cb220a6748ac171d13a0898db34ef213f6b73fc7014",
+      "after": "f4b81c3fa97cb20b038222459852d690e20dc3a6024940d8607bc19249437766"
+    },
+    {
       "path": "server/match/effectsMeta.js",
       "before": "25bd0f2d79e9cc8f447050517b2769e04f8fa5883872b0457576d4b2f271845a",
-      "after": "976623d2464a773f243656f09bf9ea13610c06a8669c212150f00870c9948870"
+      "after": "16bea646dbfc5979271e11cae176ad3c6833f0363a55466c8bf3689e19a37d4f"
     },
     {
       "path": "server/match/fields.js",
@@ -334,9 +439,14 @@
       "after": "8a32a05efe4c34206f15760217355d2d4c2d692fdd743209eda34215d2e55b65"
     },
     {
+      "path": "server/match/finalAssault.js",
+      "before": "6d326cd3e790a5b31df460fd0fe3f1d9bd99b5dc370dd0ce09389ce6cf0f7e2b",
+      "after": "59724d9217cfa476f1484eaa2d5809eee965e2bdb9a1ab19bb812636869a7257"
+    },
+    {
       "path": "server/match/gamedata.js",
       "before": "3cbcd6ae38348566ef995fcac285cf60d22d0da39ae24ebc1e99c9df40996ab7",
-      "after": "46787ba7bedfe4988040dc7d5474707236c24d93711edd125a70127b71064f16"
+      "after": "cde9c6fbc60fa5bb133bff04867151577fe6dfb5c08aba18ab5e3fb762260293"
     },
     {
       "path": "server/match/heroPowers.js",
@@ -377,6 +487,11 @@
       "path": "server/match/match/settle.js",
       "before": "6d9f3e6a892cdd99a0d1fdea80cf846653673c06408ba4ded46ec669ac174f70",
       "after": "f5b949f488a7cdda03dd54cb263325602ae53dd7825d2da94d744ea39870eddc"
+    },
+    {
+      "path": "server/match/match/spDraft.js",
+      "before": "ff5fcfca60c8aacfe459e48b353dd74f73be4be7efe48c011e48d7c6b57e915b",
+      "after": "41e11d4407ee5b87e8fb29ffd66cd3bc903b714910f0fa4ab5f32d1087aa7fc6"
     },
     {
       "path": "server/match/match/views.js",
@@ -426,7 +541,7 @@
     {
       "path": "server/match/pool.js",
       "before": "5a769d876995310aaaa8eef886626a9f544268f5090ebd2a0183c7546a8d44cb",
-      "after": "76e9a9047e021e4421c2107afc67d06efe218083413d26a1417d734cbc738745"
+      "after": "9254dd6912ed411edc5a5cc65df7bfbbf4839426efa09a8e9f8eeb80b01c59cf"
     },
     {
       "path": "server/match/spellWisdom.js",
@@ -436,7 +551,7 @@
     {
       "path": "server/match/unite.js",
       "before": "719a25be8e5844f51c0226333a7fba6addfb63200dddf49ca11cc15b593833db",
-      "after": "aa660c2c661a1637071ffeb1ded55d81721913609d9540da9b84fa80df9a67c5"
+      "after": "3f4cf7cf5c27d54ce6ee2e0661507a3878778da1a2a4d242b569fc63aa2c9a9c"
     },
     {
       "path": "server/sim/battle/economy.js",
@@ -452,6 +567,11 @@
       "path": "server/sim/content/bands/heroes.js",
       "before": null,
       "after": "3493b35c3960d15c1c0cb705bb643f6e3bfa3ef27d5e439e22b37a9bea2957f4"
+    },
+    {
+      "path": "server/sim/content/choices.js",
+      "before": "fc145822b83acb8d72b3854ffdf95c37dd14905be7676ca6eb92c5940a884a2f",
+      "after": "451c90c6d078bf6fea46d2a0c49309084e85df75fee992824a6de5229604b319"
     },
     {
       "path": "server/sim/content/index.js",
@@ -472,6 +592,11 @@
       "path": "shared/bobShopkeeper.js",
       "before": null,
       "after": "2522540537d016b5489b074c9ecfd939f1140d0db524caa1dc597a7afe051e94"
+    },
+    {
+      "path": "shared/constants.js",
+      "before": "cb96fd4cf19f32ffe1d479e7f773cd52e381d04ac1288d32ea2efc901ce4259d",
+      "after": "1a6b55902685831815d6f5c58b251891834490fb4a76cb25b693a9cc44599726"
     },
     {
       "path": "shared/heroCatalog.js",
@@ -496,7 +621,7 @@
     {
       "path": "shared/protocol.js",
       "before": "da9993f56b7570321088cbe2627a0e99ef24162ae1b7722ab075890f6d2fc000",
-      "after": "0e9efe7cec4191c7f5271fe8dff3e9c8ed61145256d5b87486edab422420b08b"
+      "after": "60fbf45383160cbb600f637f8bc55fd0dd4d01b4131af56677a9b1943c9ec603"
     },
     {
       "path": "shared/spellBands.js",
@@ -506,7 +631,7 @@
     {
       "path": "shared/spellCatalog.js",
       "before": null,
-      "after": "c0ca4699cf6bd75091ba0f3708c1dcea5d3786af9c0ed71a68dff01767016aa4"
+      "after": "46998726d1349e42dc9fc498e3075a0ae77c417fbf922b450c558bff25dc3b35"
     },
     {
       "path": "shared/spells.js",
@@ -527,6 +652,16 @@
       "path": "test/bobShopkeeper.test.js",
       "before": null,
       "after": "ad011bbd395439b1a4fd98cfc3a4aa37f64841f973b3c1bb74348d689e482039"
+    },
+    {
+      "path": "test/communityCompat.test.js",
+      "before": null,
+      "after": "688bcc089148732e4143cb744907e4f10b60489dad9d20091dd85c3d9b2a6af1"
+    },
+    {
+      "path": "test/communityRealBattle.test.js",
+      "before": null,
+      "after": "927a2026a0e05702bde1f3ab80e0d8ca24075f711068af418e125c2a3cf62634"
     },
     {
       "path": "test/heroStrategies.test.js",
@@ -587,6 +722,11 @@
       "path": "test/ui/bob-voice.e2e.test.js",
       "before": null,
       "after": "e2a77339c8a4eb0012c002aab48847dcb744a3f26d2484d2218fcc652f567d9e"
+    },
+    {
+      "path": "test/ui/community-compat.e2e.test.js",
+      "before": null,
+      "after": "a7c49d2a03316c21e6e5837bede189ca2e7e4062874a48a43c7bdc59cf1e5138"
     },
     {
       "path": "test/ui/hero-power.e2e.test.js",

@@ -93,6 +93,33 @@ index 0000000..1a65aa4
 +2026-10-15 original-audio recovery: a full scan of 413 local zhCN audio bundles recovered rows 2, 6 and 44 under AudioClip IDs without the old a/b suffix. Original WAVs and transcripts match the reviewed lines; generation-plan audioId records the explicit aliases. The installer preserves script IDs and reads the actual audioId. 63 originals now play; rows 7 and 36 remain unavailable in the scanned client. Row 34 remains excluded. No synthetic or unrelated replacement audio.
 +
 +2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
+diff --git a/docs/COMMUNITY-COMPAT.md b/docs/COMMUNITY-COMPAT.md
+new file mode 100644
+index 0000000..5efc6f8
+--- /dev/null
++++ b/docs/COMMUNITY-COMPAT.md
+@@ -0,0 +1,21 @@
++# 社区模组共用测试
++
++基线：原版 0.2.6，酒馆整合模组 0.1.0。兼容测试在独立副本进行。
++
++| 模组 | 来源与固定版本 | 开关 |
++| --- | --- | --- |
++| 多人房间 | secret-c/stronghold-protocol-plugins，sp-mp 1.2.1，9ac813a5292dd30a1c48d9f9ee0d5a9240a33d31 | 房主在建房或等待室设置；关闭恢复 4 席，开启选 8/12 席 |
++| 伤害看板 | jingjiangze，dmg-board 1.0.0 | 玩家独立开关；在最终结算显示各玩家数据 |
++| 局内聊天 | 纸飞机，chat-bubble 1.0.0 | 玩家独立开关；关闭后不挂载、不显示聊天 |
++
++两份界面包来自 [模组目录](https://github.com/XiaMo233M/Stronghold-Protocol-Forge-Mods)，固定提交 c848107e02acfcc367e1ed551b798b46c5cea1e5；原包元数据、README、来源说明保留在 public/community。它们仍各自提供 mount/unmount，兼容层只提供所需的界面宿主、消息和开关，不引入原模组平台。
++
++多人部分按源插件与当前酒馆版本做三方合并。已修复相互覆盖导致英雄目录／法术库存逻辑丢失的冲突，补齐源插件遗漏的 capacity 协议。保留酒馆版本的装备合成库存处理。额外机变分页和卡池扩容沿用源多人插件；四人原生基准不变。
++
++源 sp-mp 附带的客户端面板按我方干员掉血累计数字，不是输出伤害，本兼容包不启用它。dmg-board 仅展示服务端已有结算统计，不能当作实时逐干员 DPS 面板。
++
++聊天适配为 community.chat 专用消息；同房真人才能发送，昵称由服务器填写，120 字限制，250ms 发送间隔。界面用 textContent 防止 HTML 执行，中文输入法候选确认不会误发送。关闭开关卸载监听和界面。
++
++多人开关不能在已有第 5 席以上玩家时强行关闭；须先由玩家自行离房，防止缩容踢人。开始对局后容量与玩法开关锁定。
++
++验证包括 4/8/12 人与法术、英雄开关的 12 组流程，12 个真实 WebSocket 客户端，8/12 人真实战斗模拟，界面开关和窄屏测试。测试报告与明确限制随发布包提供。真实远程服务器和安卓 APK 未以这些测试替代验收。
 diff --git a/docs/DATA.md b/docs/DATA.md
 index 40974c4..92d05ee 100644
 --- a/docs/DATA.md
@@ -412,10 +439,10 @@ index 0000000..8dc9e4e
 +
 +2026-10-15 original-audio recovery: a full scan of 413 local zhCN audio bundles recovered rows 2, 6 and 44 under AudioClip IDs without the old a/b suffix. Original WAVs and transcripts match the reviewed lines; generation-plan audioId records the explicit aliases. The installer preserves script IDs and reads the actual audioId. 63 originals now play; rows 7 and 36 remain unavailable in the scanned client. Row 34 remains excluded. No synthetic or unrelated replacement audio.
 diff --git a/docs/design/client.md b/docs/design/client.md
-index fea0872..8869258 100644
+index fea0872..3ca3d9c 100644
 --- a/docs/design/client.md
 +++ b/docs/design/client.md
-@@ -226,3 +226,53 @@ maintainer's decision of 2026-10-13). On, an operator's ammo bar carries `left/m
+@@ -226,3 +226,55 @@ maintainer's decision of 2026-10-13). On, an operator's ammo bar carries `left/m
  the exact b.snap `ammo` counts, extra rounds and refills included), centred in the bar's yellow; the rows under the bars
  move down by its height. It hides with the magazine, in the prep view and after death. The simplified board has no ammo
  bar and so no count.
@@ -469,11 +496,13 @@ index fea0872..8869258 100644
 +2026-10-15 Bob frequency tuning [ASSUMED]: no per-round total cap. Routine cues share 8 seconds; refresh has 20 seconds between played lines and 10% chance. Failed rolls may retry on subsequent actions after the 3-second attempt gap. Purchase chance 20%; see BOB.md for other categories.
 +
 +2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
++
++Community compatibility preview: sp-mp 1.2.1 provides 4/8/12-seat rooms with population-scaled pools; room capacity is independent of tavern spells/heroes. Independent chat-bubble and dmg-board packages use a narrowly scoped adapter; local switches unmount their panels. Chat transport validates room membership and server-owned identity, limits input and rate; it never changes gameplay. See [community compatibility](../COMMUNITY-COMPAT.md).
 diff --git a/docs/design/match.md b/docs/design/match.md
-index 536e224..951c9c7 100644
+index 536e224..7288f26 100644
 --- a/docs/design/match.md
 +++ b/docs/design/match.md
-@@ -157,3 +157,39 @@ may exceed capacity; `requirePool:false` bypasses equipment limits only for thes
+@@ -157,3 +157,41 @@ may exceed capacity; `requirePool:false` bypasses equipment limits only for thes
  operator shop and reward offers remain valid after exhaustion and record the deficit. Future rolls exclude empty
  stock; selling repays the deficit first. Item shop/reward claims and 整备 remain stock-limited. Rockrock and Flametail
  use the measured weighted subsets described in DATA and §30.2.
@@ -513,6 +542,8 @@ index 536e224..951c9c7 100644
 +Wisdomball maintainer review (2026-10-15): remove shield and growth outcomes (9 remain); legendary AK six-stars ignore shop level; mirror samples board positions without replacement, may borrow item/spell positions, and caps the full merchandise row at the maximum-tier shop total (7). Inventory still follows native purchase-time accounting; HS display-time reservations and depleted-stock special-copy exceptions are not claimed implemented.
 +
 +Tavern integration (maintainer request 2026-10-15): room UI selects spells/heroes, both enabled by default for newly created rooms. Match opts remain explicit to preserve stock tools and tests. Hero records inject only when heroMod=true; spell-disabled matches exclude four conditional heroes. Locked heroes use ordinary hand slots and defer their acquisition effects until unlock. Hero and spell inventory, price, discovery, hooks and battle returns share the same host. Identity Revealed still follows the approved native 33-strategy list; ported-hero membership is pending source verification.
++
++Community compatibility preview: sp-mp 1.2.1 provides 4/8/12-seat rooms with population-scaled pools; room capacity is independent of tavern spells/heroes. Independent chat-bubble and dmg-board packages use a narrowly scoped adapter; local switches unmount their panels. Chat transport validates room membership and server-owned identity, limits input and rate; it never changes gameplay. See [community compatibility](../COMMUNITY-COMPAT.md).
 diff --git a/docs/design/network.md b/docs/design/network.md
 index 98bff74..a928fef 100644
 --- a/docs/design/network.md
@@ -536,10 +567,10 @@ index 98bff74..a928fef 100644
 +
 +New C2S room.setTavernMods {mods:{spells:boolean,heroes:boolean}} is host-only before a match; unknown keys and non-booleans fail validation. A change clears non-host readiness and room.state.tavernMods carries the full normalized pair. Lobby passes Match opts.spellShop/heroMod. Optional C2S g.heroPower supports action use/pick and validated slot/uid/expectedId/index/sequence/route/source identifiers; never accepts an internal automatic-cast flag. m.public.heroMod and spellHeroesEnabled gate the draft. m.private.heroPower and piece.handLock expose power and locked-card views. b.result.perPlayer.heroDeaths is accepted only for Sylvanas, owned board UIDs and at most reported deaths; repeated deaths remain valid.
 diff --git a/docs/history/0.2.6.md b/docs/history/0.2.6.md
-index f062743..652ad23 100644
+index f062743..ef2b43a 100644
 --- a/docs/history/0.2.6.md
 +++ b/docs/history/0.2.6.md
-@@ -341,3 +341,69 @@ every vertex on a slab tile at its top or its foot; 战场#03 and #05(上半) ha
+@@ -341,3 +341,71 @@ every vertex on a slab tile at its top or its foot; 战场#03 and #05(上半) ha
  `test/render/board3d-scene.test.js` (an official scene on 战场#03 keeps the slabs in the board material and nothing else of
  the procedural board; dropping the scene restores the board; act2 m02 adds no slab mesh). Screenshots of the five
  affected stages before / after / metal board were compared by hand. Golden: unchanged (client only).
@@ -609,6 +640,8 @@ index f062743..652ad23 100644
 +2026-10-15 Bob frequency tuning [ASSUMED]: no per-round total cap. Routine cues share 8 seconds; refresh has 20 seconds between played lines and 10% chance. Failed rolls may retry on subsequent actions after the 3-second attempt gap. Purchase chance 20%; see BOB.md for other categories.
 +
 +2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
++
++Community compatibility preview: sp-mp 1.2.1 provides 4/8/12-seat rooms with population-scaled pools; room capacity is independent of tavern spells/heroes. Independent chat-bubble and dmg-board packages use a narrowly scoped adapter; local switches unmount their panels. Chat transport validates room membership and server-owned identity, limits input and rate; it never changes gameplay. See [community compatibility](../COMMUNITY-COMPAT.md).
 diff --git a/mods/hero-strategies/README.md b/mods/hero-strategies/README.md
 new file mode 100644
 index 0000000..3ee3dde
@@ -1506,8 +1539,1091 @@ index 0000000..cd86452
 +    "bondIds": []
 +  }
 +}
+diff --git a/public/community/chat-bubble/README.md b/public/community/chat-bubble/README.md
+new file mode 100644
+index 0000000..b6eccf3
+--- /dev/null
++++ b/public/community/chat-bubble/README.md
+@@ -0,0 +1,39 @@
++# 局内文字聊天（房内气泡）
++
++作者：**纸鸢干机**（不是我做的 —— 能力来自 Paper-Yuan 0.2.4 的灵感，实现在 Forge 的 mod 表面上）
++
++## 它做什么
++
++对局里左下角一个输入框，回车把一句话送到**同一个房间里、同样装了这个包**的客户端，
++收到的一方在自己屏幕上以气泡显示，4 秒后淡出。
++
++## 走的是哪条路
++
++引擎自己的**包命名空间通道** `pack.msg`：
++
++- 上行 `ctx.net.send('say', {...})`，下行 `ctx.net.on('say', fn)`；
++- 线上类型 `pack.msg` **由引擎定义**，通道名 `say` 由本包声明（线上拼成 `chat-bubble.say`）；
++- 引擎**不解释** `data` 的语义，只做三件事：校验形状、限流、把字节送到该到的地方。
++
++所以**没有发明任何协议类型**：`shared/protocol.js` 里 `pack.msg` 同时挂在 C2S 与 S2C 两张表上，
++`b.*` 那条边界一个字没动。这正是 `docs/MOD-SURFACE.md` 「刻意不是表面的东西」里要求的做法 ——
++原文：「包不能发明 S2C/C2S 类型。包自己的通道走 `pack.msg`，类型名由引擎定」。
++
++额度（引擎定，包改不了）：单条 `data` ≤ 4096 字节、每会话 5 条/秒、突发 20 条。
++
++## 重要边界（必读）
++
++**这不是引擎的房内聊天。** `room.chat` / `room.quickMsg` 是**产品功能**
++（`docs/META.md` §1.6–§1.8），由引擎自己实现、**不对包开放**。本包是包自己的通道，因此：
++
++1. **只有装了本包的人互相看得见** —— 没装的人看到的对局与今天逐字相同；
++2. **跨包不互通** —— 另一个聊天包收不到本包的消息；
++3. **名字没有身份校验** —— 显示的名字取自消息里对方自称的 `name` 字段。引擎不校验 `data`，
++   本包也没有校验的余地（面板拿不到会话注册表）。真要防冒名，需要引擎给一格
++   「消息附会话身份」的表面（按「加一格表面」六步走），那是引擎改动。
++
++## 安全
++
++- 一律 `textContent` 写文本，**绝不**拼 `innerHTML` —— 别人发来的字符串永远只是文本；
++- 发送侧按码点截断到 120 字，与引擎「截断而非拒绝」同一口径；
++- 客户端自限 250ms/条（引擎限 5 条/秒，这里留余量），不试图绕过限流。
+diff --git a/public/community/chat-bubble/client/chat.css b/public/community/chat-bubble/client/chat.css
+new file mode 100644
+index 0000000..36bf22a
+--- /dev/null
++++ b/public/community/chat-bubble/client/chat.css
+@@ -0,0 +1,81 @@
++/* chat-bubble — 局内文字聊天气泡。作用域全部收在 .chatbub 下，不碰引擎任何既有的类。 */
++
++.chatbub {
++  position: absolute;
++  left: 12px;
++  bottom: 12px;
++  width: min(46vw, 320px);
++  pointer-events: auto;
++  font-size: 13px;
++  line-height: 1.45;
++  z-index: 40;
++}
++
++.chatbub__list {
++  display: flex;
++  flex-direction: column;
++  gap: 4px;
++  margin-bottom: 6px;
++}
++
++.chatbub__item {
++  max-width: 100%;
++  padding: 5px 9px;
++  border-radius: 10px;
++  /* 老 WebView（Chromium 84/86）不认 color-mix()，先给一条 rgba 兜底再写现代值。 */
++  background: rgba(12, 14, 20, 0.78);
++  color: #e8ecf4;
++  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
++  word-break: break-word;
++  animation: chatbub-in 0.16s ease-out;
++}
++
++.chatbub__who {
++  margin-right: 6px;
++  font-weight: 600;
++  color: #8fd0ff;
++}
++
++.chatbub__text { white-space: pre-wrap; }
++
++.chatbub__form {
++  display: flex;
++  gap: 6px;
++}
++
++.chatbub__input {
++  flex: 1 1 auto;
++  min-width: 0;
++  padding: 6px 8px;
++  border: 1px solid rgba(255, 255, 255, 0.22);
++  border-radius: 8px;
++  background: rgba(12, 14, 20, 0.82);
++  color: #e8ecf4;
++  font: inherit;
++}
++
++.chatbub__input:focus {
++  outline: none;
++  border-color: #8fd0ff;
++}
++
++.chatbub__send {
++  flex: 0 0 auto;
++  padding: 6px 12px;
++  border: 1px solid rgba(143, 208, 255, 0.5);
++  border-radius: 8px;
++  background: rgba(143, 208, 255, 0.16);
++  color: #e8ecf4;
++  font: inherit;
++  cursor: pointer;
++}
++
++@keyframes chatbub-in {
++  from { opacity: 0; transform: translateY(4px); }
++  to { opacity: 1; transform: none; }
++}
++
++/* 尊重系统的减少动效设置。 */
++@media (prefers-reduced-motion: reduce) {
++  .chatbub__item { animation: none; }
++}
+diff --git a/public/community/chat-bubble/client/chat.js b/public/community/chat-bubble/client/chat.js
+new file mode 100644
+index 0000000..37a3c06
+--- /dev/null
++++ b/public/community/chat-bubble/client/chat.js
+@@ -0,0 +1,147 @@
++// chat-bubble/client/chat.js — 局内文字聊天（`screen.game.overlay` 面板）。
++//
++// 做什么：对局里左下角一个输入框，回车把一句话送到**同一个房间里、同样装了这个包**的客户端，
++// 收到的一方在自己屏幕上以气泡显示，4 秒后淡出。
++//
++// 走哪条路：引擎自己的包命名空间通道 —— `ctx.net.send('say', {...})` 上行、`ctx.net.on('say', fn)`
++// 下行，线上类型是引擎定的 `pack.msg`，通道名是本包声明的 `say`（线上拼成 `chat-bubble.say`）。
++//
++// **为什么这不是「发明了一个协议类型」**：`docs/MOD-SURFACE.md` 的「刻意不是表面的东西」写得很死 ——
++// 「包不能发明 S2C/C2S 类型。包自己的通道走 `pack.msg`，类型名由引擎定」。`shared/protocol.js` 里
++// `pack.msg` 同时挂在 C2S 与 S2C 两张表上：上行由引擎校验形状、下行由引擎转发给同房同包同通道的客户端。
++// 引擎**不解释** `data` 的语义（那是包自己的），只做三件事：限流、把字节送到该到的地方、不让没装包的
++// 客户端收到。所以 `b.*` 那条边界一个字没动，也没新增任何线上类型。
++//
++// **它不是引擎的房内聊天**：`room.chat` / `room.quickMsg` 是**产品功能**（docs/META.md §1.6–§1.8），
++// 由引擎自己实现、不对包开放。这是包自己的通道 —— 只有装了本包的人互相看得见，跨包不互通。
++// 这一点必须写在备注里，否则用户会以为「装了就能跟所有人说话」。
++//
++// 限额（引擎定，包改不了）：单条 `data` 序列化后 ≤ 4096 字节、每会话 5 条/秒、突发 20 条。
++// 超了引擎回 `ERR.RATE`；本包只做客户端侧的**保守自限**（见 SEND_INTERVAL_MS），不试图绕过。
++//
++// 安全与边界：
++//   * 一律走 `textContent` 写文本，**绝不**拼 innerHTML —— 别人发来的字符串永远只是文本；
++//   * 名字只从 `ctx.me` 的只读会话快照里取（引擎给的，不是对面报的），所以**冒名顶替在本包里做不到**；
++//   * 文本在发送侧就截断（`TEXT_MAX` 按码点计，与引擎那条「截断而非拒绝」同一口径）；
++//   * 面板拿不到 store / match / runner / audio（§28.8），所以它改不了对局，也发不出 `g.*`。
++
++/** 一条消息最多几个字符（按码点计：一个 emoji 算 1 个）。超了截断，不拒。 */
++export const TEXT_MAX = 120;
++/** 气泡停留多久（ms）。 */
++export const BUBBLE_MS = 4000;
++/** 最多同时显示几条气泡（老的先走）。 */
++export const BUBBLE_MAX = 4;
++/** 客户端自限：两条之间至少隔这么久（ms）。引擎限的是 5 条/秒，这里取 250ms = 4 条/秒，留余量。 */
++export const SEND_INTERVAL_MS = 250;
++
++/** 按码点截断（`Array.from` 按码点切，不会把代理对切成两半）。 */
++export function clampText(s) {
++  const chars = Array.from(String(s == null ? '' : s));
++  return chars.length <= TEXT_MAX ? chars.join('') : chars.slice(0, TEXT_MAX).join('');
++}
++
++/** 去掉控制字符与换行（气泡是一行；换行与 \u0000 这类进 DOM 没意义）。 */
++export function sanitizeText(s) {
++  // eslint-disable-next-line no-control-regex
++  return clampText(String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim());
++}
++
++/** 发送节流：距离上次发送不足间隔则返回 false。抽成纯函数只为可测。 */
++export function canSend(now, lastSentAt, interval = SEND_INTERVAL_MS) {
++  if (!Number.isFinite(lastSentAt)) return true;
++  return now - lastSentAt >= interval;
++}
++
++export function mount(ctx) {
++  const host = ctx.host;
++  const t = ctx.t || (s=>s);
++  const log = ctx.log || console;
++
++  // 没有收发能力（老引擎 / 没声明通道）→ 明说一句，不静默装死。
++  if (!ctx.net || typeof ctx.net.send !== 'function' || typeof ctx.net.on !== 'function') {
++    log.warn && log.warn('chat-bubble: 这版引擎没有包通道（ctx.net.send/on），聊天不会生效');
++    return { unmount() {} };
++  }
++
++  const box = document.createElement('div');
++  box.className = 'chatbub';
++
++  const list = document.createElement('div');
++  list.className = 'chatbub__list';
++  box.appendChild(list);
++
++  const form = document.createElement('form');
++  form.className = 'chatbub__form';
++  const input = document.createElement('input');
++  input.className = 'chatbub__input';
++  input.type = 'text';
++  input.maxLength = TEXT_MAX;
++  input.placeholder = t('说点什么…（回车发送）');
++  input.autocomplete = 'off';
++  const send = document.createElement('button');
++  send.className = 'chatbub__send';
++  send.type = 'submit';
++  send.textContent = t('发送');
++  form.appendChild(input);
++  form.appendChild(send);
++  box.appendChild(form);
++
++  host.appendChild(box);
++
++  /** 一条气泡：4 秒后自己移除。 */
++  function bubble(name, text) {
++    const el = document.createElement('div');
++    el.className = 'chatbub__item';
++    const who = document.createElement('b');
++    who.className = 'chatbub__who';
++    // textContent：对面发来的字符串永远只是文本，不解释成标记。
++    who.textContent = name;
++    const body = document.createElement('span');
++    body.className = 'chatbub__text';
++    body.textContent = text;
++    el.appendChild(who);
++    el.appendChild(body);
++    list.appendChild(el);
++    while (list.childElementCount > BUBBLE_MAX) list.removeChild(list.firstChild);
++    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, BUBBLE_MS);
++  }
++
++  let lastSentAt = NaN;
++  const off = ctx.net.on('say', (msg) => {
++    const d = msg && msg.data;
++    if (!d || typeof d !== 'object') return;
++    const text = sanitizeText(d.text);
++    if (!text) return;
++    // 名字取收到的 `name`（对面自称），但**只作显示**：本包没有任何身份校验的余地，
++    // 引擎也不校验 `data`；真要防冒名，得由引擎给一格「消息附会话身份」的表面（见 README 的备注）。
++    bubble(String(d.name || '?').slice(0, 24), text);
++  });
++
++  let composing=false;
++  input.addEventListener('compositionstart',()=>{composing=true;});
++  input.addEventListener('compositionend',()=>{composing=false;});
++  input.addEventListener('keydown',e=>{e.stopPropagation();if(e.isComposing||composing){if(e.key==='Enter')e.preventDefault();}});
++  async function submit(ev) {
++    if (ev) ev.preventDefault();
++    if(composing)return;
++    const text = sanitizeText(input.value);
++    if (!text) return;
++    const now = Date.now();
++    if (!canSend(now, lastSentAt)) return;
++    lastSentAt = now;
++    const me = ctx.me || {};
++    const name = me.name || '?';
++    try{await ctx.net.send('say', { text, name });if(input.value===text)input.value='';}
++    catch{bubble('',t('聊天发送失败，请重试'));}
++  }
++
++  form.addEventListener('submit', submit);
++
++  return {
++    unmount() {
++      try { if (typeof off === 'function') off(); } catch (_) { /* 退订失败不该挡卸载 */ }
++      form.removeEventListener('submit', submit);
++      if (box.parentNode) box.parentNode.removeChild(box);
++    },
++  };
++}
+diff --git a/public/community/chat-bubble/pack.json b/public/community/chat-bubble/pack.json
+new file mode 100644
+index 0000000..f3a0457
+--- /dev/null
++++ b/public/community/chat-bubble/pack.json
+@@ -0,0 +1,21 @@
++{
++  "id": "chat-bubble",
++  "name": "局内文字聊天（房内气泡）",
++  "version": "1.0.0",
++  "author": "纸鸢干机",
++  "description": "对局内的文字聊天：屏幕左下角一个输入框，回车把一句话送到同一个房间里、同样装了这个包的客户端，在各自屏幕上以气泡显示 4 秒后淡出。用的是引擎自己的包命名空间通道 pack.msg（类型名由引擎定、通道名由包定），所以没有发明任何协议类型，b.* 那条边界一个字没动。引擎不解释载荷，只做转发与限流（每会话 5 条/秒、突发 20 条、单条 4 KB）。只有装了本包的客户端收得到 —— 没装的人看到的对局与今天逐字相同。备注：这是包自己的通道，不是引擎的房内聊天（room.chat 是产品功能，不对包开放），因此跨包不互通。",
++  "license": "GPL-3.0-or-later",
++  "api": ">=1 <2",
++  "client": {
++    "panels": [
++      {
++        "id": "chat",
++        "slot": "screen.game.overlay",
++        "module": "client/chat.js",
++        "styles": ["client/chat.css"],
++        "messages": ["say"],
++        "order": 60
++      }
++    ]
++  }
++}
+diff --git a/public/community/dmg-board/PROVENANCE.md b/public/community/dmg-board/PROVENANCE.md
+new file mode 100644
+index 0000000..c4dd1c0
+--- /dev/null
++++ b/public/community/dmg-board/PROVENANCE.md
+@@ -0,0 +1,74 @@
++# 署名与来源 · PROVENANCE
++
++> 原作者与兼容改写者**分开列出，不抹掉任何一方**。原件未署名的一律写**「原件未署名」**，不代填；
++> 许可照实抄自包内 `pack.json` 的 `license` 字段，未改动。
++
++## 包
++
++| 项 | 值 |
++|---|---|
++| 包 id | `dmg-board` |
++| 版本 | `1.0.0` |
++| 名称 | 伤害看板（结算页） |
++| 目录名 = 包 id | 是 |
++| 顶层目录 | `dmg-board/` |
++
++## 原作者
++
++`jingjiangze` —— 见包内 `pack.json` 的 `author` 字段，以及包内 `README.md` 的源码链接
++（`https://github.com/jingjiangze/Stronghold-Protocol-Forge`，分支 `feat/stardust-mods`）。
++
++## 许可
++
++`GPL-3.0-or-later`（包内 `pack.json.license` 原文）。包内 `README.md` 末尾另写「本包不含任何游戏素材」。
++
++## 兼容改写者
++
++`Mo233`
++
++## 来源
++
++站点投稿 **`760d36fca90d`**，原件 zip 大小 **13914 字节**，
++sha256 `d5e0896e694db54fc2b6fd56d390c32ff9a128ba9cc67ed72130979e30c0ac17`
++（源文件只读，未改动一个字节）。
++
++## 改了什么
++
++**原件一个字节都没改。** 本次只补了本文件（`PROVENANCE.md`）。逐文件 sha256 见下表，改动前 = 改动后。
++
++之所以**不需要**兼容改写，是这条包用的**本来就是我们的通道**，两处关键点都在引擎这一版里核对过：
++
++1. **挂载点是合法槽位**：`pack.json.client.panels[0].slot = "screen.result.footer"` ——
++   `public/js/ui/extensions.js:74`（`MOD_PANEL_SLOTS`）与 `:100`（`MOD_PANEL_CREATED`）都列了它，
++   容器由注册点按需创建。
++2. **读的是引擎自己的结算**：`client/board.js:175` 用 `ctx.net.on('m.result', …)` 订阅。
++   `m.result` 是 `shared/protocol.js:758` 的 S2C 白名单成员，而面板订阅**引擎类型**是原本就允许的
++   （`public/js/ui/extensions.js:641-656`：引擎类型照旧原样透传；只有包自己的通道名才需要
++   `client.panels[].messages` 声明）。所以这一条**不是「绕过接口」，正是「走接口」** ——
++   数由服务端算好（`server/match/results.js`），面板只读不重算、不猜测、不碰对局。
++3. **可见性判据**：`client/board.js:83-89` 的 `visibleOn` 读页面自己的 `.screen.result` / `.st`，
++   不新造状态层。
++
++## 自带素材来源
++
++**没有任何素材。** 包内 5 个文件：`pack.json`、`README.md`、`client/board.js`、`client/board.css`、
++`test/board.test.mjs` —— 全是代码与文档，无图片 / 音频 / 字体 / 解包数据。
++
++## 校验用哈希（改动前 / 改动后）
++
++| 文件 | 改动前 sha256（= 原件） | 改动后 sha256 |
++|---|---|---|
++| `pack.json` | `ac51123d0b7142085d63a0da3d8b697143d91ffb8d1747e8c83a67e6ea6ec95a` | 同左（未改） |
++| `README.md` | `cf59d3ba40e33941407117a257190b8cf8e979f2bb1efe289d7b76050607b73f` | 同左（未改） |
++| `client/board.js` | `883cd50176d943d3d13a39bea5c1f36e53a3f99c9a319648f3b0edbe12f97ec3` | 同左（未改） |
++| `client/board.css` | `a00c3d295f78d94d6751525e8dfdb94fcf325f6cfae293c44175dc43d26b4c84` | 同左（未改） |
++| `test/board.test.mjs` | `49a5d89b43e1ac6ddee8ed8badfc2aa16ad311169b47bb91dd0a9a297835b274` | 同左（未改） |
++
++`PROVENANCE.md` 是本次新增 =
++`ff40cceb86e17c67411808e444ae016a37936f8db6fe31a935eebfb880b703f2`（3321 B），不参与上表。
++包自带 9 条测试本次本地实跑：`tests 9 / pass 9 / fail 0`。
++
++本成品：`760d36fca90d-dmg-board.zip`（6 个条目，顶层目录 `dmg-board/`，一包一 zip）。**字节数与 sha256 记在交付索引**
++`../CHECKSUMS.txt`（与其余统一交付物同一份清单）。这里刻意不写它：包内文本一变，包含它的那个 zip 的摘要
++就跟着变，写进包里必然自相矛盾。
++sha256 `5a010547b972f60bdecd8c45593a5adf5dbfdf41515ba3be2a3277eba2179f08`（6 个条目，顶层目录 `dmg-board/`）。
+diff --git a/public/community/dmg-board/README.md b/public/community/dmg-board/README.md
+new file mode 100644
+index 0000000..dc40c84
+--- /dev/null
++++ b/public/community/dmg-board/README.md
+@@ -0,0 +1,56 @@
++# dmg-board · 伤害看板（结算页）
++
++一局打完，结算屏给每人一张卡（七项统计）；**这张看板把同一份数按「造成伤害」排成一张表**，一眼看出谁打了多少 ——
++外加卡上放不下的那几项（未击倒 / 损失生命 / 刷新次数 / 完美作战）。
++
++**数据只有一个来源：引擎自己的对局结算 `m.result`**（`shared/protocol.js` 的 S2C 类型，`server/match/results.js`
++组装）。看板**不重算、不猜测、不碰对局**：引擎说什么就画什么，没有数据时整块不渲染（一个空表会被读成「引擎没算伤害」）。
++
++## 下载
++
++- 工坊 mod 站（投稿 / 已上线列表）：`http://47.103.14.217:25570/`（列表在 [`/mods`](http://47.103.14.217:25570/mods)）
++- 源码：`https://github.com/jingjiangze/Stronghold-Protocol-Forge`（分支 `feat/stardust-mods`）
++
++## 它显示什么
++
++挂载点 `screen.result.footer`（结算屏底部横条）。表按**造成伤害**降序；第一行标金色名次、绿色名字；
++「造成伤害」那一列带一条按最大值归一的比例条；`未击倒` / `损失生命` 大于 0 的行标琥珀色。
++
++列（**只画这一局真的带了的键**，缺键不画）：造成伤害 · 领袖伤害 · 击倒敌人 · 未击倒 · 损失生命 · 晋升次数 ·
++配发装备 · 盟约层数 · 刷新次数 · 完美作战 · 消耗资金。数字按万位短写（`5.2万`）。
++
++## 什么时候显示（这条要看清楚）
++
++`screen.result.footer` 是**固定浮层**（管理器 `docs/WORKSHOP.md` §1.9.3：挂一次就一直在，与当前在哪个界面无关），
++所以「什么时候画」由面板自己判：
++
++- **页面上有一个活的结算屏**（`.screen.result`）才画；返回大厅 / 标题屏 → 立刻整块不渲染；
++- **统计页浮层（`.st`）开着时一律不画** —— 统计页里能翻出对局记录的重看，那也是 `.screen.result`，
++  但那不是本局的数，而面板拿不到那条记录（管理器给面板的注入面里没有 stats 记录）。宁可什么都不显示，
++  也不显示上一局的数；
++- 数据留一份在面板里：结算屏重进 / 切回来还在（同一局不重发 `m.result`）。
++
++## 安装
++
++```bash
++node tools/workshop-pack.mjs import "伤害看板（结算页）.zip"    # 或把 dmg-board/ 目录复制进 workshop/
++# 重启游戏服务器（包的装载是进程级的）
++```
++
++## 边界（先知道再装）
++
++- **是结算页的看板，不是实时伤害表。** 实时那半在引擎里是**客户端→服务端**的上报（`b.progress` 是 C2S，
++  由场上的权威客户端报告），面板订阅不到；服务端广播里也没有逐人实时伤害。所以本包只做结算那一张表。
++- **统计页里不显示**（原因见上）。
++- **不改任何东西**：注入面只有 `host` 与 `net.on('m.result')`（只读订阅），没有 store / 对局对象，
++  面板连一次 `send` 都没有。
++- 与引擎自带的结算卡**并存**：卡片仍然七项一行行摆着，这里只是多一张排好序的总表。
++
++## 开发/验收
++
++```bash
++node --test dmg-board/test/board.test.mjs         # 9 条：排序/列筛选/缺值/可见性/挂载-撤下（迷你 DOM）
++node tools/workshop-validate.mjs --workshop <装好的根>   # 作者侧校验器
++```
++
++许可证：代码 GPL-3.0-or-later；本包不含任何游戏素材。
+diff --git a/public/community/dmg-board/client/board.css b/public/community/dmg-board/client/board.css
+new file mode 100644
+index 0000000..01a731f
+--- /dev/null
++++ b/public/community/dmg-board/client/board.css
+@@ -0,0 +1,94 @@
++/* dmg-board/client/board.css — 结算页伤害看板。宿主是 `screen.result.footer` 固定浮层（引擎只给地址、不给样子：
++   `.mod-slot` 是 `position:fixed` 的贴底横条、`.mod-panel` 默认 `pointer-events:auto`），所以样子全在这里。
++
++   两条纪律：
++   * **只读的东西不吃点击**：本看板没有任何交互，整块 `pointer-events:none` —— 绝不能挡住结算屏自己的按钮。
++   * 数字一列一列对齐（`tabular-nums` + 右对齐），尺寸照引擎的 `max(.xxrem, Npx)` 约定（手机 root 缩放被夹在
++     40px，裸 rem 会小到看不清）。颜色只用引擎主题变量（theme.css），`theme-night` 那类主题包换色时这里跟着换。
++   * **`color-mix()` 是 Chrome 111+ 才有**，而客户端 WebView 下限比它老（引擎自己的兼容线）——每一处
++     `color-mix` 前面都写一行 rgba 兜底，老 WebView 用兜底色、新材料才用 exact 混色。 */
++
++.dmg-board {
++  max-width: min(96vw, 860px);
++  margin: 0 auto max(8px, env(safe-area-inset-bottom, 0px)) auto;
++  padding: max(.06rem, 6px) max(.1rem, 10px) max(.05rem, 5px);
++  background: rgba(20, 24, 22, .9); /* 兜底（老 WebView） */
++  background: color-mix(in srgb, var(--bg-1, #141816) 88%, transparent);
++  border: 1px solid var(--line-2, #3e4b45);
++  border-radius: max(.06rem, 6px);
++  box-shadow: 0 -2px 14px rgba(0, 0, 0, .35);
++  color: var(--text-md, #c3cbc7);
++  font-size: max(.14rem, 11px);
++  pointer-events: none; /* 只读：不吃点击 */
++  animation: dmg-board-in var(--t-fast, 150ms) var(--ease-out, ease) backwards;
++}
++@keyframes dmg-board-in { from { opacity: 0; transform: translateY(4px); } }
++
++.dmg-board__head {
++  display: flex;
++  align-items: baseline;
++  gap: max(.06rem, 8px);
++  padding-bottom: max(.03rem, 3px);
++}
++.dmg-board__head b { color: var(--text-hi, #f2f2f2); font-size: max(.15rem, 12px); letter-spacing: .04em; }
++.dmg-board__head small { color: var(--text-dim, #5d6863); }
++
++.dmg-board table {
++  width: 100%;
++  border-collapse: collapse;
++  table-layout: auto;
++}
++.dmg-board th, .dmg-board td {
++  padding: max(.02rem, 2px) max(.05rem, 6px);
++  text-align: right;
++  white-space: nowrap;
++}
++.dmg-board th {
++  color: var(--text-dim, #5d6863);
++  font-weight: 500;
++  font-size: max(.12rem, 10px);
++  border-bottom: 1px solid var(--line, #2f3a35);
++}
++.dmg-board td { border-top: 1px solid rgba(47, 58, 53, .55); }
++.dmg-board td { border-top: 1px solid color-mix(in srgb, var(--line, #2f3a35) 55%, transparent); }
++.dmg-board tbody tr:first-child td { border-top: none; }
++
++.dmg-board__rank { width: 1.6em; color: var(--text-dim, #5d6863); }
++.dmg-board__name {
++  text-align: left;
++  color: var(--text-hi, #f2f2f2);
++  max-width: 12em;
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++.dmg-board__seat, .dmg-board__tag {
++  margin-left: max(.04rem, 4px);
++  color: var(--text-dim, #5d6863);
++  font-size: max(.11rem, 9px);
++}
++
++/* 第一名与伤害那一列：看板的第一眼 */
++.dmg-board tr.is-top .dmg-board__rank { color: var(--gold, #ffc600); font-weight: 700; }
++.dmg-board tr.is-top .dmg-board__name { color: var(--mint-400, #59f4ca); }
++.dmg-board__dmg {
++  position: relative;
++  color: var(--text-hi, #f2f2f2);
++  font-variant-numeric: tabular-nums;
++}
++.dmg-board__bar {
++  position: absolute;
++  left: 0; bottom: 1px;
++  width: var(--w, 0%);
++  height: 2px;
++  border-radius: 1px;
++  background: rgba(89, 244, 202, .55); /* 兜底（老 WebView） */
++  background: linear-gradient(90deg, var(--mint-400, #59f4ca), color-mix(in srgb, var(--mint-400, #59f4ca) 35%, transparent));
++}
++
++.dmg-board__bad { color: var(--amber, #f6a329); }
++.dmg-board__hint {
++  margin: max(.02rem, 2px) 0 0;
++  color: var(--text-dim, #5d6863);
++  font-size: max(.11rem, 9px);
++  text-align: right;
++}
+diff --git a/public/community/dmg-board/client/board.js b/public/community/dmg-board/client/board.js
+new file mode 100644
+index 0000000..a60dd61
+--- /dev/null
++++ b/public/community/dmg-board/client/board.js
+@@ -0,0 +1,206 @@
++// dmg-board/client/board.js — 结算页伤害看板（`screen.result.footer` 面板，纯只读）。
++//
++// 数据来源只有一处：**引擎自己的对局结算** `m.result`（`shared/protocol.js` S2C 表里那一条），它的 `players[]`
++// 每人带 `stats { dmgDealt, kills, leaks, bossDamage, lpLost, gold, merges, itemsEquipped, activatedLayers,
++// refreshes, perfectRounds }`（`server/match/results.js` 组装、伤害已经由服务端取整）。所以这一块**不重算、
++// 不猜测、不碰对局**：引擎说什么就画什么。面板的注入面（DESIGN §28.8）没有 store / match，但 `ctx.net.on('<S2C
++// 类型>')` 是给面板的合法订阅读口 —— 这里只用 `m.result` 一个类型。
++//
++// 为什么需要「什么时候显示」这一条：`screen.result.footer` 是**固定浮层**（WORKSHOP §1.9.3：挂一次就一直在，
++// 与当前在哪个界面无关）。所以面板自己得知道什么时候该画 —— 判据是**页面上现在有没有一个活的结算界面**
++// （`.screen.result`，引擎 `screens/result.js` 的根类）。这是读页面本身的 DOM，不是新造一层状态：面板本来就活在
++// 这个页面里，而「挂一次就一直在、却永远画着上一局的表」才是那个要避免的东西。
++// 统计页（`screens/stats.js` 的 `.st` 浮层）里也能翻出 `ResultView`（对局记录的重看）—— 那**不是**本局的结算，
++// 而且面板拿不到那条记录，所以 `.st` 开着时一律不画：宁可什么都不显示，也不显示上一局的数。
++
++/** 展示的列（顺序即渲染顺序）：[键, 表头] —— 只在结算数据里真的存在这个键时才画这一列。 */
++export const COLUMNS = Object.freeze([
++  ['dmgDealt', '造成伤害'],
++  ['bossDamage', '领袖伤害'],
++  ['kills', '击倒敌人'],
++  ['leaks', '未击倒'],
++  ['lpLost', '损失生命'],
++  ['merges', '晋升次数'],
++  ['itemsEquipped', '配发装备'],
++  ['activatedLayers', '盟约层数'],
++  ['refreshes', '刷新次数'],
++  ['perfectRounds', '完美作战'],
++  ['gold', '消耗资金'],
++]);
++
++/** 一个统计值：存在且是有限数字才回数字，否则 `null`（缺值不当 0 画 —— `Number(null)` 就是 0，不能直接用）。 */
++const numOf = (v) => (v === null || v === undefined || !Number.isFinite(Number(v)) ? null : Number(v));
++
++/** 数字的短写法（结算页是给人扫一眼的表，不是账本）：12,345 → 1.2万；保留一位小数、去尾零。 */
++export function fmt(n) {
++  const v = numOf(n);
++  if (v === null) return '—';
++  if (Math.abs(v) < 10000) return String(Math.round(v));
++  const w = v / 10000;
++  return `${(Math.round(w * 10) / 10).toString().replace(/\.0$/, '')}万`;
++}
++
++/**
++ * 从 `m.result` 里抽出这张表要的东西。
++ * 形状不对（老版本 / 坏消息 / 没到过结算帧）时返回 `null` —— 调用方据此整块不渲染
++ * （一个空表格会让玩家以为引擎没算伤害）。
++ */
++export function boardFrom(result) {
++  if (!result || typeof result !== 'object' || !Array.isArray(result.players) || !result.players.length) return null;
++  const rows = [];
++  for (const p of result.players) {
++    if (!p || typeof p !== 'object') continue;
++    const stats = p.stats && typeof p.stats === 'object' ? p.stats : null;
++    if (!stats) continue;
++    rows.push({
++      playerId: typeof p.playerId === 'string' ? p.playerId : '',
++      name: typeof p.name === 'string' && p.name ? p.name : (typeof p.playerId === 'string' ? p.playerId : '?'),
++      seat: Number.isInteger(p.seat) ? p.seat : null,
++      isBot: p.isBot === true,
++      stats,
++    });
++  }
++  if (!rows.length) return null;
++  // 名次：按造成伤害降序（「看板」的常用读法；数还是引擎那些数，排序只是呈现）
++  rows.sort((a, b) => (numOf(b.stats.dmgDealt) ?? 0) - (numOf(a.stats.dmgDealt) ?? 0));
++  const columns = COLUMNS.filter(([key]) => rows.some((r) => numOf(r.stats[key]) !== null));
++  const top = Math.max(0, ...rows.map((r) => numOf(r.stats.dmgDealt) ?? 0));
++  return {
++    rows, columns, top,
++    victory: result.victory === true,
++    roundsPassed: Number.isInteger(result.roundsPassed) ? result.roundsPassed : null,
++    difficulty: typeof result.difficulty === 'string' ? result.difficulty : '',
++  };
++}
++
++/**
++ * 「现在页面上有一个活的结算界面吗」。两个判据缺一不可：
++ *   * `.screen.result` —— 引擎的结算屏（`screens/game.js` 在 `match.result` 到位时渲染 `screens/result.js`）；
++ *   * 没有 `.st` —— 统计页浮层开着时，它内部的重看也是 `.screen.result`（`screens/stats.js` 的 `<ResultView>`），
++ *     那不是本局的数。统计页压在结算屏上面时（它可以从中途打开）同样不画。
++ * `doc` 允许注入（测试用迷你 DOM），真实浏览器里就是宿主自己的 document。
++ */
++export function visibleOn(doc) {
++  if (!doc || typeof doc.querySelector !== 'function') return false;
++  try {
++    if (doc.querySelector('.st')) return false;
++    return !!doc.querySelector('.screen.result');
++  } catch { return false; }
++}
++
++export function mount(ctx) {
++  const host = ctx.host;
++  const doc = host && host.ownerDocument ? host.ownerDocument : (typeof document !== 'undefined' ? document : null);
++
++  const box = doc.createElement('section');
++  box.className = 'dmg-board';
++  box.setAttribute('aria-label', '伤害看板');
++  host.appendChild(box);
++
++  /** 最后一次收到的结算（面板自持：结算屏重进 / 切回来时立刻还能画出来）。 */
++  let last = null;
++  /** 现在箱子里画着的，是不是 `last` 那一份。 */
++  let drew = false;
++  let drawnFor = null;
++
++  const el = (tag, cls, text) => {
++    const n = doc.createElement(tag);
++    if (cls) n.className = cls;
++    if (text !== undefined) n.textContent = text;
++    return n;
++  };
++
++  function build(board) {
++    const head = el('div', 'dmg-board__head');
++    head.appendChild(el('b', null, '伤害看板'));
++    const meta = [board.difficulty, board.roundsPassed !== null ? `${board.roundsPassed} 回合` : '', board.victory ? '胜利' : '']
++      .filter(Boolean).join(' · ');
++    if (meta) head.appendChild(el('small', null, meta));
++    box.appendChild(head);
++
++    const table = el('table');
++    const thead = el('thead');
++    const hr = el('tr');
++    hr.appendChild(el('th', 'dmg-board__rank', '#'));
++    hr.appendChild(el('th', 'dmg-board__name', '玩家'));
++    for (const [, label] of board.columns) hr.appendChild(el('th', null, label));
++    thead.appendChild(hr);
++    table.appendChild(thead);
++    const tbody = el('tbody');
++    for (const [i, row] of board.rows.entries()) {
++      const tr = el('tr', i === 0 ? 'is-top' : null);
++      tr.appendChild(el('td', 'dmg-board__rank', String(i + 1)));
++      const nameCell = el('td', 'dmg-board__name');
++      nameCell.appendChild(el('span', null, row.name));
++      if (row.isBot) nameCell.appendChild(el('span', 'dmg-board__tag', 'AI'));
++      if (row.seat !== null) nameCell.appendChild(el('span', 'dmg-board__seat', `座 ${row.seat + 1}`));
++      tr.appendChild(nameCell);
++      for (const [key] of board.columns) {
++        const v = numOf(row.stats[key]);
++        const bad = (key === 'leaks' || key === 'lpLost') && v !== null && v > 0;
++        const td = el('td', bad ? 'dmg-board__bad' : null, fmt(row.stats[key]));
++        // 造成伤害那一列带一条比例条：看板的第一眼就是「谁打了多少」
++        if (key === 'dmgDealt' && board.top > 0 && v !== null && v > 0) {
++          const bar = el('i', 'dmg-board__bar');
++          bar.setAttribute('aria-hidden', 'true');
++          bar.setAttribute('style', `--w:${Math.max(4, Math.round((v / board.top) * 100))}%`);
++          td.classList.add('dmg-board__dmg');
++          td.appendChild(bar);
++        }
++        tr.appendChild(td);
++      }
++      tbody.appendChild(tr);
++    }
++    table.appendChild(tbody);
++    box.appendChild(table);
++    box.appendChild(el('p', 'dmg-board__hint', '数据来自引擎的对局结算（m.result），只读展示；不重算、不影响对局。'));
++  }
++
++  function render() {
++    const show = !!last && visibleOn(doc);
++    if (show) {
++      if (drew && drawnFor === last) return; // 状态没变：一个 DOM 写都不做（也避免观察器自激）
++      box.textContent = '';
++      const board = boardFrom(last);
++      if (board) build(board);
++      drew = true; drawnFor = last;
++      return;
++    }
++    if (!drew) return;
++    box.textContent = '';
++    drew = false; drawnFor = null;
++  }
++
++  // 引擎的结算帧（S2C 白名单内，面板可以直接订阅）：到了就存一份并重画。
++  const off = ctx.net.on('m.result', (msg) => { last = msg || null; render(); });
++
++  // 界面的出现与消失（结算屏渲染出来 / 返回大厅）不是消息驱动的 —— 页面结构变了就重判一次。
++  // 合并到一帧一次；`render` 自己带状态守卫，所以不会因为自己写下的 DOM 再触发一轮。
++  let pending = false;
++  const schedule = () => {
++    if (pending) return;
++    pending = true;
++    const tick = () => { pending = false; render(); };
++    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(tick);
++    else setTimeout(tick, 32);
++  };
++  let observer = null;
++  let timer = null;
++  if (doc && typeof MutationObserver === 'function' && doc.body) {
++    observer = new MutationObserver(schedule);
++    observer.observe(doc.body, { childList: true, subtree: true });
++  } else {
++    timer = setInterval(render, 1000);
++  }
++
++  render(); // 挂载时可能已经在结算屏上（热装 / 切页回来）
++
++  return {
++    unmount() {
++      off();
++      if (observer) observer.disconnect();
++      if (timer) clearInterval(timer);
++      box.remove();
++    },
++  };
++}
+diff --git a/public/community/dmg-board/pack.json b/public/community/dmg-board/pack.json
+new file mode 100644
+index 0000000..cbcde39
+--- /dev/null
++++ b/public/community/dmg-board/pack.json
+@@ -0,0 +1,20 @@
++{
++  "id": "dmg-board",
++  "name": "伤害看板（结算页）",
++  "version": "1.0.0",
++  "author": "jingjiangze",
++  "description": "结算页底部的伤害看板：把引擎自己的对局结算（m.result）里每人一行的权威统计按造成伤害排成一张表——造成伤害、领袖伤害、击倒敌人、未击倒、损失生命、晋升次数等。只读引擎送来的数、零引擎改动、不重算不猜测；没有数据 / 不在结算屏时整块不渲染。",
++  "license": "GPL-3.0-or-later",
++  "api": ">=1 <2",
++  "client": {
++    "panels": [
++      {
++        "id": "board",
++        "slot": "screen.result.footer",
++        "module": "client/board.js",
++        "styles": ["client/board.css"],
++        "order": 50
++      }
++    ]
++  }
++}
+diff --git a/public/community/dmg-board/test/board.test.mjs b/public/community/dmg-board/test/board.test.mjs
+new file mode 100644
+index 0000000..91e9cc2
+--- /dev/null
++++ b/public/community/dmg-board/test/board.test.mjs
+@@ -0,0 +1,258 @@
++// dmg-board/test/board.test.mjs — 结算页伤害看板的纯逻辑与宿主交互验收。
++//
++// 怎么跑：在**管理器树**里 `node --test dmg-board/test/board.test.mjs`。
++// 包本身不 import 引擎的任何东西（面板只有包内模块）；test 是作者侧的，这里也不需要引擎：
++//   * 纯函数（`boardFrom` / `fmt` / `visibleOn`）直接测；
++//   * `mount` 用本文件里的迷你 DOM + 假的 `ctx.net`（形状照 `public/js/ui/extensions.js` 的注入面：只有
++//     `host` / `key` / `net.on` / `log`）—— 本机没有 Chrome，这条覆盖的是「订阅 → 判可见 → 画 / 撤」的次序。
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++
++import { COLUMNS, fmt, boardFrom, visibleOn, mount } from '../client/board.js';
++
++// ---- 迷你 DOM：只实现 mount 用到的那几个成员（不用 jsdom） ----
++function makeEl(tag) {
++  const el = {
++    tagName: tag, children: [], attrs: {}, style: '',
++    className: '',
++    classList: {
++      add(c) { el.className = `${el.className} ${c}`.trim(); },
++      contains(c) { return el.className.split(/\s+/).includes(c); },
++    },
++    setAttribute(k, v) { el.attrs[k] = String(v); },
++    getAttribute(k) { return k in el.attrs ? el.attrs[k] : null; },
++    appendChild(child) { el.children.push(child); child.parentElement = el; return child; },
++    remove() {
++      if (el.parentElement) el.parentElement.children = el.parentElement.children.filter((c) => c !== el);
++      el.parentElement = null;
++    },
++    querySelectorAll() { return []; },
++  };
++  Object.defineProperty(el, 'textContent', {
++    get: () => el._text || '',
++    set: (v) => { el._text = String(v); if (v === '') el.children = []; },
++  });
++  return el;
++}
++
++/** 宿主 document 的最小面：createElement + querySelector（`.st` / `.screen.result` 两个选择器）+ body。 */
++function makeDoc({ result = false, stats = false } = {}) {
++  const doc = {
++    body: makeEl('body'),
++    _result: result,
++    _stats: stats,
++    createElement: makeEl,
++    querySelector(sel) {
++      if (sel === '.st') return doc._stats ? makeEl('div') : null;
++      if (sel === '.screen.result') return doc._result ? makeEl('div') : null;
++      return null;
++    },
++  };
++  doc.body.ownerDocument = doc;
++  return doc;
++}
++
++/** 一次 `m.result`（形状照 `server/match/results.js` 的 rows：stats 的键与服务端组装的那份一致）。 */
++const RESULT = {
++  t: 'm.result',
++  victory: true,
++  roundsPassed: 14,
++  difficulty: 'NORMAL',
++  players: [
++    {
++      playerId: 'p1', seat: 1, name: '甲', isBot: false,
++      stats: {
++        dmgDealt: 52310, kills: 88, leaks: 2, gold: 1200, refreshes: 31, merges: 12,
++        itemsEquipped: 9, bossDamage: 17800, activatedLayers: 7, lpLost: 3, perfectRounds: 5,
++      },
++    },
++    {
++      playerId: 'p2', seat: 0, name: '乙（AI）', isBot: true,
++      stats: {
++        dmgDealt: 18400, kills: 40, leaks: 0, gold: 900, refreshes: 12, merges: 6,
++        itemsEquipped: 4, bossDamage: 3200, activatedLayers: 3, lpLost: 0, perfectRounds: 9,
++      },
++    },
++  ],
++};
++
++test('boardFrom：按造成伤害降序、列只保留真的存在的键、top 是最大值', () => {
++  const b = boardFrom(RESULT);
++  assert.deepEqual(b.rows.map((r) => r.name), ['甲', '乙（AI）']);
++  assert.equal(b.top, 52310);
++  assert.equal(b.victory, true);
++  assert.equal(b.roundsPassed, 14);
++  assert.equal(b.difficulty, 'NORMAL');
++  assert.deepEqual(b.columns.map(([k]) => k), COLUMNS.map(([k]) => k));
++  assert.equal(b.rows[0].seat, 1);
++  assert.equal(b.rows[1].isBot, true);
++});
++
++test('boardFrom：缺键就不画那一列（老版本 / 部分字段的消息）', () => {
++  const partial = {
++    ...RESULT,
++    players: [
++      { playerId: 'p1', name: '甲', stats: { dmgDealt: 100, kills: 3 } },
++      { playerId: 'p2', name: '乙', stats: { dmgDealt: 50, merges: 1 } },
++    ],
++  };
++  const b = boardFrom(partial);
++  assert.deepEqual(b.columns.map(([k]) => k), ['dmgDealt', 'kills', 'merges']);
++});
++
++test('boardFrom：形状不对返回 null（不画空表）', () => {
++  for (const bad of [null, undefined, 5, 'x', {}, { players: [] }, { players: [null, 3] }, { players: [{ playerId: 'p1' }] }]) {
++    assert.equal(boardFrom(bad), null, `bad: ${JSON.stringify(bad)}`);
++  }
++  // stats 里有缺值（null / 非数字）时：那一列按「无值」处理，不当 0 画
++  const b = boardFrom({ players: [{ playerId: 'p1', name: '甲', stats: { dmgDealt: 10, lpLost: null, kills: 'x' } }] });
++  assert.deepEqual(b.columns.map(([k]) => k), ['dmgDealt']);
++});
++
++test('fmt：万位短写、去尾零、缺值给 —', () => {
++  assert.equal(fmt(0), '0');
++  assert.equal(fmt(9999), '9999');
++  assert.equal(fmt(10000), '1万');
++  assert.equal(fmt(12345), '1.2万');
++  assert.equal(fmt(98400), '9.8万');
++  assert.equal(fmt(-10000), '-1万');
++  assert.equal(fmt(null), '—');
++  assert.equal(fmt(undefined), '—');
++  assert.equal(fmt(NaN), '—');
++});
++
++test('visibleOn：只在活的结算屏上为真；统计页浮层开着时一律为假', () => {
++  assert.equal(visibleOn(makeDoc({ result: true })), true);
++  assert.equal(visibleOn(makeDoc({ result: false })), false);
++  assert.equal(visibleOn(makeDoc({ result: true, stats: true })), false, '统计页的重看不是本局的数');
++  assert.equal(visibleOn(makeDoc({ stats: true })), false);
++  assert.equal(visibleOn(null), false);
++  assert.equal(visibleOn({}), false);
++});
++
++// ---- mount：订阅 → 判可见 → 画 / 撤 ----
++
++/** 一次挂载的舞台：假 document、假 net（记下订阅与退订）、可手动驱动的「页面变了」回调。 */
++function stage({ result = false, stats = false } = {}) {
++  const doc = makeDoc({ result, stats });
++  const host = makeEl('div');
++  host.ownerDocument = doc;
++  const subs = [];
++  const ctx = {
++    pack: 'dmg-board', id: 'board', slot: 'screen.result.footer', hostKey: null, host,
++    net: { on: (type, fn) => { subs.push({ type, fn, off: false }); return () => { subs[subs.indexOf(subs.find((s) => s.fn === fn))].off = true; }; } },
++    log: { info() {}, warn() {}, error() {} },
++  };
++  // 观察器与 rAF 都换成可手动驱动的版本（本机没有浏览器）：模块读的是 globalThis 上的名字。
++  const saved = { mo: globalThis.MutationObserver, raf: globalThis.requestAnimationFrame };
++  let observer = null;
++  let raf = null;
++  globalThis.MutationObserver = class { constructor(cb) { observer = { cb, stopped: false }; } observe() {} disconnect() { if (observer) observer.stopped = true; } };
++  globalThis.requestAnimationFrame = (fn) => { raf = fn; };
++  const api = mount(ctx);
++  const flush = () => { const f = raf; raf = null; if (f) f(); };
++  const pageChanged = () => { if (observer) observer.cb([]); }; // 「结算屏渲染出来了」= 一次 DOM 变化
++  const deliver = (msg) => { for (const s of subs) if (s.type === 'm.result') s.fn(msg); };
++  const restore = () => {
++    globalThis.MutationObserver = saved.mo;
++    globalThis.requestAnimationFrame = saved.raf;
++  };
++  return { doc, host, ctx, api, flush, pageChanged, deliver, restore, subs, get observer() { return observer; } };
++}
++
++/** 箱里那张表的行（`section > table > tbody > tr`）。 */
++function tableRows(host) {
++  const box = host.children[0];
++  const table = box.children.find((c) => c.tagName === 'table');
++  if (!table) return null;
++  const tbody = table.children.find((c) => c.tagName === 'tbody');
++  return tbody.children;
++}
++
++test('mount：订的是引擎的 m.result 类型；没有数据 / 不在结算屏都不画', () => {
++  const s = stage({ result: false });
++  assert.deepEqual(s.subs.map((x) => x.type), ['m.result']);
++  const box = s.host.children[0];
++  assert.equal(box.className, 'dmg-board');
++  assert.equal(box.children.length, 0, '挂载时：没有数据 → 整块空着');
++
++  s.deliver(RESULT); // 有数据了，但玩家已经回了大厅（页面上没有结算屏）
++  s.flush();
++  assert.equal(box.children.length, 0, '没有活的结算屏就不画');
++  s.restore();
++});
++
++test('mount：结算屏出现时画表（按伤害排序、首行标 is-top、伤害列带比例条）', () => {
++  const s = stage({ result: false });
++  const box = s.host.children[0];
++  s.deliver(RESULT);
++  s.flush();
++  assert.equal(box.children.length, 0);
++
++  s.doc._result = true; // 结算屏渲染出来了
++  s.pageChanged();
++  s.flush();
++
++  const rows = tableRows(s.host);
++  assert.equal(rows.length, 2);
++  assert.ok(rows[0].className.includes('is-top'));
++  const nameCell = rows[0].children[1];
++  assert.equal(nameCell.children[0]._text, '甲'); // 排序：伤害高的在前
++  assert.equal(rows[1].children[1].children[0]._text, '乙（AI）');
++  assert.equal(rows[1].children[1].children[1]._text, 'AI'); // isBot 标记
++  // 表头 = # + 玩家 + 11 列（本样例 stats 键齐全）
++  assert.equal(rows[0].children.length, 2 + COLUMNS.length);
++  // 伤害列：数字 + 比例条（宽度按 top 归一）
++  const dmgCell = rows[0].children[2];
++  assert.ok(dmgCell.className.includes('dmg-board__dmg'));
++  assert.equal(dmgCell._text, '5.2万');
++  const bar = dmgCell.children.find((c) => c.className === 'dmg-board__bar');
++  assert.equal(bar.attrs.style, '--w:100%');
++  const bar2 = rows[1].children[2].children.find((c) => c.className === 'dmg-board__bar');
++  assert.equal(bar2.attrs.style, '--w:35%'); // 18400 / 52310
++  // 漏怪 / 损失生命 > 0 的行标红
++  const leaksIdx = 2 + COLUMNS.findIndex(([k]) => k === 'leaks');
++  assert.ok(rows[0].children[leaksIdx].className.includes('dmg-board__bad'));
++  assert.ok(!rows[1].children[leaksIdx].className.includes('dmg-board__bad'));
++  s.restore();
++});
++
++test('mount：重复触发（同一份数据）不重画；结算屏撤掉就清空；统计页开着不画', () => {
++  const s = stage({ result: false });
++  const box = s.host.children[0];
++  s.deliver(RESULT);
++  s.doc._result = true;
++  s.pageChanged();
++  s.flush();
++  const firstTable = tableRows(s.host);
++  s.pageChanged(); s.pageChanged(); s.flush(); s.flush();
++  assert.equal(tableRows(s.host), firstTable, '状态没变：一个 DOM 写都不做（引用都不换）');
++
++  s.doc._stats = true; // 统计页浮层开着（它里面的重看也是 .screen.result）
++  s.pageChanged();
++  s.flush();
++  assert.equal(box.children.length, 0, '统计页压上来就不画');
++  s.doc._stats = false;
++  s.pageChanged();
++  s.flush();
++  assert.equal(tableRows(s.host).length, 2, '统计页关掉、结算屏还在 → 画回来');
++
++  s.doc._result = false; // 玩家点了返回
++  s.pageChanged();
++  s.flush();
++  assert.equal(box.children.length, 0);
++  s.restore();
++});
++
++test('mount：unmount 退订 + 停观察 + 摘掉自己', () => {
++  const s = stage({ result: true });
++  s.deliver(RESULT);
++  s.flush();
++  const box = s.host.children[0];
++  assert.ok(box.children.length > 0);
++  s.api.unmount();
++  assert.equal(box.parentElement, null, '箱子从宿主里摘掉');
++  assert.equal(s.subs[0].off, true, '订阅被退掉');
++  assert.equal(s.observer.stopped, true, '观察器停了');
++  s.restore();
++});
+diff --git a/public/css/community-addons.css b/public/css/community-addons.css
+new file mode 100644
+index 0000000..15f2eb5
+--- /dev/null
++++ b/public/css/community-addons.css
+@@ -0,0 +1,8 @@
++.community-prefs{display:contents}
++.community-host--chat{position:absolute;left:.15rem;bottom:.72rem;width:min(3rem,42vw);z-index:35;pointer-events:none}
++.community-host--chat .chatbub{position:relative;left:0;bottom:0;width:100%;font-size:.13rem}
++.community-host--chat .chatbub__input{padding:.06rem .08rem}
++.community-host--chat .chatbub__send{padding:.06rem .12rem}
++.community-host--chat .chatbub__list:empty{display:none}
++.community-host--damage{width:100%;overflow:auto;max-width:100%}
++.community-host--damage .dmg-board{max-width:100%;overflow:auto}
+diff --git a/public/css/screens/draft.css b/public/css/screens/draft.css
+index 0cf5eb9..67018db 100644
+--- a/public/css/screens/draft.css
++++ b/public/css/screens/draft.css
+@@ -44,7 +44,7 @@
+ .dband__name { font-size: calc(.16 * var(--t)); font-weight: 700; color: var(--text-hi); white-space: nowrap; }
+ .dband__lp { display: inline-flex; align-items: center; gap: .04rem; font-size: calc(.15 * var(--t)); color: var(--mint-400); }
+ .dband__lp i { width: .12rem; height: .14rem; background: var(--mint-500); clip-path: polygon(0 0, 30% 0, 30% 20%, 45% 20%, 45% 0, 55% 0, 55% 20%, 70% 20%, 70% 0, 100% 0, 100% 35%, 85% 50%, 85% 80%, 100% 90%, 100% 100%, 0 100%, 0 90%, 15% 80%, 15% 50%, 0 35%); }
+-.dband__who { position: absolute; right: .04rem; top: .04rem; display: flex; flex-direction: column; gap: .02rem; }
++.dband__who { position: absolute; right: .04rem; top: .04rem; display: flex; flex-direction: column; gap: .02rem; flex-wrap: wrap; align-content: flex-start; max-height: 1.32rem; }
+ .dband__who .pavatar { --pa: .3rem; border-radius: 50%; overflow: hidden; border: 2px solid var(--mint-400); }
+ .dband.is-sel { border-color: var(--mint-400); background: linear-gradient(180deg, rgba(78, 216, 175, .18), rgba(12, 15, 14, .85)); box-shadow: 0 0 0 1px var(--mint-400), 0 0 .24rem rgba(23, 249, 183, .2); }
+ .dband.is-mine::after { content: '已选择'; position: absolute; left: 0; top: 0; font-size: calc(.11 * var(--t)); font-weight: 700; padding: 0 .06rem; background: var(--mint-500); color: var(--text-on-mint); }
 diff --git a/public/css/screens/game-panels.css b/public/css/screens/game-panels.css
-index 414df25..060e5da 100644
+index 414df25..7551607 100644
 --- a/public/css/screens/game-panels.css
 +++ b/public/css/screens/game-panels.css
 @@ -76,6 +76,8 @@
@@ -1519,6 +2635,35 @@ index 414df25..060e5da 100644
  .dhead__icon .icon { width: .5rem; height: .5rem; color: var(--mint-500); }
  .dhead__icon.is-golden { border-color: var(--gold); }
  .dhead__icon--enemy { background: radial-gradient(circle, #3a1c18, #140d0c); border-color: rgba(255, 90, 74, .45); }
+@@ -395,7 +397,7 @@ button.bpop__harmony:hover { border-style: solid; color: #fff; }
+ .spov__turntxt .icon { width: .26rem; height: .26rem; }
+ .spov__turntxt.is-mine { color: var(--gold); text-shadow: 0 0 .16rem rgba(255, 198, 0, .45); animation: blink 1.2s ease-in-out infinite; }
+ .spov__turntxt.is-done { color: var(--mint-400); }
+-.spov__order { display: flex; gap: .1rem; }
++.spov__order { display: flex; flex-wrap: wrap; gap: .1rem; }
+ .spov__who { display: flex; align-items: center; gap: .08rem; padding: .05rem .12rem .05rem .06rem; background: rgba(255, 255, 255, .03); border: 1px solid var(--line); }
+ .spov__who.is-cur { border-color: var(--gold); background: rgba(255, 198, 0, .08); }
+ .spov__who.is-done { border-color: var(--mint-800); }
+@@ -409,6 +411,19 @@ button.bpop__harmony:hover { border-style: solid; color: #fff; }
+ .spov__grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: .2rem; }
+ .spov__grid--3 { grid-template-columns: repeat(3, minmax(0, 4.3rem)); grid-template-rows: minmax(0, 4.6rem); justify-content: center; align-content: start; gap: .36rem; margin-top: .3rem; }
+ .spov__grid--3 .spcard__icon { width: 1.3rem; height: 1.3rem; }
++/* A bigger 机变 board (0.2.4 capacity): a 8/12-seat room deals up to 18 cards, so from seven on the grid takes as many
++   columns as the width allows (≈6 on a desktop overlay, fewer on a phone) and scrolls inside the overlay instead of
++   squeezing three rows into one screen height. Six cards or fewer keep the 3×2 board above — pixel-identical. */
++.spov__grid--many {
++  grid-template-columns: repeat(auto-fit, minmax(2.6rem, 1fr));
++  grid-template-rows: none;
++  grid-auto-rows: minmax(2.4rem, auto);
++  align-content: start;
++  gap: .16rem;
++  overflow-y: auto;
++  overscroll-behavior: contain;
++  scrollbar-width: thin;
++}
+ /* The official card (research 06 §11.5; the official 悬赏 / 机密商店 / 战术 screenshots): a framed icon at the top-left
+    with the bold name beside it, the effect text under both across the card, left-aligned; the tier chip on the icon's
+    corner, the taker's round avatar at the top-right (user playtest #6 item 6: the centred icon + name used to push the
 diff --git a/public/css/screens/game-shop.css b/public/css/screens/game-shop.css
 index 86ced8a..03947d0 100644
 --- a/public/css/screens/game-shop.css
@@ -1678,13 +2823,126 @@ index 515bb2e..54d7d1e 100644
 +
 +/* Mod controls share the layout rem; readable text follows the native --t text root. */
 +.scard--hero-route .scard__bandhead img { width:.4rem; height:.4rem; object-fit:cover; }
+diff --git a/public/css/screens/lobby.css b/public/css/screens/lobby.css
+index 5117f1c..362048d 100644
+--- a/public/css/screens/lobby.css
++++ b/public/css/screens/lobby.css
+@@ -235,6 +235,34 @@
+ .diff-card.is-selected .diff-card__check span { opacity: 1; }
+ 
+ /* ---- create ------------------------------------------------------------------------------------------ */
++/* 同盟席位 (0.2.4 capacity): the co-op room's seat count, a compact radio row above the create button */
++.cap-pick {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: center;
++  gap: .08rem .14rem;
++  padding: .1rem .14rem;
++  background: rgba(0, 0, 0, .3);
++  border: 1px solid var(--line);
++}
++.cap-pick__label { display: flex; align-items: center; gap: .07rem; font-size: calc(.16 * var(--t)); font-weight: 700; color: var(--text-md); }
++.cap-pick__opts { display: flex; gap: .1rem; margin-left: auto; }
++.cap-pick__opt {
++  min-width: 1.1rem;
++  height: .44rem;
++  padding: 0 .16rem;
++  border: 1px solid var(--line-2);
++  background: rgba(0, 0, 0, .35);
++  color: var(--text-lo);
++  font-size: calc(.17 * var(--t));
++  font-weight: 700;
++  letter-spacing: .06em;
++  transition: border-color var(--t-fast), color var(--t-fast), background-color var(--t-fast), box-shadow var(--t-med);
++}
++.cap-pick__opt:hover { border-color: var(--mint-700); color: var(--text-hi); }
++.cap-pick__opt.is-active { border-color: var(--mint-400); color: var(--mint-400); background: rgba(78, 216, 175, .1); box-shadow: inset 0 -3px 0 var(--mint-400); }
++.cap-pick__note { flex-basis: 100%; font-size: calc(.13 * var(--t)); }
++
+ .create-box { margin-top: .3rem; display: flex; flex-direction: column; gap: .12rem; }
+ .create-box .btn--xl { height: .92rem; font-size: calc(.32 * var(--t)); letter-spacing: .3em; }
+ .create-box__hint { display: flex; align-items: center; justify-content: center; min-height: .3rem; font-size: calc(.14 * var(--t)); color: var(--text-lo); }
 diff --git a/public/css/screens/room.css b/public/css/screens/room.css
-index 8f15e11..c9291cf 100644
+index 8f15e11..395fef1 100644
 --- a/public/css/screens/room.css
 +++ b/public/css/screens/room.css
-@@ -313,3 +313,5 @@
+@@ -49,6 +49,34 @@
+   padding: .3rem .6rem .24rem;
+ }
+ .seats--solo { grid-template-columns: 3.8rem minmax(0, 6.4rem); }
++/* A bigger room (0.2.4 capacity): 8 seats in 4×2, 12 in 6×2, each card scaled down by `.seats--compact` (the 4-seat
++   grid above is untouched). The column count is fixed per capacity, so the grid keeps the seat order (P1…P12) in rows. */
++.seats--cap8 { grid-template-columns: repeat(4, minmax(0, 3.1rem)); grid-template-rows: repeat(2, minmax(0, 3.4rem)); gap: .22rem; overflow: auto; }
++.seats--cap12 { grid-template-columns: repeat(6, minmax(0, 2.6rem)); grid-template-rows: repeat(2, minmax(0, 3.4rem)); gap: .22rem; overflow: auto; }
++.seats--compact .seat { gap: .03rem; padding: .08rem .1rem .1rem; animation-delay: calc(var(--seat-i, 0) * 25ms); }
++.seats--compact .seat__head { gap: .05rem; }
++.seats--compact .seat__no { padding-left: .05rem; border-left-width: 2px; font-size: calc(.15 * var(--t)); }
++.seats--compact .seat__head .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; overflow: hidden; text-overflow: ellipsis; }
++.seats--compact .seat__host { gap: .02rem; padding: 0 .04rem; font-size: calc(.09 * var(--t)); }
++.seats--compact .seat__host .icon { width: .11rem; height: .11rem; }
++.seats--compact .seat__art { margin: .03rem 0 0; }
++.seats--compact .seat__art .avatar { --av: 1.05rem; }
++.seats--compact .seat__stripes { height: .07rem; }
++.seats--compact .seat__radar { width: .78rem; height: .78rem; }
++.seats--compact .seat__wait { font-size: calc(.13 * var(--t)); letter-spacing: .04em; }
++.seats--compact .seat__art .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; }
++.seats--compact .seat__bot-label { gap: .02rem; padding: 0 .04rem; font-size: calc(.1 * var(--t)); }
++.seats--compact .seat__bot-label .icon { width: .11rem; height: .11rem; }
++.seats--compact .seat__who { gap: .04rem; }
++.seats--compact .seat__name { max-width: 100%; font-size: calc(.17 * var(--t)); }
++.seats--compact .seat__you { padding: 0 .04rem; font-size: calc(.1 * var(--t)); }
++.seats--compact .seat > .micro { font-size: calc(.09 * var(--t)); letter-spacing: .08em; }
++.seats--compact .seat__foot { gap: .04rem; min-height: .3rem; margin-top: .03rem; padding-top: .04rem; }
++.seats--compact .seat__state { gap: .03rem; font-size: calc(.12 * var(--t)); letter-spacing: 0; }
++.seats--compact .seat__state .icon { width: .14rem; height: .14rem; }
++.seats--compact .seat__foot .btn { min-width: 0; height: .3rem; padding: 0 .08rem; font-size: calc(.12 * var(--t)); letter-spacing: .02em; }
++.seats--compact .seat__foot .btn .icon { width: .15rem; height: .15rem; }
++.seats--compact .seat__foot .tt-anchor { right: .06rem; bottom: .06rem; }
+ 
+ .seat {
+   --bk-c: var(--line-3);
+@@ -304,6 +332,31 @@
+ .ailast__opt .icon { opacity: .25; }
+ .ailast__opt .icon.is-on { opacity: 1; }
+ 
++/* 同盟席位 (0.2.4 capacity): occupied / capacity for everyone, 4 / 8 / 12 for the host (room.setCapacity) */
++.cap { display: flex; align-items: center; gap: .12rem; font-size: calc(.14 * var(--t)); }
++.cap--ro { gap: .1rem; }
++.cap__label { display: flex; align-items: center; gap: .06rem; font-size: calc(.15 * var(--t)); font-weight: 700; color: var(--text-md); white-space: nowrap; }
++.cap__opts { display: flex; border: 1px solid var(--line-2); background: rgba(0, 0, 0, .3); }
++.cap__slot { display: inline-flex; }
++.cap__opt {
++  height: .34rem;
++  padding: 0 .12rem;
++  border: 0;
++  border-right: 1px solid var(--line);
++  background: transparent;
++  color: var(--text-lo);
++  font-size: calc(.14 * var(--t));
++  font-weight: 700;
++  letter-spacing: .04em;
++  transition: color var(--t-fast), background-color var(--t-fast), box-shadow var(--t-med);
++}
++.cap__slot:last-child .cap__opt { border-right: 0; }
++.cap__opt:hover:not(:disabled) { color: var(--text-hi); background: rgba(255, 255, 255, .03); }
++.cap__opt.is-active { color: var(--mint-400); box-shadow: inset 0 -2px 0 var(--mint-400); }
++.cap__opt:disabled { cursor: default; color: var(--text-dim); }
++.cap__count { font-size: calc(.16 * var(--t)); font-weight: 700; color: var(--text-hi); white-space: nowrap; }
++.cap__count .t-dim { font-size: calc(.14 * var(--t)); font-weight: 400; }
++
+ .ready-count[hidden] { display: none; }
+ .ready-count { display: flex; align-items: baseline; gap: .06rem; font-size: calc(.16 * var(--t)); }
+ .ready-count b { font-size: calc(.36 * var(--t)); line-height: 1; color: var(--mint-400); text-shadow: 0 0 .14rem rgba(23, 249, 183, .45); }
+@@ -312,4 +365,12 @@
+ .ready-count__icons .icon { width: .28rem; height: .28rem; color: var(--line-3); transition: color var(--t-med); }
  .ready-count__icons .icon.is-on { color: var(--mint-400); filter: drop-shadow(0 0 4px var(--mint-glow)); }
  
++/* 已入座 occupied / capacity (0.2.4 capacity; co-op rooms only) */
++.seat-count[hidden] { display: none; }
++.seat-count { display: flex; align-items: baseline; gap: .06rem; font-size: calc(.15 * var(--t)); }
++.seat-count b { font-size: calc(.26 * var(--t)); line-height: 1; color: var(--text-hi); }
++.seat-count .t-dim { font-size: calc(.18 * var(--t)); }
++
  .room-bar .btn--xl { min-width: 3.2rem; letter-spacing: .2em; }
 +
 +.tavern-mods{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:10px 20px;background:#14231fe8;color:#eee;border-top:1px solid #52695e}.tavern-mods small{width:100%;color:#b9c7c0}.tavern-mod{display:inline-flex;gap:6px;align-items:center;cursor:pointer}.tavern-mod input{accent-color:#b7d88a}
@@ -1728,10 +2986,10 @@ index 0000000..7c13130
 +@media(max-width:760px) { .spell-preview__list { grid-template-columns:minmax(0,1fr); } .spell-preview__filters label { flex:1; min-width:1.4rem; } .spell-preview__filters .spell-preview__search { flex-basis:100%; } }
 +@media(max-height:480px) { .spell-preview__head { min-height:.7rem; padding:.06rem .24rem; } .spell-preview__filters { padding:.08rem .24rem; gap:.1rem; } .spell-preview__filters label { gap:.02rem; } .spell-preview__note { padding:.02rem .24rem .06rem; } }
 diff --git a/public/i18n/en.json b/public/i18n/en.json
-index 85fef76..fb2a084 100644
+index 85fef76..7505a6c 100644
 --- a/public/i18n/en.json
 +++ b/public/i18n/en.json
-@@ -1218,5 +1218,537 @@
+@@ -1218,5 +1218,552 @@
    "{names}只能部署在召唤者相邻四格，已退回整备区": "{names} can only be deployed on the four tiles adjacent to the summoner and returned to the Bench",
    "{names}只能部署在召唤者相邻四格，整备区已满，下回合返还": "{names} can only be deployed on the four tiles adjacent to the summoner; the Bench is full, so they come back next round",
    "装备库存不足，未获得该装备": "Equipment stock is insufficient; no equipment was received",
@@ -2268,13 +3526,28 @@ index 85fef76..fb2a084 100644
 +  "暂无可直接施放的法术": "No spells available to cast directly",
 +  "点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗": "Click Cast or drag onto the battlefield; no operator target is needed; consumed on use",
 +  "关闭鲍勃教学提示": "Disable Bob’s tutorial tips",
-+  "开启鲍勃教学提示": "Enable Bob’s tutorial tips"
++  "开启鲍勃教学提示": "Enable Bob’s tutorial tips",
++  "同盟席位": "Alliance seats",
++  "{n} 人": "{n} players",
++  "已入座": "Seated",
++  "席位不能少于已占用的最高席位（P{n}）": "Cannot be fewer seats than the highest occupied seat (P{n})",
++  "创建后可在等待室由创建者调整": "The host can change this in the waiting room",
++  "伤害统计": "Damage stats",
++  "总伤害": "Total damage",
++  "击杀": "Kills",
++  "承伤": "Damage taken",
++  "伤害": "Damage",
++  "占比": "Share",
++  "战斗开始后显示伤害统计": "Damage stats appear once the battle starts",
++  "局内聊天（仅自己）": "In-game chat (local)",
++  "伤害看板（仅自己）": "Damage board (local)",
++  "多人房间": "Multiplayer rooms"
  }
 diff --git a/public/i18n/ja.json b/public/i18n/ja.json
-index 9dd7294..8ca2f25 100644
+index 9dd7294..f091e12 100644
 --- a/public/i18n/ja.json
 +++ b/public/i18n/ja.json
-@@ -1224,5 +1224,478 @@
+@@ -1224,5 +1224,493 @@
    "{names}只能部署在召唤者相邻四格，已退回整备区": "{names}は召喚者に隣接する上下左右の4マスにのみ配置可能なため、ベンチに戻りました",
    "{names}只能部署在召唤者相邻四格，整备区已满，下回合返还": "{names}は召喚者に隣接する上下左右の4マスにのみ配置可能です。ベンチが満員のため、次のラウンドに返却されます",
    "装备库存不足，未获得该装备": "装備の在庫が不足しているため、獲得できませんでした",
@@ -2752,13 +4025,28 @@ index 9dd7294..8ca2f25 100644
 +  "暂无可直接施放的法术": "直接発動できる呪文はありません",
 +  "点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗": "クリックまたは戦場へドラッグして発動。対象不要、使用後に消費",
 +  "关闭鲍勃教学提示": "ボブのチュートリアルを非表示",
-+  "开启鲍勃教学提示": "ボブのチュートリアルを表示"
++  "开启鲍勃教学提示": "ボブのチュートリアルを表示",
++  "同盟席位": "同盟席位",
++  "{n} 人": "{n} 人",
++  "已入座": "着席済み",
++  "席位不能少于已占用的最高席位（P{n}）": "着席済みの最上位席（P{n}）より少ない席数にはできません",
++  "创建后可在等待室由创建者调整": "作成後は待機室で作成者が変更できます",
++  "伤害统计": "与ダメージ統計",
++  "总伤害": "総与ダメージ",
++  "击杀": "撃破",
++  "承伤": "被ダメージ",
++  "伤害": "与ダメージ",
++  "占比": "割合",
++  "战斗开始后显示伤害统计": "戦闘が始まると与ダメージ統計を表示します",
++  "局内聊天（仅自己）": "対戦中チャット（自分のみ）",
++  "伤害看板（仅自己）": "ダメージ一覧（自分のみ）",
++  "多人房间": "多人数ルーム"
  }
 diff --git a/public/i18n/ko.json b/public/i18n/ko.json
-index 4c31399..211f1e4 100644
+index 4c31399..d7ae9c2 100644
 --- a/public/i18n/ko.json
 +++ b/public/i18n/ko.json
-@@ -1220,5 +1220,478 @@
+@@ -1220,5 +1220,493 @@
    "{names}只能部署在召唤者相邻四格，整备区已满，下回合返还": "{names}은(는) 소환자와 상하좌우로 인접한 4칸에만 배치할 수 있습니다. 정비 구역이 가득 차 다음 라운드에 반환됩니다.",
    "装备库存不足，未获得该装备": "장비 재고가 부족하여 획득하지 못했습니다.",
    "库存不足": "재고 부족",
@@ -3236,13 +4524,28 @@ index 4c31399..211f1e4 100644
 +  "暂无可直接施放的法术": "바로 시전할 수 있는 주문이 없습니다",
 +  "点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗": "클릭하거나 전장으로 드래그하여 시전. 대상 불필요, 사용 후 소모",
 +  "关闭鲍勃教学提示": "밥의 튜토리얼 안내 끄기",
-+  "开启鲍勃教学提示": "밥의 튜토리얼 안내 켜기"
++  "开启鲍勃教学提示": "밥의 튜토리얼 안내 켜기",
++  "同盟席位": "동맹 좌석",
++  "{n} 人": "{n}인",
++  "创建后可在等待室由创建者调整": "생성 후 대기실에서 방장이 변경할 수 있습니다",
++  "席位不能少于已占用的最高席位（P{n}）": "좌석은 사용 중인 가장 높은 좌석(P{n})보다 적을 수 없습니다",
++  "已入座": "착석 완료",
++  "伤害统计": "피해 통계",
++  "总伤害": "총 피해량",
++  "击杀": "처치",
++  "承伤": "받은 피해",
++  "伤害": "피해량",
++  "占比": "비중",
++  "战斗开始后显示伤害统计": "전투가 시작되면 피해 통계가 표시됩니다",
++  "局内聊天（仅自己）": "게임 채팅 (본인만)",
++  "伤害看板（仅自己）": "피해 통계 (본인만)",
++  "多人房间": "다인실"
  }
 diff --git a/public/i18n/zh-TW.json b/public/i18n/zh-TW.json
-index bc76397..77f52ae 100644
+index bc76397..5ebba2b 100644
 --- a/public/i18n/zh-TW.json
 +++ b/public/i18n/zh-TW.json
-@@ -1222,5 +1222,478 @@
+@@ -1222,5 +1222,493 @@
    "{names}只能部署在召唤者相邻四格，已退回整备区": "{names}只能部署在召喚者相鄰四格，已退回整備區",
    "{names}只能部署在召唤者相邻四格，整备区已满，下回合返还": "{names}只能部署在召喚者相鄰四格，整備區已滿，下回合返還",
    "装备库存不足，未获得该装备": "裝備庫存不足，未獲得該裝備",
@@ -3720,7 +5023,22 @@ index bc76397..77f52ae 100644
 +  "暂无可直接施放的法术": "暫無可直接施放的法術",
 +  "点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗": "點擊施放，或拖曳至戰場施放；不需要幹員目標，使用後消耗",
 +  "关闭鲍勃教学提示": "關閉鮑勃教學提示",
-+  "开启鲍勃教学提示": "開啟鮑勃教學提示"
++  "开启鲍勃教学提示": "開啟鮑勃教學提示",
++  "同盟席位": "同盟席位",
++  "{n} 人": "{n} 人",
++  "已入座": "已入座",
++  "席位不能少于已占用的最高席位（P{n}）": "席位不能少於已佔用的最高席位（P{n}）",
++  "创建后可在等待室由创建者调整": "建立後可在等待室由建立者調整",
++  "伤害统计": "傷害統計",
++  "总伤害": "總傷害",
++  "击杀": "擊殺",
++  "承伤": "承傷",
++  "伤害": "傷害",
++  "占比": "佔比",
++  "战斗开始后显示伤害统计": "戰鬥開始後顯示傷害統計",
++  "局内聊天（仅自己）": "局內聊天（僅自己）",
++  "伤害看板（仅自己）": "傷害看板（僅自己）",
++  "多人房间": "多人房間"
  }
 diff --git a/public/index.html b/public/index.html
 index 0e44c46..cf04b2f 100644
@@ -3824,10 +5142,15 @@ index f3b725b..664bc45 100644
      invalidate(name) {
        if (!entries.has(name)) return Promise.resolve(null);
 diff --git a/public/js/main.js b/public/js/main.js
-index 5278287..287552b 100644
+index 5278287..9e4ea12 100644
 --- a/public/js/main.js
 +++ b/public/js/main.js
-@@ -50,6 +50,7 @@ import { GuideHost } from './ui/guide.js';
+@@ -1,3 +1,4 @@
++import {startCommunityAddons} from './ui/communityAddons.js';
+ // Client entry: boot (fonts, identity, socket), net → store wiring, router, global overlays.
+ //
+ // Router (derived from the store, no URL routes):
+@@ -50,6 +51,7 @@ import { GuideHost } from './ui/guide.js';
  import { installDeviceSupport } from './ui/device.js';
  import { LoadoutHost } from './screens/loadout.js';
  import { StatsHost } from './screens/stats.js';
@@ -3835,7 +5158,7 @@ index 5278287..287552b 100644
  import { recordResult, installStatsRecorder } from './ui/stats.js';
  import { installLoadoutSync, installOwnershipSync, installDiySync } from './ui/loadoutSync.js';
  import { startBuildGuard } from './ui/buildGuard.js';
-@@ -309,6 +310,7 @@ function App() {
+@@ -309,6 +311,7 @@ function App() {
      <${GuideHost} />
      <${LoadoutHost} />
      <${StatsHost} />
@@ -3843,6 +5166,14 @@ index 5278287..287552b 100644
    </div>`;
  }
  
+@@ -408,6 +411,7 @@ async function boot() {
+   }
+ }
+ 
++startCommunityAddons();
+ boot().catch((err) => {
+   console.error('[app] boot failed', err);
+   const el = document.getElementById('boot-err');
 diff --git a/public/js/render/app.js b/public/js/render/app.js
 index 44d9793..df72439 100644
 --- a/public/js/render/app.js
@@ -4012,18 +5343,19 @@ index a375e04..46f1814 100644
    setWorld(x, y, z = 0) { this.x = x; this.y = y; this.z = z; }
    /** A battle snapshot sample (syncBattle syncs every unit of the field): a hand item on a scouted prep board rides
 diff --git a/public/js/screens/bandDraft.js b/public/js/screens/bandDraft.js
-index 62874c7..c708b84 100644
+index 62874c7..a70aa49 100644
 --- a/public/js/screens/bandDraft.js
 +++ b/public/js/screens/bandDraft.js
-@@ -30,6 +30,7 @@ import { data } from '../data.js';
+@@ -30,6 +30,8 @@ import { data } from '../data.js';
  import { audio } from '../audio.js';
  import { modeOffBonds, bandOffBonds, bandOffLine } from '../ui/gameLogic.js';
  import { t, tParts, tName } from '../../../shared/i18n.js';
 +import { heroAvailable } from '../../../shared/heroPowers.js';
++import { MAX_SEATS } from '../../../shared/constants.js';
  
  const cx = (...p) => p.flat().filter(Boolean).join(' ');
  
-@@ -49,10 +50,10 @@ export function BandOffNote({ names = [] }) {
+@@ -49,10 +51,10 @@ export function BandOffNote({ names = [] }) {
   * @param {any[]} bands
   * @param {string|null} modeType 'SINGLE'|'MULTI'
   */
@@ -4036,7 +5368,7 @@ index 62874c7..c708b84 100644
      .sort((a, b) => sid(a) - sid(b) || (a.bandId < b.bandId ? -1 : a.bandId > b.bandId ? 1 : 0));
  }
  
-@@ -179,7 +180,7 @@ export function BandDraftScreen() {
+@@ -179,7 +181,7 @@ export function BandDraftScreen() {
    const mode = gd.config?.modes?.[pub?.modeId];
    const offBonds = modeOffBonds(mode); // the bonds this mode never activates (标准: 10 of 23)
    const solo = roomSolo || mode?.type === 'SINGLE' || String(pub?.modeId || '').includes('single');
@@ -4045,6 +5377,15 @@ index 62874c7..c708b84 100644
    const players = sortedPlayers(pub);
    const draft = normalizeDraft(pub?.draft, players);
    const myPick = draft.picks.get(myId) || priv?.bandId || null;
+@@ -293,7 +295,7 @@ export function BandDraftScreen() {
+             <span class="dband__name">${b.name}</span>
+             <span class="dband__lp num"><i></i>${b.totalHp}</span>
+             <${BandOffTag} names=${offNames} />
+-            ${who.length ? html`<span class="dband__who">${who.slice(0, 4).map((p) => html`<${PlayerAvatar} key=${p.playerId} player=${p} size="sm" />`)}</span>` : null}
++            ${who.length ? html`<span class="dband__who">${who.slice(0, MAX_SEATS).map((p) => html`<${PlayerAvatar} key=${p.playerId} player=${p} size="sm" />`)}</span>` : null}
+             ${isTaken ? html`<span class="dband__taken">${t('队友已选')}</span>` : null}
+           </button>`;
+         })}
 diff --git a/public/js/screens/game.js b/public/js/screens/game.js
 index a6a5972..1131c03 100644
 --- a/public/js/screens/game.js
@@ -4272,10 +5613,36 @@ index a6a5972..1131c03 100644
        ${selEntry && editable && !facing && !drag && showPrep ? html`<${Underframe} key=${sel.uid} view=${view} uid=${sel.uid}
          row=${pieceTile(selEntry)?.row} col=${pieceTile(selEntry)?.col} actions=${underframeActions(placeCtx, sel.uid)} busy=${selBusy}
 diff --git a/public/js/screens/lobby.js b/public/js/screens/lobby.js
-index 7177752..502575c 100644
+index 7177752..6796146 100644
 --- a/public/js/screens/lobby.js
 +++ b/public/js/screens/lobby.js
-@@ -21,6 +21,7 @@ import { openStats } from './stats.js';
+@@ -1,8 +1,13 @@
++import {CommunityPreferences} from '../ui/communityAddons.js';
+ // Lobby screen: pick 独立模拟 / 同盟模拟 and a difficulty (标准/险境/绝境/终极), create a room,
+ // or join one with a 同盟密钥 (recent codes remembered) — as a player (加入同盟) or in one of its MAX_SPECTATORS
+ // spectator seats (观战: room.spectate, also while its match runs; community report #26, a remake feature — the
+ // official room has none). Shows connection status + ping.
+ //
++// 0.2.4 capacity: a co-op room is created with one of ROOM_CAPACITIES seats (同盟席位: 4 / 8 / 12, remembered like the
++// mode and the difficulty) — the room.create intent carries it, and the waiting room's host may change it before the
++// match (screens/room.js). A solo room is created exactly as before (no capacity sent: it always holds 1 seat).
++//
+ // Difficulty descriptions come from data/config.json `modes[modeId]` when present, else from the
+ // official act2autochess `modeDataDict` texts embedded below (desc + effectDescList), so the
+ // screen is complete before data is generated. Rounds: solo 标准 = 9, everything else 14 (+R15
+@@ -13,7 +18,10 @@
+ 
+ import { ResumeMatchButton } from '../ui/resumeMatch.js';
+ import { useEffect, useRef, useState } from '../../vendor/hooks.module.js';
+-import { DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, ROOM_CODE_LEN, MAX_SEATS, MAX_SPECTATORS, modeIdFor, ERR } from '../../../shared/constants.js';
++import {
++  DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, ROOM_CODE_LEN, MAX_SEATS, MAX_SPECTATORS,
++  ROOM_CAPACITIES, DEFAULT_SEATS, modeIdFor, ERR,
++} from '../../../shared/constants.js';
+ import { html, Button, Icon, MicroLabel, Panel, TextField, PingPill, AvatarFrame, Tooltip, Spinner, DifficultyIcon, doctorNo } from '../ui/components.js';
+ import { toast, toastError } from '../ui/toasts.js';
+ import { GuideButton } from '../ui/guide.js';
+@@ -21,6 +29,7 @@ import { openStats } from './stats.js';
  import { SettingsButton } from '../ui/settings.js';
  import { PwaInstallButton } from '../ui/device.js';
  import { LoadoutButton } from './loadout.js';
@@ -4283,7 +5650,74 @@ index 7177752..502575c 100644
  import { net, identity } from '../net.js';
  import { store, useStore, shallowEqual, loadPref, savePref } from '../store.js';
  import { getConfig, getMode, getStage, useData } from '../data.js';
-@@ -323,6 +324,7 @@ export function LobbyScreen() {
+@@ -170,6 +179,17 @@ export function rememberRoom(code) {
+   savePref('recentRooms', [code, ...recentRooms().filter((c) => c !== code)].slice(0, 4));
+ }
+ 
++/**
++ * The seat count a co-op room is created with: one of ROOM_CAPACITIES, else DEFAULT_SEATS (4) — a remembered value from
++ * an older build, a hand-edited preference or a string never reaches the wire.
++ * @param {unknown} v
++ * @returns {number}
++ */
++export function normalizeCapacity(v) {
++  const n = Number(v);
++  return ROOM_CAPACITIES.includes(n) ? n : DEFAULT_SEATS;
++}
++
+ const FALLBACK_TIPS = [
+   N_('联合模拟在选择策略时可以进行一次跳过'),
+   N_('调度中心即使冻结，依然可以主动刷新'),
+@@ -239,6 +259,22 @@ function DifficultyCard({ roomMode, difficulty, selected, onSelect }) {
+   </button>`;
+ }
+ 
++/**
++ * 同盟席位: the co-op room's seat count (ROOM_CAPACITIES) — a compact radio row in the create panel, remembered like
++ * the mode and the difficulty. Solo rooms have exactly one seat and are created without a capacity.
++ * @param {{ capacity: number, onPick: (n: number) => void }} props
++ */
++function CapacityPick({ capacity, onPick }) {
++  return html`<div class="cap-pick"><label class="tavern-mod"><input type="checkbox" checked=${capacity>4} onChange=${e=>onPick(e.target.checked?8:4)} />${t('多人房间')}</label>
++    <span class="cap-pick__label">${t('同盟席位')}<${MicroLabel}>ROOM CAPACITY<//></span>
++    <div class="cap-pick__opts" role="radiogroup" aria-label=${t('同盟席位')}>
++      ${ROOM_CAPACITIES.map((n) => html`<button key=${n} type="button" role="radio" aria-checked=${capacity === n ? 'true' : 'false'}
++        class=${`cap-pick__opt${capacity === n ? ' is-active' : ''}`} onClick=${() => onPick(n)}>${t('{n} 人', { n })}</button>`)}
++    </div>
++    <span class="cap-pick__note t-dim">${t('创建后可在等待室由创建者调整')}</span>
++  </div>`;
++}
++
+ /** Lobby screen component. */
+ export function LobbyScreen() {
+   const me = useStore((s) => s.me, shallowEqual);
+@@ -249,6 +285,7 @@ export function LobbyScreen() {
+     const d = loadPref('lobby.difficulty', 'FUNNY');
+     return DIFFICULTIES.includes(d) ? d : 'FUNNY';
+   });
++  const [capacity, setCapacity] = useState(() => normalizeCapacity(loadPref('lobby.capacity', DEFAULT_SEATS)));
+   const [code, setCode] = useState('');
+   const [busy, setBusy] = useState(null);
+   const [recent] = useState(recentRooms);
+@@ -261,6 +298,7 @@ export function LobbyScreen() {
+ 
+   const pickMode = (m) => { setRoomMode(m); savePref('lobby.mode', m); };
+   const pickDifficulty = (d) => { setDifficulty(d); savePref('lobby.difficulty', d); };
++  const pickCapacity = (n) => { const v = normalizeCapacity(n); setCapacity(v); savePref('lobby.capacity', v); };
+ 
+   const run = async (kind, fn) => {
+     if (inFlight.current) return;
+@@ -272,7 +310,8 @@ export function LobbyScreen() {
+       if (alive.current) setBusy(null);
+     }
+   };
+-  const create = () => run('create', () => net.request('room.create', { mode: roomMode, difficulty }));
++  // a solo room is created exactly as before: no capacity on the wire (it always holds one seat)
++  const create = () => run('create', () => net.request('room.create', roomMode === 'coop' ? { mode: roomMode, difficulty, capacity } : { mode: roomMode, difficulty }));
+   const join = (c = code) => {
+     // `onClick=${join}` hands the click EVENT as the first argument, and a default parameter only applies to
+     // `undefined` — codeArg keeps an event target out of the key and falls back to the input field
+@@ -323,6 +362,7 @@ export function LobbyScreen() {
        <div class="topbar__right">
          <${ResumeMatchButton} />
          <${LoadoutButton} from="lobby" size="sm" class="lobby-loadout" label=${t('干员调配')} />
@@ -4291,11 +5725,47 @@ index 7177752..502575c 100644
          <button type="button" class="me-chip me-chip--btn stats-entry" onClick=${openStats} title=${t('统计数据')} aria-label=${t('统计数据')}>
            <${AvatarFrame} size="sm" name=${me.name} seat=${0} self=${true} />
            <span class="me-chip__text">
+@@ -367,6 +407,7 @@ export function LobbyScreen() {
+           ${DIFFICULTIES.map((d) => html`<${DifficultyCard} key=${d} roomMode=${roomMode} difficulty=${d} selected=${difficulty === d} onSelect=${pickDifficulty} />`)}
+         </div>
+         <div class="create-box">
++          ${roomMode === 'coop' ? html`<${CapacityPick} capacity=${capacity} onPick=${pickCapacity} />` : null}
+           <${Tooltip} block=${true} text=${online ? null : t('正在连接服务器…')}>
+             <${Button} variant="primary" size="xl" block=${true} iconRight="chevrons" loading=${busy === 'create'} disabled=${!online} onClick=${create}>
+               ${roomMode === 'solo' ? t('开始独立模拟') : t('创建同盟')}
 diff --git a/public/js/screens/room.js b/public/js/screens/room.js
-index 9768e31..d771128 100644
+index 9768e31..c373ac6 100644
 --- a/public/js/screens/room.js
 +++ b/public/js/screens/room.js
-@@ -22,10 +22,13 @@ import { GuideButton } from '../ui/guide.js';
+@@ -1,6 +1,13 @@
+-// Room screen (同盟等待室): 4 seat cards (avatar frame, name, ready state, AI badge, host crown),
+-// host controls (difficulty picker, add/remove AI and the 「AI 队友最后选择」 switch in co-op, start), invite code with
+-// copy code / copy link, ready toggle and leave.
++import {CommunityPreferences} from '../ui/communityAddons.js';
++// Room screen (同盟等待室): the room's seat cards (avatar frame, name, ready state, AI badge, host crown) — 4, 12 or 16
++// of them (0.2.4 capacity; a solo room shows a single seat),
++// host controls (difficulty picker, 同盟席位 capacity picker, add/remove AI and the 「AI 队友最后选择」 switch in co-op,
++// start), invite code with copy code / copy link, ready toggle and leave.
++//
++// 0.2.4 capacity: room.state carries `capacity` (a number) next to `seats` (an array of that length). The seat list
++// follows it (roomCapacity), the host changes it before the match with room.setCapacity — a value below the highest
++// OCCUPIED seat is refused by the server (BAD_TARGET), so those options are disabled with the reason — and everyone
++// sees 已入座 occupied / capacity. A match is sized by its occupied seats, never by the capacity.
+ //
+ // Start rule (server/lobby.js): room.start needs every *other* human connected and ready; the
+ // host's start counts as the host's ready. So 开始模拟 is enabled exactly then and sends room.start
+@@ -12,7 +19,9 @@
+ // Texts go through t() (docs/I18N.md).
+ 
+ import { useEffect, useRef, useState } from '../../vendor/hooks.module.js';
+-import { DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, MAX_SEATS, MAX_SPECTATORS } from '../../../shared/constants.js';
++import {
++  DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, MAX_SEATS, MAX_SPECTATORS, ROOM_CAPACITIES, DEFAULT_SEATS,
++} from '../../../shared/constants.js';
+ import {
+   html, Button, Icon, MicroLabel, PingPill, AvatarFrame, DifficultyTag, DifficultyIcon, Tooltip, confirmDialog, doctorNo,
+ } from '../ui/components.js';
+@@ -22,18 +31,35 @@ import { GuideButton } from '../ui/guide.js';
  import { openStats } from './stats.js';
  import { SettingsButton } from '../ui/settings.js';
  import { LoadoutButton } from './loadout.js';
@@ -4308,21 +5778,148 @@ index 9768e31..d771128 100644
 +import {BobPreference} from '../ui/bobShopkeeper.js';
  
  /**
-  * Seats padded to the room's capacity (co-op 4, solo 1), each null or a seat record.
-@@ -337,6 +340,12 @@ export function RoomScreen() {
+- * Seats padded to the room's capacity (co-op 4, solo 1), each null or a seat record.
++ * The room's capacity: `room.state.capacity` (a number, 4 / 8 / 12 — 1 in a solo room), clamped to MAX_SEATS.
++ * A payload without it is an older server (or a hand-made one): the seats it sent are the truth, and a room that
++ * carries none at all is the 4-seat game (`DEFAULT_SEATS`), never a 16-seat one invented out of thin air.
++ * @param {any} room room.state payload
++ * @returns {number}
++ */
++export function roomCapacity(room) {
++  const n = Number(room?.capacity);
++  if (Number.isInteger(n) && n > 0) return Math.min(n, MAX_SEATS);
++  const seats = Array.isArray(room?.seats) ? room.seats.length : 0;
++  return seats > 0 ? Math.min(seats, MAX_SEATS) : DEFAULT_SEATS;
++}
++
++/**
++ * Seats padded to the room's capacity (co-op 4 / 8 / 12, solo 1), each null or a seat record.
+  * @param {any} room room.state payload
+  * @returns {(null | {seat:number, playerId:any, name:string, isBot:boolean, ready:boolean, connected:boolean})[]}
+  */
+ export function normalizeSeats(room) {
+-  const cap = room?.mode === 'solo' ? 1 : MAX_SEATS;
++  const cap = room?.mode === 'solo' ? 1 : roomCapacity(room);
+   const src = Array.isArray(room?.seats) ? room.seats : [];
+   const out = [];
+   for (let i = 0; i < cap; i++) {
+@@ -43,6 +69,19 @@ export function normalizeSeats(room) {
+   return out;
+ }
+ 
++/**
++ * Index of the highest OCCUPIED seat (−1 when nobody is seated): the smallest capacity that still holds every doctor
++ * already in the room is this + 1 (the server refuses anything below, ERR.BAD_TARGET — server/lobby.js setCapacity).
++ * @param {any} room room.state payload
++ * @returns {number}
++ */
++export function highestOccupiedSeat(room) {
++  const seats = Array.isArray(room?.seats) ? room.seats : [];
++  let hi = -1;
++  for (let i = 0; i < seats.length; i++) if (seats[i]) hi = i;
++  return hi;
++}
++
+ /**
+  * Derived room facts for the local player.
+  * @param {any} room
+@@ -62,6 +101,7 @@ export function roomFacts(room, myId) {
+   const othersReady = others.every((s) => s.ready && s.connected !== false);
+   return {
+     seats, occupied, humans, mine, isHost, readyHumans, isReady,
++    capacity: seats.length,
+     emptySeats: seats.filter((s) => !s).length,
+     canStart: isHost && othersReady && !!mine,
+     othersReady,
+@@ -219,6 +259,42 @@ function AiLastToggle({ option, busy, onToggle }) {
+   </div>`;
+ }
+ 
++/**
++ * 同盟席位 (0.2.4 capacity): 已入座 occupied / capacity for everyone; the host picks 4 / 8 / 12 (room.setCapacity)
++ * before the match. A capacity below the highest OCCUPIED seat would leave that doctor without a seat — the server
++ * refuses it (BAD_TARGET) — so those options are disabled and their tooltip says which seat blocks them.
++ * Solo rooms have exactly one seat and no capacity control.
++ */
++function CapacityPicker({ room, facts, busy, onPick }) {
++  if (room.mode === 'solo') return null;
++  const cap = facts.capacity;
++  const used = facts.occupied.length;
++  const count = html`<span class="cap__count num">${used}<span class="t-dim"> / ${cap}</span></span>`;
++  if (!facts.isHost) {
++    return html`<div class="cap cap--ro">
++      <span class="cap__label">${t('同盟席位')}<${MicroLabel}>CAPACITY<//></span>
++      <${Tooltip} text=${t('由创建者设置')}>${count}<//>
++    </div>`;
++  }
++  // the smallest capacity that still holds every seated doctor (the server's own guard)
++  const min = highestOccupiedSeat(room) + 1;
++  return html`<div class="cap" role="radiogroup" aria-label=${t('同盟席位')}>
++    <label class="tavern-mod"><input type="checkbox" checked=${cap>4} disabled=${!!busy||min>4} onChange=${e=>onPick(e.target.checked?8:4)} />${t('多人房间')}</label>
++    <div class="cap__opts">
++      ${ROOM_CAPACITIES.map((n) => {
++        const blocked = n < min;
++        const btn = html`<button type="button" role="radio" aria-checked=${cap === n ? 'true' : 'false'}
++          class=${`cap__opt${cap === n ? ' is-active' : ''}`} disabled=${!!busy || blocked}
++          onClick=${() => !blocked && cap !== n && onPick(n)}>${t('{n} 人', { n })}</button>`;
++        return blocked
++          ? html`<${Tooltip} key=${n} class="cap__slot" text=${t('席位不能少于已占用的最高席位（P{n}）', { n: min })}>${btn}<//>`
++          : html`<span key=${n} class="cap__slot">${btn}</span>`;
++      })}
++    </div>
++    ${count}
++  </div>`;
++}
++
+ /** Room screen component. */
+ export function RoomScreen() {
+   const room = useStore((s) => s.room);
+@@ -259,6 +335,8 @@ export function RoomScreen() {
+     if (ok) run(`kick${seat}`, () => net.request('room.kick', { seat, playerId }));
+   };
+   const setDifficulty = (difficulty) => run('diff', () => net.request('room.setDifficulty', { difficulty }));
++  // 同盟席位 (0.2.4 capacity): host-only, before the match; the server refuses a value below the highest occupied seat
++  const setCapacity = (capacity) => run('cap', () => net.request('room.setCapacity', { capacity }));
+   const setAiLast = (on) => run('ailast', () => net.request('room.setAiPicksLast', { on }));
+   // spectator seats: the host frees one; a spectator takes a free player seat with room.join of this room
+   const removeSpectator = (playerId) => run(`rs${playerId}`, () => net.request('room.removeSpectator', { playerId }));
+@@ -321,7 +399,7 @@ export function RoomScreen() {
+       </div>
+     </header>
+ 
+-    <main class=${`seats${coop ? '' : ' seats--solo'}`}>
++    <main class=${['seats', coop ? '' : 'seats--solo', facts.capacity === 8 ? 'seats--compact seats--cap8' : facts.capacity === 12 ? 'seats--compact seats--cap12' : ''].filter(Boolean).join(' ')}>
+       ${facts.seats.map((s, i) => html`<${SeatCard} key=${s ? `p${s.playerId}` : `e${i}`} seat=${s} index=${i} room=${room} facts=${facts}
+         myId=${me.playerId} busy=${busy} onAddBot=${addBot} onRemoveBot=${removeBot} onKick=${kick} />`)}
+       ${coop ? null : html`<aside class="solo-brief brackets">
+@@ -337,15 +415,26 @@ export function RoomScreen() {
      </main>
      <${SpectatorBar} facts=${facts} myId=${me.playerId} busy=${busy} onRemove=${removeSpectator} onSit=${sit} />
  
 +    <section class="tavern-mods" aria-label=${t('卫戍协议酒馆战旗整合模组')}>
 +      <strong>${t('卫戍协议酒馆战旗整合模组')}</strong>
 +      ${[['spells',t('酒馆法术')],['heroes',t('酒馆英雄策略')]].map(([key,label])=>html`<label class="tavern-mod"><input type="checkbox" checked=${normalizeTavernMods(room.tavernMods)[key]} disabled=${!facts.isHost||!!busy||room.inMatch} onChange=${e=>run('tavern',()=>net.request('room.setTavernMods',{mods:{...normalizeTavernMods(room.tavernMods),[key]:e.target.checked}}))} />${label}</label>`)}
-+      <${BobPreference} />
++      <${BobPreference} /><${CommunityPreferences} />
 +      <small>${t('玩法模组由房主设置，下局生效；鲍勃仅影响自己的界面和语音。')}</small>
 +    </section>
      <footer class="room-bar">
        <div class="room-bar__left">
          <span class="room-bar__label">${t('模拟难度')}<${MicroLabel}>DIFFICULTY<//></span>
-@@ -357,6 +366,7 @@ export function RoomScreen() {
+         <div class="room-bar__opts">
+           <${DifficultyPicker} room=${room} isHost=${facts.isHost} busy=${busy} onPick=${setDifficulty} />
+           <${AiLastToggle} option=${aiLastOption(room, me.playerId)} busy=${busy} onToggle=${setAiLast} />
++          <${CapacityPicker} room=${room} facts=${facts} busy=${busy} onPick=${setCapacity} />
+         </div>
+       </div>
+       <div class="room-bar__center">
++        <div class="seat-count" hidden=${!coop}>
++          <span class="t-lo">${t('已入座')}</span>
++          <b class="num">${facts.occupied.length}</b><span class="num t-dim">/${facts.capacity}</span>
++        </div>
+         <div class="ready-count" hidden=${!coop}>
+           <span class="t-lo">${t('已就绪')}</span>
+           <b class="num">${facts.readyHumans}</b><span class="num t-dim">/${facts.humans.length}</span>
+@@ -357,6 +446,7 @@ export function RoomScreen() {
        </div>
        <div class="room-bar__right">
          <${LoadoutButton} from="room" size="lg" class="room-loadout" label=${t('干员调配')} />
@@ -4940,6 +6537,75 @@ index 0000000..843c80e
 +    }
 +  ]
 +});
+diff --git a/public/js/ui/choiceOverlay.js b/public/js/ui/choiceOverlay.js
+index fc5c2ca..50dbc7d 100644
+--- a/public/js/ui/choiceOverlay.js
++++ b/public/js/ui/choiceOverlay.js
+@@ -15,6 +15,8 @@
+ // spinner over its text — user playtest #3 item 9), dropped as soon as the pick shows in m.public (spBusy itself resets
+ // when the request settles, ≤ 8 s, or the phase moves on). Untimed drafts (solo, a single-human match: sp.untimed) show
+ // no countdown and say so.
++// 0.2.4 capacity: a 8/12-seat room deals up to 18 cards — from seven cards on the grid flows into as many auto-fit
++// columns as fit and scrolls (spov__grid--many), and the pick order wraps; six cards or fewer keep the 3×2 board.
+ 
+ import { useEffect, useState } from '../../vendor/hooks.module.js';
+ import { html, Icon, TierChip, Countdown, MicroLabel, Button } from './components.js';
+@@ -210,7 +212,7 @@ export function ChoiceView({ pub, sp, myId, solo, personal = false, busyIdx = nu
+           </div>`;
+         })}
+       </div>` : null}
+-      <div class=${cx('spov__grid', sp.cards.length <= 3 && 'spov__grid--3')}>
++      <div class=${cx('spov__grid', sp.cards.length <= 3 && 'spov__grid--3', sp.cards.length > 6 && 'spov__grid--many')}>
+         ${sp.cards.map((card) => {
+           const r = resolveSpCard(card, sp.family);
+           const taker = card.takenBy ? players.get(card.takenBy) : null;
+diff --git a/public/js/ui/communityAddons.js b/public/js/ui/communityAddons.js
+new file mode 100644
+index 0000000..f039952
+--- /dev/null
++++ b/public/js/ui/communityAddons.js
+@@ -0,0 +1,41 @@
++import {html} from './components.js';
++import {useState} from '../../vendor/hooks.module.js';
++import {t} from '../../../shared/i18n.js';
++import {store} from '../store.js';
++import {net} from '../net.js';
++import {mount as mountChat} from '../../community/chat-bubble/client/chat.js';
++import {mount as mountDamage} from '../../community/dmg-board/client/board.js';
++const key=id=>'sp.community.'+id;
++export function communityEnabled(id){try{return localStorage.getItem(key(id))!=='false';}catch{return true;}}
++export function setCommunityEnabled(id,value){try{localStorage.setItem(key(id),String(value));}catch{/* private mode */}window.dispatchEvent(new Event('sp:community'));}
++export function CommunityPreferences(){
++ const [values,setValues]=useState(()=>({chat:communityEnabled('chat'),damage:communityEnabled('damage')}));
++ return html`<span class="community-prefs">${[['chat',t('局内聊天（仅自己）')],['damage',t('伤害看板（仅自己）')]].map(([id,label])=>html`<label class="tavern-mod"><input type="checkbox" checked=${values[id]} onChange=${e=>{setCommunityEnabled(id,e.target.checked);setValues({...values,[id]:e.target.checked});}}/>${label}</label>`)}</span>`;
++}
++let started=false;
++export function startCommunityAddons(){
++ if(started)return;started=true;
++ for(const href of ['/community/chat-bubble/client/chat.css','/community/dmg-board/client/board.css','/css/community-addons.css']){const link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.appendChild(link);}
++ const mounted=new Map();
++ function sync(){
++  const state=store.get(),room=state.room;
++  for(const [id,selector,mount] of [['chat','.gm',mountChat],['damage','.screen.result',mountDamage]]){
++   const parent=document.querySelector(selector),allowed=communityEnabled(id)&&parent&&(id!=='chat'||room)&&!document.querySelector('.st');
++   const old=mounted.get(id),identity=id==='chat'?room?.code:state.match?.result;
++   if(old&&(!allowed||old.parent!==parent||old.identity!==identity)){old.handle.unmount();old.host.remove();mounted.delete(id);}
++   if(!allowed||mounted.has(id))continue;
++   const host=document.createElement('div');host.className='community-host community-host--'+id;parent.appendChild(host);
++   const ctx={host,me:state.me,t,net:{
++    send:(_channel,data)=>net.request('community.chat',{text:data.text},{queue:false}),
++    on:(channel,fn)=>{
++     if(channel==='m.result'){if(state.match?.result)queueMicrotask(()=>{if(host.isConnected)fn(state.match.result);});return net.on(channel,fn);}
++     return net.on('community.chat',msg=>{if(msg.code===store.get().room?.code&&communityEnabled('chat'))fn(msg);});
++    },
++   }};
++   mounted.set(id,{host,parent,identity,handle:mount(ctx)});
++  }
++ }
++ window.addEventListener('sp:community',sync);
++ store.subscribe(()=>requestAnimationFrame(sync));
++ setInterval(sync,500);sync();
++}
 diff --git a/public/js/ui/detailPanel.js b/public/js/ui/detailPanel.js
 index 5f06866..244dbd9 100644
 --- a/public/js/ui/detailPanel.js
@@ -5173,6 +6839,42 @@ index a4afb7f..564be2c 100644
    infoReady: (setupRevision = 0) => act('g.infoReady', { setupRevision }),
    rerollSetup: (setupRevision) => act('room.rerollSetup', { setupRevision }, { sfx: 'confirm' }),
    rerollVote: (voteId, agree) => act('g.rerollVote', { voteId, agree }, { sfx: agree ? 'confirm' : 'back' }),
+diff --git a/public/js/ui/gameLogic/draft.js b/public/js/ui/gameLogic/draft.js
+index 5678238..5736eff 100644
+--- a/public/js/ui/gameLogic/draft.js
++++ b/public/js/ui/gameLogic/draft.js
+@@ -7,6 +7,13 @@ import { t } from '../../../../shared/i18n.js';
+ 
+ // ---- 机变 / band draft normalisation ----------------------------------------------------------------------
+ 
++/**
++ * Largest 机变 board: a 8/12-seat room deals 18 cards (the 4-seat board is 6, the same cards as before 0.2.4). The
++ * server is the authority on how many it deals — this bound only keeps a stale or hostile payload from growing the
++ * overlay without limit.
++ */
++const MAX_SP_CARDS = 18;
++
+ /**
+  * Normalise m.public.draft ({order, turn, picks, skips?}) — tolerant of index/playerId turns and
+  * object/array picks.
+@@ -40,6 +47,8 @@ export function normalizeDraft(draft, players = []) {
+ /**
+  * Normalise m.public.sp ({family, cards, turn, picks, order?}).
+  * Cards: string ids or objects; picks: {playerId: cardIdx} | [{playerId, idx}] | card.takenBy.
++ * `sp.cards` is the server's board: 6 cards in a 4-seat room, up to MAX_SP_CARDS (18) in a 8/12-seat one
++ * (0.2.4 capacity). Every card keeps its unique `idx` 0..n-1, which is what a pick (g.choice) refers to.
+  * @param {any} sp
+  * @param {any[]} [players]
+  */
+@@ -47,7 +56,7 @@ export function normalizeSp(sp, players = []) {
+   if (!isObj(sp)) return null;
+   const ids = (Array.isArray(players) ? players : []).filter(isObj).map((p) => p.playerId);
+   const order = Array.isArray(sp.order) && sp.order.length ? sp.order.filter((x) => typeof x === 'string') : ids;
+-  const cards = (Array.isArray(sp.cards) ? sp.cards : []).slice(0, 6).map((c, idx) => {
++  const cards = (Array.isArray(sp.cards) ? sp.cards : []).slice(0, MAX_SP_CARDS).map((c, idx) => {
+     const card = typeof c === 'string' ? { id: c } : isObj(c) ? { ...c } : {};
+     return { ...card, idx, takenBy: typeof card.takenBy === 'string' ? card.takenBy : null };
+   });
 diff --git a/public/js/ui/gameLogic/placement.js b/public/js/ui/gameLogic/placement.js
 index 342f78a..128f7fa 100644
 --- a/public/js/ui/gameLogic/placement.js
@@ -5852,32 +7554,189 @@ index 0000000..690150c
 +    target: t('目标干员'),
 +  }) : text;
 +}
+diff --git a/public/js/ui/stats.js b/public/js/ui/stats.js
+index 6d6651f..cf87358 100644
+--- a/public/js/ui/stats.js
++++ b/public/js/ui/stats.js
+@@ -34,7 +34,7 @@
+ // Pure logic, no Preact / DOM: Node-testable (test/ui/stats.test.js); localStorage is touched only by loadStats /
+ // saveStats / their helpers.
+ 
+-import { PHASE } from '../../../shared/constants.js';
++import { MAX_SEATS, PHASE } from '../../../shared/constants.js';
+ 
+ /** Current record-envelope version (bump + add a MIGRATIONS step when the record shape changes). */
+ export const STATS_VERSION = 1;
+@@ -63,7 +63,7 @@ const bool = (v, d = false) => (typeof v === 'boolean' ? v : d);
+ const str = (v, max = 64) => (typeof v === 'string' && v.length ? v.slice(0, max) : null);
+ 
+ // per-record bounds (an imported file is foreign data: nothing a row holds may grow without limit)
+-const MAX_PLAYERS = 6; // the game seats 4
++const MAX_PLAYERS = MAX_SEATS; // 0.2.6-capacity: a room seats 4 / 8 / 12 — a record keeps every seat of its match
+ const MAX_LINEUP = 12;
+ const MAX_ITEMS = 4;
+ const MAX_BONDS = 24;
+diff --git a/public/js/ui/teamPanel.js b/public/js/ui/teamPanel.js
+index 43d924a..3d47918 100644
+--- a/public/js/ui/teamPanel.js
++++ b/public/js/ui/teamPanel.js
+@@ -2,6 +2,9 @@
+ // tower, status glyph (… acting / ✓ ready / ⌛ deciding / ⚔ combat / door left / ✕ dead), AI badge, "you" marker, the
+ // field being watched (eye badge), and emote bubbles. In a boss round the viewer's pair is framed in green from the
+ // round's start (gameLogic teamFrameIds; community report of 2026-10-06, item 51).
++// 0.2.4 capacity: a room holds up to MAX_SEATS (16) doctors — from five rows on the column scrolls and from nine on
++// each row shrinks (team--many / team--dense, screens/game.css), so every teammate stays reachable; a four-player
++// roster renders exactly the column it always did.
+ // Observing (client-side combat, `observe` prop — the official flow): tapping a teammate's avatar expands a mint
+ // "前往查看" button under the row (when that teammate can be observed now; otherwise the reason is toasted through
+ // onWatch); while observing, the own row shows a "返回战场" button. Without `observe` (server-run combat) a click
+@@ -155,7 +158,12 @@ export function TeamPanel({ pub, myId, watching, bubbles, onWatch, compact = fal
+     noteAsked(p);
+     onWatch(p);
+   };
+-  return html`<aside class=${cx('team', compact && 'team--compact')} aria-label=${t('同盟成员')}>
++  // 0.2.4 capacity: a 8/12-seat room lists more rows than the screen is tall — from five rows on the column scrolls
++  // (team--many) and from nine on every row tightens (team--dense), so up to MAX_SEATS teammates stay readable. A
++  // four-player roster keeps the plain, non-scrolling column it has always had.
++  const many = players.length > 4;
++  const dense = players.length > 8;
++  return html`<aside class=${cx('team', compact && 'team--compact', many && 'team--many', dense && 'team--dense')} aria-label=${t('同盟成员')}>
+     ${players.map((p) => {
+       const self = p.playerId === myId;
+       const status = p.alive === false ? 'dead' : p.status;
+diff --git a/server/communityChat.js b/server/communityChat.js
+new file mode 100644
+index 0000000..60cf0d3
+--- /dev/null
++++ b/server/communityChat.js
+@@ -0,0 +1,12 @@
++// Compatibility transport for the independent chat-bubble package. No gameplay state mutations.
++const sentAt=new WeakMap();
++export function communityChat(lobby,session,msg){
++ const room=lobby.roomOf(session),seat=room?.seatOf(session.playerId);
++ if(!room||!seat||seat.isBot||seat.left)return {error:'NOT_IN_ROOM'};
++ const text=String(msg.text||'').replace(/[\u0000-\u001f\u007f]/g,' ').trim();
++ if(!text||Array.from(text).length>120)return {error:'BAD_MSG'};
++ const now=lobby.now();if(now-(sentAt.get(session)??-Infinity)<250)return {error:'RATE'};
++ sentAt.set(session,now);
++ lobby.broadcastRoom(room,{t:'community.chat',code:room.code,playerId:session.playerId,data:{text,name:seat.name}});
++ return {ok:true};
++}
 diff --git a/server/lobby.js b/server/lobby.js
-index 0537b9c..1edda8a 100644
+index 0537b9c..72e9f1c 100644
 --- a/server/lobby.js
 +++ b/server/lobby.js
-@@ -1,3 +1,4 @@
+@@ -1,10 +1,13 @@
++import {communityChat} from './communityChat.js';
 +import { normalizeTavernMods } from '../shared/tavernMods.js';
  // server/lobby.js — rooms, seats, host, AI seats, ready/start, reconnect, and room → Match wiring
  // (DESIGN §2, §6.1 LOBBY, §8.1). Implements the handler interface consumed by server/net.js.
  //
-@@ -229,6 +230,7 @@ export class Room {
+ // Rules (the choices where DESIGN is silent are marked ▸):
+ //   * Rooms are keyed by 4-letter codes from an unambiguous alphabet (no I/O, letters only). Join codes are
+ //     case-insensitive.
+-//   * 'solo' rooms hold exactly one human and never bots. 'coop' rooms have 4 seats (humans + AI bots).
++//   * 'solo' rooms hold exactly one human and never bots. 'coop' rooms offer ROOM_CAPACITIES seats (4 / 8 / 12, humans +
++//     AI bots); the match is sized by the OCCUPIED seats, so a 4-player room is exactly the game it always was.
+ //     Humans and bots take the lowest free seat index; seat indexes never compact.
+ //   * ▸ Being in a LOBBY room and sending room.create / room.join implicitly leaves it. While your room is
+ //     in a match, create/join of another room fails with ROOM_STARTED (send g.leave or room.leave first).
+@@ -99,7 +102,7 @@
+ //     a player seat (the seat is kept and given back on resume).
+ 
+ import { randomBytes, randomInt } from 'node:crypto';
+-import { ERR, MAX_SEATS, MAX_SPECTATORS, ROOM_CODE_LEN, modeIdFor } from '../shared/constants.js';
++import { ERR, MAX_SPECTATORS, ROOM_CODE_LEN, DEFAULT_SEATS, ROOM_CAPACITIES, modeIdFor } from '../shared/constants.js';
+ import { checkLoadout, checkLoadoutOps, cultivationCharIds, checkNotOwned, checkDiyPicks } from '../shared/protocol.js';
+ import { encode, isDroppable, isErrCode, sendRaw, sendSession } from './net.js';
+ import { getData as defaultGetData, lookup } from './data.js';
+@@ -167,13 +170,19 @@ function freezeDiy(picks) {
+   return Object.freeze(out);
+ }
+ 
+-/** One room: 4 seat slots, host, difficulty, optional running match. */
++/** One room: `capacity` seat slots (4 / 8 / 12, solo 1), host, difficulty, optional running match. */
+ export class Room {
+-  /** @param {string} code @param {'solo'|'coop'} mode @param {string} difficulty @param {number} now */
+-  constructor(code, mode, difficulty, now) {
++  /**
++   * @param {string} code @param {'solo'|'coop'} mode @param {string} difficulty @param {number} now
++   * @param {number} [capacity] one of ROOM_CAPACITIES; solo rooms always hold exactly one seat
++   */
++  constructor(code, mode, difficulty, now, capacity = DEFAULT_SEATS) {
+     this.code = code;
+     this.mode = mode;
+     this.difficulty = difficulty;
++    /** Seat slots of this room (host-only `room.setCapacity` before the match). A match is sized by its OCCUPIED
++     * seats, never by the capacity: four players in a 16-seat room play the four-player game. */
++    this.capacity = mode === 'solo' ? 1 : capacity;
+     /**
+      * 「AI 队友最后选择」 (room.setAiPicksLast, GitHub #338; co-op only, off by default): the match's strategy and 机变 drafts
+      * put every human seat before every AI seat (Match opts.aiPicksLast). Kept across the room's matches.
+@@ -182,7 +191,7 @@ export class Room {
+     /** @type {string | null} */
+     this.hostId = null;
+     /** @type {(Seat | null)[]} */
+-    this.seats = new Array(MAX_SEATS).fill(null);
++    this.seats = new Array(this.capacity).fill(null);
+     /** @type {{ playerId: string, name: string, connected: boolean }[]} spectator seats, ≤ MAX_SPECTATORS (header) */
+     this.spectators = [];
+     /** @type {any} running Match instance */
+@@ -228,7 +237,9 @@ export class Room {
+       hostId: this.hostId,
        mode: this.mode,
        difficulty: this.difficulty,
++      capacity: this.capacity,
        aiPicksLast: this.aiPicksLast,
 +      tavernMods: normalizeTavernMods(this.tavernMods),
        inMatch: !!this.match,
        seats: this.seats.map((s) => (s
          ? { seat: s.seat, playerId: s.playerId, name: s.name, isBot: s.isBot, ready: s.ready, connected: s.connected && !s.left }
-@@ -337,6 +339,7 @@ export class Lobby {
+@@ -333,11 +344,14 @@ export class Lobby {
+    */
+   onMessage(session, msg) {
+     switch (msg.t) {
++      case 'community.chat': return communityChat(this,session,msg);
+       case 'room.create': return this.create(session, msg);
        case 'room.join': return this.join(session, msg);
        case 'room.leave': return this.leave(session);
        case 'room.ready': return this.ready(session, msg);
 +      case 'room.setTavernMods': return this.setTavernMods(session,msg);
        case 'room.setDifficulty': return this.setDifficulty(session, msg);
++      case 'room.setCapacity': return this.setCapacity(session, msg);
        case 'room.setAiPicksLast': return this.setAiPicksLast(session, msg);
        case 'room.addBot': return this.addBot(session);
-@@ -515,6 +518,17 @@ export class Lobby {
+       case 'room.removeBot': return this.removeBot(session, msg);
+@@ -398,7 +412,7 @@ export class Lobby {
+   // room.* handlers
+   // ---------------------------------------------------------------------------------------------------
+ 
+-  create(session, { mode, difficulty }) {
++  create(session, { mode, difficulty, capacity = DEFAULT_SEATS }) {
+     const cur = this.roomOf(session);
+     if (cur && cur.match) return fail(ERR.ROOM_STARTED, 'leave your running match first');
+     if (this.rooms.size >= this.opts.maxRooms) return fail(ERR.INTERNAL, 'too many rooms');
+@@ -413,8 +427,9 @@ export class Lobby {
+     }
+     const code = this.genCode();
+     if (!code) return fail(ERR.INTERNAL, 'no room code available');
++    if (mode === 'coop' && !ROOM_CAPACITIES.includes(capacity)) return fail(ERR.BAD_MSG, 'invalid capacity');
+     if (cur) this.removeMember(cur, session.playerId);
+-    const room = new Room(code, mode, difficulty, this.now());
++    const room = new Room(code, mode, difficulty, this.now(), capacity);
+     room.ownerKey = key;
+     room.seats[0] = this.humanSeat(0, session);
+     room.hostId = session.playerId;
+@@ -422,7 +437,7 @@ export class Lobby {
+     session.roomCode = code;
+     session.notice = null;
+     session.pendingResult = null;
+-    this.log.info(`[lobby] ${code} created (${mode}/${difficulty}) by ${session.name}`);
++    this.log.info(`[lobby] ${code} created (${mode}/${difficulty}, ${room.capacity} seats) by ${session.name}`);
+     this.broadcastState(room);
+     return OK;
+   }
+@@ -515,6 +530,17 @@ export class Lobby {
      return OK;
    }
  
@@ -5895,7 +7754,35 @@ index 0537b9c..1edda8a 100644
    setDifficulty(session, { difficulty }) {
      const room = this.roomOf(session);
      if (!room) return fail(ERR.NOT_IN_ROOM);
-@@ -732,6 +746,8 @@ export class Lobby {
+@@ -529,6 +555,27 @@ export class Lobby {
+     return OK;
+   }
+ 
++  /**
++   * room.setCapacity (0.2.6-capacity): host-only, before the match. Growing the room appends empty seats; shrinking it
++   * below the highest occupied seat (a human or an AI teammate) is refused, so nobody is ever moved or ejected. The
++   * members keep their seats, their ready state and their stored loadout — a match only ever sees the occupied seats.
++   */
++  setCapacity(session, { capacity }) {
++    const room = this.roomOf(session);
++    if (!room) return fail(ERR.NOT_IN_ROOM);
++    if (room.hostId !== session.playerId) return fail(ERR.NOT_HOST);
++    if (room.match) return fail(ERR.ROOM_STARTED);
++    if (room.mode === 'solo' || !ROOM_CAPACITIES.includes(capacity)) return fail(ERR.BAD_MSG, 'invalid capacity');
++    if (room.seats.some((s, i) => s && i >= capacity)) return fail(ERR.BAD_TARGET, 'occupied seat outside requested capacity');
++    if (room.capacity === capacity) return OK;
++    this.dropReplay(room, session.playerId);
++    if (capacity > room.capacity) room.seats.push(...new Array(capacity - room.capacity).fill(null));
++    else room.seats.length = capacity;
++    room.capacity = capacity;
++    this.broadcastState(room);
++    return OK;
++  }
++
+   /** 「AI 队友最后选择」 (GitHub #338): host-only, before the match, co-op rooms only (a solo room has no AI seat). */
+   setAiPicksLast(session, { on }) {
+     const room = this.roomOf(session);
+@@ -732,6 +779,8 @@ export class Lobby {
      try { seed = this.seedFn() >>> 0; } catch { seed = randomInt(2 ** 32); }
      try {
        const match = new this.MatchClass({
@@ -5905,7 +7792,7 @@ index 0537b9c..1edda8a 100644
          mode: room.mode,
          difficulty: room.difficulty,
 diff --git a/server/match/Match.js b/server/match/Match.js
-index 3e12fc2..3439b13 100644
+index 3e12fc2..205ac13 100644
 --- a/server/match/Match.js
 +++ b/server/match/Match.js
 @@ -1,3 +1,4 @@
@@ -5913,6 +7800,15 @@ index 3e12fc2..3439b13 100644
  // server/match/Match.js — the match & meta engine: state machine, timers, round loop, co-op orchestration,
  // broadcasting views (DESIGN §6, §8). Rules are documented in the module headers of ./PlayerState.js, ./pool.js,
  // ./board.js, ./bondsMeta.js, ./effectsMeta.js, ./choices.js, ./waves.js, ./unite.js, ./finalAssault.js,
+@@ -172,7 +173,7 @@
+ //   common.js        what the modules share (FLOW_TICKER_PRIORITY, DELAYS, BAND_TURN_SECONDS — re-exported here, OK,
+ //                    fail, BOSS_CLOCK_MS)
+ 
+-import { PHASE, modeIdFor } from '../../shared/constants.js';
++import { PHASE, modeIdFor, seatScale } from '../../shared/constants.js';
+ import { Battle } from '../sim/Battle.js';
+ import { DataSource } from '../sim/simdata.js';
+ import { createRng, deriveSeed } from '../sim/rng.js';
 @@ -232,6 +233,8 @@ export class Match {
        throw new TypeError('Match: send/broadcast/onEnd callbacks required');
      }
@@ -5922,13 +7818,20 @@ index 3e12fc2..3439b13 100644
      this.roomCode = opts.roomCode ?? '----';
      this.mode = opts.mode === 'solo' ? 'solo' : 'coop';
      this.difficulty = opts.difficulty;
-@@ -242,7 +245,8 @@ export class Match {
+@@ -242,7 +245,15 @@ export class Match {
      this.broadcastFn = opts.broadcast;
      this.onEndFn = opts.onEnd;
      this.data = opts.data && typeof opts.data === 'object' ? opts.data : {};
 -    this.gd = new GameData(this.data, this.modeId);
 +    if (this.heroMod) this.data = { ...this.data, bands: { ...this.data.bands, ...HERO_BANDS } };
 +    this.gd = new GameData(this.data, this.modeId, this.spellShop);
++    // 0.2.6-capacity: the room-wide shared resources (card-pool copies, the hidden-core layer threshold) scale with the
++    // seats this match actually has. seatScale is 1 for a room of at most BASE_SEATS players, so the ≤4-player game —
++    // and the golden results — is untouched.
++    this.gd.seatScale = seatScale(opts.seats.length);
++    // 0.2.6-capacity: the hidden-core layer requirement is a room-wide total, so it needs its own ladder — the owner's
++    // choice of 2026-10-11: the 4-player 1200 stands, the 8-seat room asks for 1200 x 1.5 (1800) and 9-12 seats x 3.
++    this.gd.hiddenScale = opts.seats.length <= 4 ? 1 : opts.seats.length <= 8 ? 1.5 : 3;
      if (!this.difficulty) this.difficulty = this.gd.difficulty;
      this.isSolo = this.mode === 'solo' || this.gd.isSolo;
      /** 「AI 队友最后选择」 (opts.aiPicksLast, GitHub #338): humans draft before AI seats (MatchPhases.humansFirst) */
@@ -5990,8 +7893,30 @@ index 4d02f57..9420c8b 100644
      if (!tryDo(() => ps.pickReward(best))) {
        // could not take it (sold out / no room): drop the offer
        ps.offers.shift();
+diff --git a/server/match/choices.js b/server/match/choices.js
+index 7774b0c..a6e3b6e 100644
+--- a/server/match/choices.js
++++ b/server/match/choices.js
+@@ -134,12 +134,15 @@ function itemCard(gd, id) {
+ 
+ /**
+  * Build the draft cards for an SP round.
++ * @param {object} [opts.family] 0.2.6-capacity: build this family instead of drawing one — a room larger than a single
++ *   six-card page builds extra pages that must all show the round's one event type (server/match/match/spDraft.js)
+  * @returns {{ family: string, name: string, desc: string, eventId: string|null, cards: object[] } | null}
+  */
+-export function generateDraft(gd, rng, round, { stageId = null, bondAvailable = null, itemAvailable = null } = {}) {
++export function generateDraft(gd, rng, round, { stageId = null, bondAvailable = null, itemAvailable = null, family: familyWanted = null } = {}) {
+   const sch = scheduleFor(gd, round);
+   const fams = Array.isArray(sch.families) && sch.families.length ? sch.families.map((f) => [f.family, f.weight]) : [['supply', 1]];
+-  let family = weightedPick(rng, fams) || 'supply';
++  const wanted = typeof familyWanted === 'string' && fams.some(([f]) => f === familyWanted) ? familyWanted : null;
++  let family = wanted || weightedPick(rng, fams) || 'supply';
+   const n = Number.isInteger(sch.cards) && sch.cards > 0 ? Math.min(sch.cards, 6) : formatCount(gd);
+   const opts = { stageId, bondAvailable, round, itemAvailable };
+   let cards = buildCards(gd, rng, family, n, sch, opts);
 diff --git a/server/match/effectsMeta.js b/server/match/effectsMeta.js
-index ed646c9..5019667 100644
+index ed646c9..773fa54 100644
 --- a/server/match/effectsMeta.js
 +++ b/server/match/effectsMeta.js
 @@ -1,3 +1,4 @@
@@ -6078,6 +8003,21 @@ index ed646c9..5019667 100644
      } finally {
        this.depth--;
      }
+@@ -564,6 +586,14 @@ export function makeCtx(m, ps, source, hook, ev = null) {
+       }
+       return p ? view(p) : null;
+     },
++    /**
++     * Grant an item. 0.2.5's official rule: the fixed operator-gift families (卡涅利安 / 蜜蜡 / 缪尔赛思 / 耶拉 /
++     * 诗怀雅〈获得时〉 and 变形者集群's 变形同构体) are never blocked by the shared equipment stock — they still count
++     * toward it, but are handed out even at the cap (`GameData.isUnlimitedGiftItem`, PlayerState.acquireItem
++     * `requirePool: false`, the default here). A caller that hands out an item taken FROM the shelf instead — a 机变 card
++     * (道具补给 / 机密商店), a tactic card's item roll — passes `requirePool: true` and consumes a copy as before, like
++     * the shop, the reward offers and 整备 (马克维茨's 商业包装方案 stays stock-limited).
++     */
+     grantItem: (itemId, opts = {}) => {
+       if (!ps.alive || !gd.item(itemId)) return null;
+       const p = ps.acquireItem(itemId, {
 diff --git a/server/match/fields.js b/server/match/fields.js
 index b9248c2..87475e6 100644
 --- a/server/match/fields.js
@@ -6107,8 +8047,29 @@ index b9248c2..87475e6 100644
        // the HUD capsule's numerator: kept only when the client reported one (an absent value must stay absent — the
        // teammate UI then falls back to `killed`, never to a fabricated 0); clamped to the denominator
        if (Number.isInteger(p.resolved) && p.resolved >= 0) perPlayer[pid].resolved = Math.min(p.total, p.resolved);
+diff --git a/server/match/finalAssault.js b/server/match/finalAssault.js
+index 4369b76..a3dcb9f 100644
+--- a/server/match/finalAssault.js
++++ b/server/match/finalAssault.js
+@@ -116,13 +116,15 @@ export class SharedBossPool {
+ 
+ /**
+  * Hidden-core eligibility.
++ * 0.2.6-capacity: the layer requirement is a room-wide total (every member's bonds add to `layerSum`), so it scales with
++ * the match's seat scale — a 12-seat room must reach three times the layers of the 4-player game (seatScale is 1 at ≤4).
+  * @param {import('./gamedata.js').GameData} gd
+  * @param {{ layerSum: number, teamLp: number }} s
+  */
+ export function hiddenEligible(gd, { layerSum, teamLp }) {
+   const hc = gd.hiddenCore;
+   if (!gd.hiddenRound || !hc.difficulties.includes(gd.difficulty)) return false;
+-  const threshold = gd.isSolo ? hc.single : hc.multi;
++  const threshold = (gd.isSolo ? hc.single : hc.multi) * (gd.hiddenScale ?? 1);
+   return layerSum > threshold && teamLp > hc.minTeamLpExclusive;
+ }
+ 
 diff --git a/server/match/gamedata.js b/server/match/gamedata.js
-index c5380d9..b0d89a2 100644
+index c5380d9..e765376 100644
 --- a/server/match/gamedata.js
 +++ b/server/match/gamedata.js
 @@ -1,3 +1,4 @@
@@ -6116,7 +8077,7 @@ index c5380d9..b0d89a2 100644
  // server/match/gamedata.js — typed, defaulted view of data/*.json for the match engine.
  //
  // Every lookup is an own-property lookup (ids come from client intents) that never throws and returns null for
-@@ -12,6 +13,8 @@
+@@ -12,8 +13,11 @@
  // that still carries them is ignored).
  
  import { getConfig, getMode } from '../data.js';
@@ -6124,8 +8085,39 @@ index c5380d9..b0d89a2 100644
 +import { spellShopEnabled } from '../../shared/spells.js';
  import { isShopItem } from '../sim/simdata.js';
  import { standInRecord } from '../../shared/standIn.js';
++import { MAX_SEATS } from '../../shared/constants.js';
  
-@@ -91,8 +94,9 @@ export class GameData {
+ const own = (map, id) => (map && typeof map === 'object' && typeof id === 'string' && Object.hasOwn(map, id) && map[id] && typeof map[id] === 'object' ? map[id] : null);
+ const numOr = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+@@ -61,7 +65,8 @@ export const COMBAT_TIME_SCALE = 2;
+  *   solo   `solo` (1: the table value — one player's share);
+  *   co-op  `perPlayer` true (the owner's decision of 2026-10-06, adopting PR #209 by @qingjingshenghuo): `coop` (1) × the
+  *          players alive when the fight starts — bots and AI 托管 seats count, eliminated and departed seats do not —
+- *          at most `aliveFull` (4); a count left out means a full team;
++ *          at most the room's seat bound (MAX_SEATS; the 4-player game's `aliveFull` (4) is the floor of that clamp, so a
++ *          room of at most four players is unchanged); a count left out means a full team;
+  *          `perPlayer` false: the fixed pool of 0.1.x (「保持固定血量」, restorable with `solo` 0.25): `coop` whatever the
+  *          count, × min(alive, aliveFull) / aliveFull with `aliveScaling`.
+  * @param {object|null|undefined} modeScale config.modes[modeId].bossHpScale
+@@ -78,8 +83,15 @@ export function bossPoolShareOf(modeScale, cfgScale, isSolo, aliveCount) {
+   if (isSolo) return pick('solo', 1);
+   const full = Math.max(1, Math.floor(pick('aliveFull', 4)));
+   const n = Number(aliveCount);
+-  const alive = Number.isFinite(n) && n >= 1 ? Math.min(full, Math.floor(n)) : full;
+-  if (flag('perPlayer', true)) return pick('coop', 1) * alive;
++  const given = Number.isFinite(n) && n >= 1;
++  if (flag('perPlayer', true)) {
++    // 0.2.6-capacity: a room larger than the 4-player baseline scales past `aliveFull` up to the seat bound. A room of
++    // at most four players, and a count left out (a full team), keep exactly the old value.
++    const cap = Math.max(full, MAX_SEATS);
++    return pick('coop', 1) * (given ? Math.min(cap, Math.floor(n)) : full);
++  }
++  // the restored fixed pool of 0.1.x keeps its own `aliveFull` denominator (× alive / aliveFull with aliveScaling)
++  const alive = given ? Math.min(full, Math.floor(n)) : full;
+   return pick('coop', 1) * (flag('aliveScaling', false) ? alive / full : 1);
+ }
+ 
+@@ -91,15 +103,23 @@ export class GameData {
     * @param {Readonly<Record<string, any>>} data server/data.js getData() (may be partial)
     * @param {string} modeId e.g. 'mode_multi_hard'
     */
@@ -6136,7 +8128,13 @@ index c5380d9..b0d89a2 100644
      this.config = getConfig(this.raw) || {};
      this.modeId = modeId;
      this.mode = getMode(modeId, this.raw) || {};
-@@ -100,6 +104,7 @@ export class GameData {
++    /**
++     * Seat scale of this match (0.2.6-capacity, Match.js sets it from the occupied seats): the room-wide shared
++     * resources — the shared card pool's copies and the hidden-core layer threshold — are multiplied by it. 1 for the
++     * 1–4 player game, so every rule below is the identity for a room of at most BASE_SEATS players.
++     */
++    this.seatScale = 1;
+     this.economy = this.config.economy && typeof this.config.economy === 'object' ? this.config.economy : {};
      const chess = this.raw.chess && typeof this.raw.chess === 'object' ? this.raw.chess : {};
      this._chess = chess;
      this._items = this.raw.items && typeof this.raw.items === 'object' ? this.raw.items : {};
@@ -6144,7 +8142,7 @@ index c5380d9..b0d89a2 100644
      // Fixed operator gifts are unlimited outputs, but every produced normal/advanced item still occupies 1/2 copies
      // (card-pool experiment BV1eLXXBqEgF, maintainer-confirmed 2026-10-11). Random subset gifts are not exempt.
      this._fixedGiftItems = new Set(Object.values(this.raw.garrisons || {})
-@@ -117,7 +122,7 @@ export class GameData {
+@@ -117,7 +137,7 @@ export class GameData {
       */
      this.shopItemsByTier = {};
      for (const [id, it] of Object.entries(this._items)) {
@@ -6153,7 +8151,28 @@ index c5380d9..b0d89a2 100644
        (this.shopItemsByTier[it.tier] ||= []).push(id);
      }
      for (const k of Object.keys(this.shopItemsByTier)) this.shopItemsByTier[k].sort();
-@@ -508,6 +513,7 @@ export class GameData {
+@@ -305,7 +325,9 @@ export class GameData {
+     const base = Number.isInteger(v) && v >= 0 ? v : (DEFAULTS.poolCopies[tier] ?? 10);
+     // The measured doubled pool is shared by the whole co-op team, independent of team size. DIY is private stock.
+     const multiplier = this.isSolo || this.chess(baseId)?.isDiy ? 1 : posIntOr(this.economy.coopPoolMultiplier, 1);
+-    return base * multiplier;
++    // 0.2.6-capacity: a room bigger than the 4-player baseline gets proportionally more copies (12 seats → ×3, 16 → ×4);
++    // a room of at most BASE_SEATS players keeps exactly the pool it had (seatScale 1).
++    return base * multiplier * this.seatScale;
+   }
+ 
+   /** Normal equipment copies in the shared pool; effect-only items have no shop stock limit. */
+@@ -313,7 +335,8 @@ export class GameData {
+     const base = this.baseIdOf(id), rec = this.item(base);
+     if (!rec || !isShopItem(rec)) return null;
+     const count = this.economy.itemPoolCopiesOverrides?.[base] ?? this.economy.itemPoolCopies?.[rec.tier];
+-    return Number.isInteger(count) && count >= 0 ? count : null;
++    // 0.2.6-capacity: the shared equipment stock scales with the room like the operator pool does (seatScale 1 at ≤4).
++    return Number.isInteger(count) && count >= 0 ? count * (this.isSolo ? 1 : this.seatScale) : null;
+   }
+ 
+   /** Whether a fixed trait gift may be produced beyond stock (including the advanced version of that item). */
+@@ -508,6 +531,7 @@ export class GameData {
    bandAllowed(bandId) {
      const b = this.band(bandId);
      if (!b) return false;
@@ -6808,6 +8827,41 @@ index 0627f5d..920fb97 100644
        ps.stats.leaks += counted;
        ps.stats.kills += Number(r.killed) || 0;
        ps.stats.dmgDealt += Number(r.damageDealt) || 0;
+diff --git a/server/match/match/spDraft.js b/server/match/match/spDraft.js
+index bf30c1b..b85113a 100644
+--- a/server/match/match/spDraft.js
++++ b/server/match/match/spDraft.js
+@@ -13,11 +13,29 @@ import { OK, fail, DELAYS } from './common.js';
+ 
+ /** Cards of the personal choice (PRTS 卫戍协议：盟约 下半 §法术 教鞭: "于3个战术特训的悬赏任务中选择一项"). */
+ const PERSONAL_OFFER_SIZE = 3;
++/** Cards one co-op 机变 page holds (choices.js formatCount, the official six-card draft screen). */
++const DRAFT_PAGE_CARDS = 6;
+ 
+ export class MatchSpDraft {
+   enterSpDraft() {
+-    const draft = generateDraft(this.gd, this.rngDraft, this.round, { stageId: this.stageId, bondAvailable: (bondId) => this.bondLive(bondId), itemAvailable: id => this.itemPool.canGain(id) });
+     const alive = this.alivePlayers();
++    // 0.2.6-capacity (docs/COMMUNITY-COMPAT.md): one six-card page serves up to six pickers. A room with more occupied seats gets
++    // as many extra pages as its pickers plus two spare cards need — every page draws its own six cards of the round's
++    // ONE event type (choices.js generateDraft `family`). All the pages are ONE board: one turn order, one timer, one
++    // sold-out check and one `taken` set, so the last pickers of a large room still have cards to choose from. A room
++    // of at most four players builds the single page it always did, with the same rng draws.
++    const pages = Math.max(1, Math.ceil((alive.length + 2) / DRAFT_PAGE_CARDS));
++    const opts = { stageId: this.stageId, bondAvailable: (bondId) => this.bondLive(bondId), itemAvailable: id => this.itemPool.canGain(id) };
++    let draft = generateDraft(this.gd, this.rngDraft, this.round, opts);
++    if (draft && pages > 1) {
++      const cards = draft.cards.slice();
++      for (let p = 1; p < pages; p++) {
++        const more = generateDraft(this.gd, this.rngDraft, this.round, { ...opts, family: draft.family });
++        if (!more) break;
++        for (const c of more.cards) { c.idx = cards.length; cards.push(c); }
++      }
++      draft = { ...draft, cards };
++    }
+     if (!draft || !alive.length) { this.enterPrep(); return; }
+     this.phase = PHASE.SP_DRAFT;
+     let order = alive.map((p) => p.playerId);
 diff --git a/server/match/match/views.js b/server/match/match/views.js
 index 6539f41..bb7516a 100644
 --- a/server/match/match/views.js
@@ -7957,10 +10011,32 @@ index 5172eee..dabc1a4 100644
      };
    }
 diff --git a/server/match/pool.js b/server/match/pool.js
-index 29849d6..ec75cab 100644
+index 29849d6..e7fa5f5 100644
 --- a/server/match/pool.js
 +++ b/server/match/pool.js
-@@ -197,8 +197,8 @@ export class SharedItemPool {
+@@ -187,18 +187,29 @@ export class SharedPool {
+ /** Shared equipment stock, derived from actual ownership. Merges, equips and returns cannot lose a reservation:
+  * normal equipment occupies one, upgraded equipment two. Shop/choice displays reserve nothing. Source: the original
+  * experiment BV1eLXXBqEgF, 1:30 and 2:30. [ASSUMED] An item that is consumed/destroyed or removed by elimination no
+- * longer occupies stock, consistently with the video's ownership model; this is not a per-match purchase limit. */
++ * longer occupies stock, consistently with the video's ownership model; this is not a per-match purchase limit.
++ *
++ * Every owned normal/advanced item occupies 1/2 copies, an effect-generated gift included (0.2.5's official rule; the
++ * derived arithmetic stays `left = cap - held` and `held ≤ cap`, invariants.js). The ONE exception is the fixed operator
++ * gifts (`gamedata.js isUnlimitedGiftItem`: the 8 SERVER_GAIN_EQUIP garrisons — 迅捷作战粮, 变形同构体, 谢拉格不融冰,
++ * 盟约之币): they are handed out even at the cap and may leave `held > cap`, which invariants.js allows for exactly
++ * those ids. Random subset gifts and 马克维茨's 商业包装方案 are not exempt. */
+ export class SharedItemPool {
+   constructor(gd, players) { this.gd = gd; this.players = players; }
+   cap(id) { return this.gd.itemPoolCopies(id); }
+   need(id) { return this.gd.isGolden(id) ? 2 : 1; }
++  /** Stock copies an owned item occupies: a normal item 1, a golden 2. */
++  copiesOf(piece) {
++    const n = piece && piece.stockCopies;
++    return Number.isInteger(n) ? Math.max(0, n) : this.need(piece.id);
++  }
+   held(id) {
+     const base = this.gd.baseIdOf(id);
      let count = 0;
      const see = p => {
        if (!p) return;
@@ -8061,7 +10137,7 @@ index 0000000..cf53f06
 +  return mode;
 +}
 diff --git a/server/match/unite.js b/server/match/unite.js
-index 87f1737..d61643d 100644
+index 87f1737..fd8c65c 100644
 --- a/server/match/unite.js
 +++ b/server/match/unite.js
 @@ -87,7 +87,8 @@ export function planUnite(m, results) {
@@ -8082,6 +10158,32 @@ index 87f1737..d61643d 100644
    let standing = units;
    if (r && Array.isArray(r.unitsEnd) && r.unitsEnd.length) {
      standing = 0;
+@@ -113,13 +115,22 @@ export function helperStats(m, ps, results) {
+ /**
+  * The ≤ maxHelpers helpers, first = the one that meets the enemies first (right-hand field): selection by units >
+  * active bond > standing units > seat, then the pair ordered by units > active bond > layers > standing > seat.
++ *
++ * A REAL PLAYER goes before an AI seat (the owner's decision of 2026-10-14): a bot's board is usually the fatter one
++ * (the engine plays it without a human's mistakes), so the merit order alone kept choosing the AI teammates and the
++ * humans never got to fight the 联防 themselves. Humans and AI seats are ranked separately and the humans all come
++ * first, each list keeping the merit order above; `helperStats` and the pair order are unchanged, and a room with no AI
++ * seat is bit-for-bit what it was.
+  */
+ export function helperOrder(m, perfects, results) {
+   const st = new Map(perfects.map((ps) => [ps.playerId, helperStats(m, ps, results)]));
+   const S = (ps) => st.get(ps.playerId);
+-  const select = perfects.slice().sort((a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).standing - S(a).standing || a.seat - b.seat)
+-    .slice(0, m.gd.unite.maxHelpers);
+-  return select.sort((a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).layers - S(a).layers || S(b).standing - S(a).standing || a.seat - b.seat);
++  const isAi = (ps) => (ps && ps.isBot ? 1 : 0);
++  const byUnits = (a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).standing - S(a).standing || a.seat - b.seat;
++  const humans = perfects.filter((ps) => !isAi(ps)).sort(byUnits);
++  const bots = perfects.filter((ps) => isAi(ps)).sort(byUnits);
++  const select = [...humans, ...bots].slice(0, m.gd.unite.maxHelpers);
++  return select.sort((a, b) => isAi(a) - isAi(b) || S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).layers - S(a).layers || S(b).standing - S(a).standing || a.seat - b.seat);
+ }
+ 
+ /** Battle options for the unite field (without data/logger, added by the match). */
 diff --git a/server/sim/battle/economy.js b/server/sim/battle/economy.js
 index ca91387..ca5c9c6 100644
 --- a/server/sim/battle/economy.js
@@ -8148,6 +10250,37 @@ index 0000000..5b98d08
 +    });
 +  }
 +}
+diff --git a/server/sim/content/choices.js b/server/sim/content/choices.js
+index df5a4fc..3551484 100644
+--- a/server/sim/content/choices.js
++++ b/server/sim/content/choices.js
+@@ -200,12 +200,13 @@ const BOUNTY = {
+   },
+ };
+ 
+-/** 道具补给 / 机密商店: the item, free. */
++/** 道具补给 / 机密商店: the item, free. It is a card of the draft, drawn from the shared equipment stock (the card was
++ * gated by `itemPool.canGain`, Match.spCardAvailable), so it occupies a copy as before. */
+ const ITEM = {
+   onChoicePick(ctx, ev) {
+     if (ctx.source.kind !== 'choice' || !ev || !ev.card || ev.forTeammate) return;
+     if (!ctx.gd.item(ev.card.id)) return;
+-    ctx.grantItem(ev.card.id, { source: 'choice' });
++    ctx.grantItem(ev.card.id, { source: 'choice', requirePool: true });
+   },
+ };
+ 
+@@ -233,7 +234,9 @@ function applyTactic(ctx, ev) {
+         for (let i = 0; i < count; i++) {
+           const r = typeof p.pool === 'string' ? ctx.rollPool(p.pool) : null;
+           const itemId = r && r.kind === 'item' ? r.id : ctx.rollItem({ tier: 1 });
+-          if (itemId) ctx.grantItem(itemId, { source: 'choice' });
++          // 列装: the roll comes from the shared stock (rollPool / rollItem are gated by canGain), so the granted copy
++          // occupies one as before
++          if (itemId) ctx.grantItem(itemId, { source: 'choice', requirePool: true });
+         }
+         break;
+       }
 diff --git a/server/sim/content/index.js b/server/sim/content/index.js
 index 7ae3f22..63cd486 100644
 --- a/server/sim/content/index.js
@@ -8296,6 +10429,30 @@ index 0000000..78dc52c
 + }
 + played(cue,now){this.lastPlayed=now;if(cue==='refresh')this.lastRefreshPlayed=now;}
 +}
+diff --git a/shared/constants.js b/shared/constants.js
+index 84d6f7c..52c3ea8 100644
+--- a/shared/constants.js
++++ b/shared/constants.js
+@@ -10,7 +10,18 @@ export const APP_VERSION = '0.2.6';
+  * tools/package.mjs refuses to build a release zip from it without --allow-dev. */
+ export const DEV_BUILD = /-dev$/.test(APP_VERSION);
+ 
+-export const MAX_SEATS = 4;
++/** The 1–4 player game this project is built on. Shared resources scale from this baseline and every scaling rule is
++ * the identity for a room holding at most this many players, so ≤4-player matches stay bit-for-bit what they were. */
++export const BASE_SEATS = 4;
++/** Seat counts a co-op room can be created with (host-only, before the match); `MAX_SEATS` is the largest of them. */
++export const ROOM_CAPACITIES = Object.freeze([4, 8, 12]);
++/** Capacity of a room created without one — the 4-seat game, so a client that never sends `capacity` is unaffected. */
++export const DEFAULT_SEATS = BASE_SEATS;
++/** Hard seat bound = the largest room capacity. Humans + AI teammates; the spectator seats (MAX_SPECTATORS) are extra. */
++export const MAX_SEATS = 12;
++/** Scale factor of the room-wide shared resources (card-pool copies, the hidden-core layer threshold) for a match of
++ * `players` seats: 1 up to BASE_SEATS, then one step per started block of BASE_SEATS (8 → 2, 12 → 3). */
++export const seatScale = (players) => Math.max(1, Math.ceil((Number(players) || 0) / BASE_SEATS));
+ /**
+  * Spectator seats of a co-op room (community report #26, owner's decision 2026-10-04) — a remake feature: the official
+  * room has 1–4 players and no spectator seat (there only eliminated players and 联防 bystanders watch, research 09 §3.1).
 diff --git a/shared/heroCatalog.js b/shared/heroCatalog.js
 new file mode 100644
 index 0000000..0ef49cb
@@ -9090,14 +11247,19 @@ index 0000000..1b329fb
 +  return {rounds,levels,unlockRound,unlockLevel,waiting:(unlockRound!==null||unlockLevel!==null)&&rounds===0&&levels===0};
 +}
 diff --git a/shared/protocol.js b/shared/protocol.js
-index 9f48e6f..fee0f0d 100644
+index 9f48e6f..c61426e 100644
 --- a/shared/protocol.js
 +++ b/shared/protocol.js
-@@ -1,3 +1,4 @@
+@@ -1,7 +1,8 @@
 +import { validTavernMods } from './tavernMods.js';
  // Normative message catalogue (DESIGN §8). Used by server (validation) and client (building requests).
  // Every client→server message is `{ t, rid?, ...fields }`. Unknown `t` or invalid fields ⇒ ERR.BAD_MSG.
  
+-import { DIFFICULTIES, NAME_MAX_LEN, ROOM_CODE_LEN, MAX_SEATS, EMOTES, GEO } from './constants.js';
++import { ROOM_CAPACITIES, DIFFICULTIES, NAME_MAX_LEN, ROOM_CODE_LEN, MAX_SEATS, EMOTES, GEO } from './constants.js';
+ import { isDroppableChess } from './standIn.js';
+ import { diySlotIds, validateDiyPicks } from './diy.js';
+ import { cultivatedStats, isPotential, isCultivate, POTENTIAL_DEFAULT, CULTIVATE_DEFAULT } from './potential.js';
 @@ -51,6 +52,7 @@ const isPerPlayer = (p) => isPlain(p) && isInt(p.killed, 0, 1e5) && isInt(p.tota
    && isMap(p.layerGains, RESULT_LIMITS.layerGains, isId, (v) => isNum(v, 0, 1e4))
    && isStat(p.coins) && isStat(p.damageDealt) && isStat(p.bossDamage) && isStat(p.healingDone) && isStat(p.deaths)
@@ -9106,7 +11268,14 @@ index 9f48e6f..fee0f0d 100644
    && (p.unitStats === undefined || isList(p.unitStats, RESULT_LIMITS.unitStats, isUnitStat));
  const isUnspawned = (u) => isPlain(u) && isId(u.enemyKey) && nullable(isId)(u.sourcePlayerId) && nullable((v) => isStr(v, 16))(u.tag)
    && optional((v) => isNum(v, 0, 1e6))(u.time);
-@@ -385,6 +387,7 @@ export const C2S = {
+@@ -381,10 +383,13 @@ export const C2S = {
+   hello: { name: (v) => isStr(v, NAME_MAX_LEN) && v.trim().length > 0, token: (v) => v == null || isStr(v, 64), version: (v) => v == null || isInt(v, 0, 1e6),
+     noReplace: isBool, claimAt: (v) => isNum(v, 0, Number.MAX_SAFE_INTEGER), $optional: ['token', 'version', 'noReplace', 'claimAt'] },
+   ping: { c: (v) => typeof v === 'number' && Number.isFinite(v) },
+-  'room.create': { mode: (v) => v === 'solo' || v === 'coop', difficulty: (v) => DIFFICULTIES.includes(v) },
++  'room.create': { mode: (v) => v === 'solo' || v === 'coop', difficulty: (v) => DIFFICULTIES.includes(v), capacity: optional(v=>ROOM_CAPACITIES.includes(v)), $optional: ['capacity'] },
++  'community.chat': { text: v=>typeof v==='string'&&v.trim().length>0&&Array.from(v).length<=120 },
++  'room.setCapacity': { capacity: v=>ROOM_CAPACITIES.includes(v) },
    'room.join': { code: (v) => isStr(v, ROOM_CODE_LEN + 2) && /^[A-Za-z0-9]+$/.test(v) },
    'room.leave': {},
    'room.ready': { ready: isBool },
@@ -9114,7 +11283,7 @@ index 9f48e6f..fee0f0d 100644
    'room.setDifficulty': { difficulty: (v) => DIFFICULTIES.includes(v) },
    // the co-op room option 「AI 队友最后选择」 (GitHub #338; host, before the match): the strategy and 机变 drafts order every
    // human seat before every AI seat (server/match/match/phases.js humansFirst); room.state.aiPicksLast
-@@ -420,6 +423,7 @@ export const C2S = {
+@@ -420,6 +425,7 @@ export const C2S = {
    // the strategy highlighted in the draft screen (user playtest #4 item 4): a turn that runs out takes it while it is
    // free (Match.timeoutBand); absent / null clears it
    'g.bandFocus': { bandId: nullable(isId), $optional: ['bandId'] },
@@ -9122,7 +11291,7 @@ index 9f48e6f..fee0f0d 100644
    'g.buy': { slot: (v) => isInt(v, 0, 15) },
    'g.refresh': {},
    'g.freeze': {},
-@@ -429,6 +433,7 @@ export const C2S = {
+@@ -429,6 +435,7 @@ export const C2S = {
    'g.move': { uid: isUid, to: target, dir: isDir, $optional: ['dir'] },
    // replaceUid: with both of the target's slots used, the equipped item the replace dialog picked (research 09 §1.2
    // UseEquipUp.unloadInstId; absent ⇒ the oldest; not one of the target's items ⇒ BAD_TARGET)
@@ -9130,6 +11299,14 @@ index 9f48e6f..fee0f0d 100644
    'g.equip': { itemUid: isUid, targetUid: isUid, replaceUid: nullable(isUid), $optional: ['replaceUid'] },
    'g.art': { itemUid: isUid, row: (v) => isInt(v, 0, GEO.ROWS - 1), col: (v) => isInt(v, 0, GEO.COLS - 1), dir: isDir, $optional: ['dir'] },
    'g.destroy': { uid: isUid },
+@@ -469,6 +476,7 @@ export const C2S = {
+ 
+ // Server → client message types (documentation + client dispatch table keys).
+ export const S2C = [
++  'community.chat',
+   'welcome', 'ok', 'error', 'pong',
+   'room.state', 'room.closed',
+   'm.public', 'm.private', 'm.field', 'm.toast', 'm.ticker', 'm.emote', 'm.result',
 diff --git a/shared/spellBands.js b/shared/spellBands.js
 new file mode 100644
 index 0000000..3902f2a
@@ -10427,6 +12604,66 @@ index 0000000..c1c671d
 + }
 + const gate=new BobSpeechGate();gate.played('refresh',0);
 + assert.equal(gate.consider('combat',1,1,()=>.99),false);
++});
+diff --git a/test/communityCompat.test.js b/test/communityCompat.test.js
+new file mode 100644
+index 0000000..0164feb
+--- /dev/null
++++ b/test/communityCompat.test.js
+@@ -0,0 +1,40 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {makeMatch} from './match/harness.js';
++import {startServer} from '../server/index.js';
++import {TestClient} from './helpers/wsClient.js';
++import {ALL_SPELLS} from '../shared/spellCatalog.js';
++import {boardFrom} from '../public/community/dmg-board/client/board.js';
++
++for(const humans of [4,8,12])for(const spells of [false,true])for(const heroes of [false,true])test(`${humans} players / spells ${spells} / heroes ${heroes}`,()=>{
++ const h=makeMatch({humans,fake:true,spellShop:spells,heroMod:heroes,seed:37});
++ try{
++  h.start();h.toPrep(1);assert.equal(h.m.players.size,humans);
++  const ps=h.ps('p_0');assert.equal(ps.shop.layout.spell||0,spells?1:0);
++  assert.equal(h.m.gd.bandIds().some(id=>id.startsWith('band_hs_')),heroes);
++  assert.equal(h.m.gd.seatScale,humans/4);
++  if(spells){const coin=ps.acquireItem(ALL_SPELLS.find(c=>c.name==='盟约之币')?.id||'chess_item_1_03_e_a');assert.ok(coin);assert.equal(ps.castSpell(coin.uid,null).ok,true);}
++  h.invariants();h.autoHumans();const result=h.runToEnd();assert.equal(result.players.length,humans);
++  const snapshot=JSON.stringify(result);for(const damage of [false,true])for(const chat of [false,true]){if(damage)assert.equal(boardFrom(result).rows.length,humans);assert.equal(JSON.stringify(result),snapshot);assert.equal(typeof chat,'boolean');}
++  assert.deepEqual(h.logs.error,[]);
++ }finally{h.m.dispose();}
++});
++
++test('12 real sockets: capacity bounds, isolated chat, identity, rate limit, and tavern controls',async()=>{
++ const srv=await startServer({port:0,host:'127.0.0.1',quiet:true});const clients=[];
++ try{
++  for(let i=0;i<13;i++){const c=await TestClient.connect(`ws://127.0.0.1:${srv.port}/ws`);await c.hello('P'+i);clients.push(c);}
++  const host=clients[0];assert.equal((await host.request({t:'room.create',mode:'coop',difficulty:'FUNNY',capacity:12})).t,'ok');
++  const room=await host.waitFor('room.state');assert.equal(room.seats.length,12);
++  for(const c of clients.slice(1,12))assert.equal((await c.request({t:'room.join',code:room.code})).t,'ok');
++  assert.equal((await clients[12].request({t:'room.join',code:room.code})).code,'ROOM_FULL');
++  assert.equal((await clients[1].request({t:'room.setCapacity',capacity:8})).code,'NOT_HOST');
++  assert.equal((await host.request({t:'room.setCapacity',capacity:8})).code,'BAD_TARGET');
++  assert.equal((await host.request({t:'room.setTavernMods',mods:{spells:false,heroes:true}})).t,'ok');
++  assert.equal((await host.request({t:'community.chat',text:'<img src=x onerror=alert(1)> 中文'})).t,'ok');
++  const msg=await clients[11].waitFor('community.chat');assert.equal(msg.data.name,'P0');assert.equal(msg.code,room.code);
++  assert.ok(!clients[12].log.some(m=>m.t==='community.chat'));
++  assert.equal((await host.request({t:'community.chat',text:'too soon'})).code,'RATE');
++  assert.equal((await clients[12].request({t:'community.chat',text:'outsider'})).code,'NOT_IN_ROOM');
++ }finally{for(const c of clients)await c.terminate();await srv.close();}
++});
+diff --git a/test/communityRealBattle.test.js b/test/communityRealBattle.test.js
+new file mode 100644
+index 0000000..137b0ca
+--- /dev/null
++++ b/test/communityRealBattle.test.js
+@@ -0,0 +1,8 @@
++import {test} from 'node:test';import assert from 'node:assert/strict';
++import {makeMatch,give} from './match/harness.js';
++for(const humans of [8,12])test(`real battle simulation with ${humans} players and tavern modules`,()=>{
++ const h=makeMatch({humans,fake:false,spellShop:true,heroMod:true,clientCombat:true,seed:17,battleContent:'full'});
++ try{h.start();h.toPrep(1);for(const ps of h.m.players.values()){ps.lp=100;ps.funds=10;const id=ps.spellChessPool(2,c=>c.position==='MELEE')[0],piece=give(h.m,ps,id);const [key]=[...ps.deployMap()].find(([,kind])=>kind==='melee');ps._detach(ps.find(piece.uid));ps.board.set(key,piece);ps.recompute();}
++  h.toPrep(2);assert.equal(h.m.round,2);h.invariants();assert.deepEqual(h.logs.error,[]);assert.equal(h.m.players.size,humans);
++ }finally{h.m.dispose();}
 +});
 diff --git a/test/heroStrategies.test.js b/test/heroStrategies.test.js
 new file mode 100644
@@ -12268,6 +14505,43 @@ index 0000000..f309638
 +  const allowed=new Set(Object.values(bank).flat().map(l=>l.url));assert.ok(requests.every(url=>allowed.has(url)));assert.ok(responses.every(s=>s===200));
 +  assert.deepEqual(errors,[]);
 + }finally{await browser?.close();for(const client of server.wss.clients||[])client.terminate();await server.close();}
++});
+diff --git a/test/ui/community-compat.e2e.test.js b/test/ui/community-compat.e2e.test.js
+new file mode 100644
+index 0000000..040fcc7
+--- /dev/null
++++ b/test/ui/community-compat.e2e.test.js
+@@ -0,0 +1,31 @@
++import {test} from 'node:test';import assert from 'node:assert/strict';
++import {startServer} from '../../server/index.js';
++const chrome=process.env.CHROME_PATH;
++test('independent chat/damage switches, IME, safe text and viewport bounds alongside Bob',{
++ skip:process.env.SP_E2E!=='1'||!chrome,timeout:60000,
++},async()=>{
++ const {default:puppeteer}=await import('puppeteer-core');const srv=await startServer({port:0,quiet:true});let browser;
++ try{
++  browser=await puppeteer.launch({executablePath:chrome,headless:true,args:['--no-sandbox','--disable-gpu']});const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
++  await page.goto(`http://127.0.0.1:${srv.port}/dev/game-mock.html?phase=PREP&render=fallback`,{waitUntil:'networkidle0'});
++  await page.evaluate(async()=>{document.querySelector('.mockbar')?.classList.add('hidden');const a=await import('/js/ui/communityAddons.js');a.startCommunityAddons();const {net}=await import('/js/net.js');globalThis.chatRequests=[];net.request=async(t,p)=>{globalThis.chatRequests.push({t,...p});return {t:'ok'};};});
++  await page.waitForSelector('.chatbub__input');
++  for(const [width,height] of [[1600,900],[844,390]]){await page.setViewport({width,height});await page.waitForFunction(()=>{const r=document.querySelector('.chatbub').getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth&&r.bottom<=innerHeight;});}
++  await page.type('.chatbub__input','中文聊天');
++  await page.$eval('.chatbub__input',el=>el.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true})));
++  await page.keyboard.press('Enter');assert.equal(await page.evaluate(()=>globalThis.chatRequests.length),0);
++  await page.$eval('.chatbub__input',el=>el.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true})));
++  await page.keyboard.press('Enter');await page.waitForFunction(()=>globalThis.chatRequests.length===1);
++  await page.evaluate(async()=>{const {net}=await import('/js/net.js'),{store}=await import('/js/store.js');net._emit('community.chat',{code:store.get().room.code,data:{name:'<b>name</b>',text:'<img src=x onerror=alert(1)>'}});});
++  assert.equal(await page.$eval('.chatbub__item',el=>el.querySelectorAll('img').length),0);
++  for(const chat of [false,true])for(const damage of [false,true]){
++   await page.evaluate(async({chat,damage})=>{const a=await import('/js/ui/communityAddons.js');a.setCommunityEnabled('chat',chat);a.setCommunityEnabled('damage',damage);},{chat,damage});
++   assert.equal(!!await page.$('.chatbub'),chat);assert.ok(await page.$('.bob-shopkeeper'));
++  }
++  await page.goto(`http://127.0.0.1:${srv.port}/dev/game-mock.html?phase=RESULT&render=fallback`,{waitUntil:'networkidle0'});
++  await page.evaluate(async()=>{const a=await import('/js/ui/communityAddons.js');a.startCommunityAddons();a.setCommunityEnabled('damage',true);});
++  await page.waitForSelector('.dmg-board table');assert.equal(await page.$('.chatbub'),null);
++  await page.evaluate(async()=>{(await import('/js/ui/communityAddons.js')).setCommunityEnabled('damage',false);});assert.equal(await page.$('.dmg-board'),null);
++  assert.deepEqual(errors,[]);
++ }finally{await browser?.close();for(const c of srv.wss.clients||[])c.terminate();await srv.close();}
 +});
 diff --git a/test/ui/hero-power.e2e.test.js b/test/ui/hero-power.e2e.test.js
 new file mode 100644

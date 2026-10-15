@@ -1750,5 +1750,20 @@
   "暂无可直接施放的法术": "No spells available to cast directly",
   "点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗": "Click Cast or drag onto the battlefield; no operator target is needed; consumed on use",
   "关闭鲍勃教学提示": "Disable Bob’s tutorial tips",
-  "开启鲍勃教学提示": "Enable Bob’s tutorial tips"
+  "开启鲍勃教学提示": "Enable Bob’s tutorial tips",
+  "同盟席位": "Alliance seats",
+  "{n} 人": "{n} players",
+  "已入座": "Seated",
+  "席位不能少于已占用的最高席位（P{n}）": "Cannot be fewer seats than the highest occupied seat (P{n})",
+  "创建后可在等待室由创建者调整": "The host can change this in the waiting room",
+  "伤害统计": "Damage stats",
+  "总伤害": "Total damage",
+  "击杀": "Kills",
+  "承伤": "Damage taken",
+  "伤害": "Damage",
+  "占比": "Share",
+  "战斗开始后显示伤害统计": "Damage stats appear once the battle starts",
+  "局内聊天（仅自己）": "In-game chat (local)",
+  "伤害看板（仅自己）": "Damage board (local)",
+  "多人房间": "Multiplayer rooms"
 }

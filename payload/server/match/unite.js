@@ -115,13 +115,22 @@ export function helperStats(m, ps, results) {
 /**
  * The ≤ maxHelpers helpers, first = the one that meets the enemies first (right-hand field): selection by units >
  * active bond > standing units > seat, then the pair ordered by units > active bond > layers > standing > seat.
+ *
+ * A REAL PLAYER goes before an AI seat (the owner's decision of 2026-10-14): a bot's board is usually the fatter one
+ * (the engine plays it without a human's mistakes), so the merit order alone kept choosing the AI teammates and the
+ * humans never got to fight the 联防 themselves. Humans and AI seats are ranked separately and the humans all come
+ * first, each list keeping the merit order above; `helperStats` and the pair order are unchanged, and a room with no AI
+ * seat is bit-for-bit what it was.
  */
 export function helperOrder(m, perfects, results) {
   const st = new Map(perfects.map((ps) => [ps.playerId, helperStats(m, ps, results)]));
   const S = (ps) => st.get(ps.playerId);
-  const select = perfects.slice().sort((a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).standing - S(a).standing || a.seat - b.seat)
-    .slice(0, m.gd.unite.maxHelpers);
-  return select.sort((a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).layers - S(a).layers || S(b).standing - S(a).standing || a.seat - b.seat);
+  const isAi = (ps) => (ps && ps.isBot ? 1 : 0);
+  const byUnits = (a, b) => S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).standing - S(a).standing || a.seat - b.seat;
+  const humans = perfects.filter((ps) => !isAi(ps)).sort(byUnits);
+  const bots = perfects.filter((ps) => isAi(ps)).sort(byUnits);
+  const select = [...humans, ...bots].slice(0, m.gd.unite.maxHelpers);
+  return select.sort((a, b) => isAi(a) - isAi(b) || S(b).units - S(a).units || (S(b).active - S(a).active) || S(b).layers - S(a).layers || S(b).standing - S(a).standing || a.seat - b.seat);
 }
 
 /** Battle options for the unite field (without data/logger, added by the match). */

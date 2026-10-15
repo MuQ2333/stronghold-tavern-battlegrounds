@@ -1,7 +1,12 @@
+import {CommunityPreferences} from '../ui/communityAddons.js';
 // Lobby screen: pick 独立模拟 / 同盟模拟 and a difficulty (标准/险境/绝境/终极), create a room,
 // or join one with a 同盟密钥 (recent codes remembered) — as a player (加入同盟) or in one of its MAX_SPECTATORS
 // spectator seats (观战: room.spectate, also while its match runs; community report #26, a remake feature — the
 // official room has none). Shows connection status + ping.
+//
+// 0.2.4 capacity: a co-op room is created with one of ROOM_CAPACITIES seats (同盟席位: 4 / 8 / 12, remembered like the
+// mode and the difficulty) — the room.create intent carries it, and the waiting room's host may change it before the
+// match (screens/room.js). A solo room is created exactly as before (no capacity sent: it always holds 1 seat).
 //
 // Difficulty descriptions come from data/config.json `modes[modeId]` when present, else from the
 // official act2autochess `modeDataDict` texts embedded below (desc + effectDescList), so the
@@ -13,7 +18,10 @@
 
 import { ResumeMatchButton } from '../ui/resumeMatch.js';
 import { useEffect, useRef, useState } from '../../vendor/hooks.module.js';
-import { DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, ROOM_CODE_LEN, MAX_SEATS, MAX_SPECTATORS, modeIdFor, ERR } from '../../../shared/constants.js';
+import {
+  DIFFICULTIES, DIFFICULTY_NAMES, DIFFICULTY_COLORS, ROOM_CODE_LEN, MAX_SEATS, MAX_SPECTATORS,
+  ROOM_CAPACITIES, DEFAULT_SEATS, modeIdFor, ERR,
+} from '../../../shared/constants.js';
 import { html, Button, Icon, MicroLabel, Panel, TextField, PingPill, AvatarFrame, Tooltip, Spinner, DifficultyIcon, doctorNo } from '../ui/components.js';
 import { toast, toastError } from '../ui/toasts.js';
 import { GuideButton } from '../ui/guide.js';
@@ -171,6 +179,17 @@ export function rememberRoom(code) {
   savePref('recentRooms', [code, ...recentRooms().filter((c) => c !== code)].slice(0, 4));
 }
 
+/**
+ * The seat count a co-op room is created with: one of ROOM_CAPACITIES, else DEFAULT_SEATS (4) — a remembered value from
+ * an older build, a hand-edited preference or a string never reaches the wire.
+ * @param {unknown} v
+ * @returns {number}
+ */
+export function normalizeCapacity(v) {
+  const n = Number(v);
+  return ROOM_CAPACITIES.includes(n) ? n : DEFAULT_SEATS;
+}
+
 const FALLBACK_TIPS = [
   N_('联合模拟在选择策略时可以进行一次跳过'),
   N_('调度中心即使冻结，依然可以主动刷新'),
@@ -240,6 +259,22 @@ function DifficultyCard({ roomMode, difficulty, selected, onSelect }) {
   </button>`;
 }
 
+/**
+ * 同盟席位: the co-op room's seat count (ROOM_CAPACITIES) — a compact radio row in the create panel, remembered like
+ * the mode and the difficulty. Solo rooms have exactly one seat and are created without a capacity.
+ * @param {{ capacity: number, onPick: (n: number) => void }} props
+ */
+function CapacityPick({ capacity, onPick }) {
+  return html`<div class="cap-pick"><label class="tavern-mod"><input type="checkbox" checked=${capacity>4} onChange=${e=>onPick(e.target.checked?8:4)} />${t('多人房间')}</label>
+    <span class="cap-pick__label">${t('同盟席位')}<${MicroLabel}>ROOM CAPACITY<//></span>
+    <div class="cap-pick__opts" role="radiogroup" aria-label=${t('同盟席位')}>
+      ${ROOM_CAPACITIES.map((n) => html`<button key=${n} type="button" role="radio" aria-checked=${capacity === n ? 'true' : 'false'}
+        class=${`cap-pick__opt${capacity === n ? ' is-active' : ''}`} onClick=${() => onPick(n)}>${t('{n} 人', { n })}</button>`)}
+    </div>
+    <span class="cap-pick__note t-dim">${t('创建后可在等待室由创建者调整')}</span>
+  </div>`;
+}
+
 /** Lobby screen component. */
 export function LobbyScreen() {
   const me = useStore((s) => s.me, shallowEqual);
@@ -250,6 +285,7 @@ export function LobbyScreen() {
     const d = loadPref('lobby.difficulty', 'FUNNY');
     return DIFFICULTIES.includes(d) ? d : 'FUNNY';
   });
+  const [capacity, setCapacity] = useState(() => normalizeCapacity(loadPref('lobby.capacity', DEFAULT_SEATS)));
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(null);
   const [recent] = useState(recentRooms);
@@ -262,6 +298,7 @@ export function LobbyScreen() {
 
   const pickMode = (m) => { setRoomMode(m); savePref('lobby.mode', m); };
   const pickDifficulty = (d) => { setDifficulty(d); savePref('lobby.difficulty', d); };
+  const pickCapacity = (n) => { const v = normalizeCapacity(n); setCapacity(v); savePref('lobby.capacity', v); };
 
   const run = async (kind, fn) => {
     if (inFlight.current) return;
@@ -273,7 +310,8 @@ export function LobbyScreen() {
       if (alive.current) setBusy(null);
     }
   };
-  const create = () => run('create', () => net.request('room.create', { mode: roomMode, difficulty }));
+  // a solo room is created exactly as before: no capacity on the wire (it always holds one seat)
+  const create = () => run('create', () => net.request('room.create', roomMode === 'coop' ? { mode: roomMode, difficulty, capacity } : { mode: roomMode, difficulty }));
   const join = (c = code) => {
     // `onClick=${join}` hands the click EVENT as the first argument, and a default parameter only applies to
     // `undefined` — codeArg keeps an event target out of the key and falls back to the input field
@@ -369,6 +407,7 @@ export function LobbyScreen() {
           ${DIFFICULTIES.map((d) => html`<${DifficultyCard} key=${d} roomMode=${roomMode} difficulty=${d} selected=${difficulty === d} onSelect=${pickDifficulty} />`)}
         </div>
         <div class="create-box">
+          ${roomMode === 'coop' ? html`<${CapacityPick} capacity=${capacity} onPick=${pickCapacity} />` : null}
           <${Tooltip} block=${true} text=${online ? null : t('正在连接服务器…')}>
             <${Button} variant="primary" size="xl" block=${true} iconRight="chevrons" loading=${busy === 'create'} disabled=${!online} onClick=${create}>
               ${roomMode === 'solo' ? t('开始独立模拟') : t('创建同盟')}
