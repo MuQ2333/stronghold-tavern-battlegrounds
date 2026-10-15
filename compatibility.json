@@ -14,7 +14,7 @@
   },
   "controls": "room UI: host controls spells/heroes before match; browser-local Bob switch",
   "heroSourceVersion": "0.1.10",
-  "patchSha256": "72e029416d2e456dc1981dfd1bb696c8807da58d8ac9c2089b6854047e3bcbf5",
+  "patchSha256": "3431d87a6048fc39a619946f7516cae8fb9f2de386d4f209f4f03d999b027d2c",
   "patchFiles": [
     "Start-SpellShop.ps1",
     "Start-TavernBundle.ps1",

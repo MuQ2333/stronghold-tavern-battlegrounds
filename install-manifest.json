@@ -766,7 +766,7 @@
     {
       "path": "test/ui/tavern-bundle.e2e.test.js",
       "before": null,
-      "after": "ddb47852a74b5ab01e6f452d7208ef19f02ee94b49185b2d0bde28bfff2ff04e"
+      "after": "3ba5e0949746f6b7441173e2b2038684ff694f3f2b11cc1f41b949a0fe11590f"
     },
     {
       "path": "tools/fetch-spell-assets.mjs",
