@@ -2,7 +2,7 @@
 
 把酒馆法术、英雄技能和酒馆老板鲍勃加入网页游戏《卫戍协议：盟约》。这是一个非官方、非商业的同人模组。
 
-**[下载完整安装包](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.2)** · **[使用说明](使用说明.txt)** · **[安装与卸载](INSTALL.md)** · **[更新记录](CHANGELOG.md)** · **[反馈问题](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/issues)**
+**[下载完整安装包](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.3)** · **[使用说明](使用说明.txt)** · **[安装与卸载](INSTALL.md)** · **[更新记录](CHANGELOG.md)** · **[反馈问题](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/issues)**
 
 ## 模组内容
 
@@ -18,15 +18,15 @@
 
 | 模组版本 | 适配游戏 | 环境 |
 | --- | --- | --- |
-| 0.2.2 | [原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0) | Node.js 22+；Windows / Linux |
+| 0.2.3 | [原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0) | Node.js 22+；Windows / Linux |
 
-先准备能够正常启动的原版游戏，再导入本模组。本包包含模组图片和录音，原游戏及其原生素材需自行准备。
+支持官方0.3.0完整包、精简包及该版本源码副本；原游戏需先能够正常启动。0.2.3已修复官方玩家包缺少开发文档、测试文件时的安装误报。本包包含模组图片和录音，原游戏及其原生素材需自行准备。
 
 本仓库发布基础酒馆模组。视频中的个人整合测试服可能还包含聊天、名片和额外界面等功能，这些扩展不包含在本发布包中。其他上游分支、第三方模组和安卓应用需要另行适配。
 
 ## 快速安装
 
-1. 下载 **`Tavern-Battlegrounds-0.2.2-Full.zip`**，完整解压到游戏目录以外。
+1. 下载 **`Tavern-Battlegrounds-0.2.3-Full.zip`**，完整解压到游戏目录以外。
 2. 停止游戏服务，运行对应安装入口并指定游戏目录：
 
 | 系统 | 安装 | 卸载 |
@@ -61,7 +61,7 @@
 ├─ scripts/                         安装实现、校验与打包工具
 └─ mod/
    ├─ payload/                     模组源码，按游戏原目录排列
-   ├─ install-manifest.json         安装前后文件哈希
+   ├─ install-manifest.json         完整源码文件哈希；安装器只写运行文件
    ├─ asset-manifest.json           图片、录音清单与哈希
    ├─ compatibility.json           版本与固定上游信息
    ├─ changes.patch                相对原版的源补丁

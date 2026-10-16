@@ -1,7 +1,7 @@
 {
   "name": "卫戍协议：酒馆战棋模组",
   "version": "0.3.0",
-  "bundleVersion": "0.2.2",
+  "bundleVersion": "0.2.3",
   "upstream": "https://github.com/sganggs/Stronghold-Protocol",
   "commit": "c24e17eec3af1e6dedfa9935a6d15245cf2f4586",
   "versionBase": "0.3.0",
@@ -162,7 +162,8 @@
     "Bob retains 63 original WAV files; 62 are in the cue manifest, line 18 is inactive, line 34 is excluded.",
     "Other untested third-party mods and Android app builds are not claimed compatible.",
     "0.2.1 adds only baseline-compatible document viewport containment and bounded recovery; native Android system bars have not been tested.",
-    "0.2.2 makes mobile hero skill details fit their content and hides shop operator skill icon buttons on mobile; gameplay is unchanged."
+    "0.2.2 makes mobile hero skill details fit their content and hides shop operator skill icon buttons on mobile; gameplay is unchanged.",
+    "0.2.3 installs runtime files and assets only; docs, tests and maintainer tools remain source references in the mod package, preserving player-release and custom developer files. Runtime baseline checks remain strict."
   ],
   "releaseDate": "2026-10-16"
 }

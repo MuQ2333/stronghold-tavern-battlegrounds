@@ -16,6 +16,7 @@
 
 ```bash
 node scripts/check-package.mjs
+node scripts/test-install.mjs "/path/to/pristine-upstream-git"
 node scripts/verify-package.mjs "/path/to/pristine-upstream-git"
 ```
 

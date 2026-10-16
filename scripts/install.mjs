@@ -13,6 +13,8 @@ function safe(root,name){
 }
 const read=p=>fs.existsSync(p)?fs.readFileSync(p):null;
 const matches=(b,h)=>b===null?h===null:hash(b)===h;
+// Review payload includes developer references; player installations never read or replace them.
+const isDevelopmentFile=name=>/^(?:docs|test|tools)\//.test(name)||name==='mods/hero-strategies/README.md';
 const baseMatches=(b,h)=>matches(b,h)||(b!==null&&h!==null&&hash(Buffer.from(b.toString('utf8').replaceAll('\r\n','\n')))===h);
 async function main(){
  if(Number(process.versions.node.split('.')[0])<22)throw Error('需要 Node.js 22 或以上。');
@@ -53,8 +55,10 @@ async function main(){
  if(pkg.version!==manifest.gameVersion||!fs.existsSync(path.join(root,'server/index.js')))throw Error('需要可正常启动的原版卫戍协议 '+manifest.gameVersion+'。');
  const files=[];
  for(const f of manifest.files){
-  const dest=safe(root,f.path),source=safe(packageRoot,'payload/'+f.path),current=read(dest);
+  const source=safe(packageRoot,'payload/'+f.path);
   if(!matches(read(source),f.after))throw Error('发布包文件缺失或损坏：'+f.path);
+  if(isDevelopmentFile(f.path))continue;
+  const dest=safe(root,f.path),current=read(dest);
   if(!baseMatches(current,f.before))throw Error('文件与适配上游不一致，未写入任何文件：'+f.path+'。请使用干净的 '+manifest.gameVersion+' 游戏副本，勿覆盖其他模组。');
   files.push({...f,before:current===null?null:hash(current)});
  }

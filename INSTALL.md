@@ -1,14 +1,16 @@
 # 安装与使用
 
-模组 **0.2.2** 适配[原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0)，固定提交 `c24e17eec3af1e6dedfa9935a6d15245cf2f4586`。需要 Node.js 22+。
+模组 **0.2.3** 适配[原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0)，固定提交 `c24e17eec3af1e6dedfa9935a6d15245cf2f4586`。需要 Node.js 22+。
 
 ## 准备
 
 1. 确认原游戏能够正常启动，再停止服务。
-2. 从 [Release](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.2) 或网盘下载 **Tavern-Battlegrounds-0.2.2-Full.zip**。
+2. 从 [Release](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.3) 或网盘下载 **Tavern-Battlegrounds-0.2.3-Full.zip**。
 3. 完整解压到游戏目录以外。选择模组包里的安装入口，指定含 `package.json`、`server`、`public` 的原游戏目录。
 
 Windows 和 Linux 使用同一个完整 ZIP。它包含模组图片和鲍勃录音，原游戏及其原生素材需自行准备。不要只复制安装脚本，`mod/` 和 `scripts/` 必须一起保留。GitHub 的 Source code ZIP 不含游戏素材。
+
+官方完整包和精简包不附带全部开发文档、测试。0.2.3自动安装只写入运行文件和模组素材；游戏目录中现有的开发文档、测试和维护工具保持不变，模组包内仍保留完整源码与补丁供审阅。运行文件的上游哈希校验不放宽。
 
 ## Windows
 
@@ -69,7 +71,7 @@ Windows 同样可以使用，替换成自己的游戏路径。校验只读，不
 下载包旁的 `SHA256SUMS.txt` 用于检查 ZIP 是否完整：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\Tavern-Battlegrounds-0.2.2-Full.zip
+Get-FileHash -Algorithm SHA256 .\Tavern-Battlegrounds-0.2.3-Full.zip
 ```
 
 ```bash
@@ -92,13 +94,14 @@ bash uninstall.sh "/srv/Stronghold-Protocol"
 
 安装前原文件保存在游戏目录的 `.tavern-mod-backup`。卸载会恢复原文件并移除本次新增文件，备份保留。若安装后文件又被其他修改覆盖，卸载会停止并指出路径，避免丢失后续改动。
 
-升级模组时，先用旧版工具卸载，再安装新版。升级游戏前也应先卸载模组。从0.1.x升级到本版时，卸载旧模组后将原游戏更新到匹配的0.3.0，再导入本版。请保留旧包与备份。
+升级模组时，先用旧版工具卸载，再安装新版。0.2.3安装器也可按旧安装记录完整卸载0.2.2，包括恢复旧版改写的文档；若旧文档安装后被另行编辑，仍会安全停止，不覆盖后改内容。升级游戏前也应先卸载模组。从0.1.x升级到本版时，卸载旧模组后将原游戏更新到匹配的0.3.0，再导入本版。请保留旧包与备份。
 
 ## 常见问题
 
 | 提示或现象 | 处理 |
 | --- | --- |
-| 版本或文件与适配上游不一致 | 使用上述固定原版版本；其他分支或修改过同一文件的模组需要合并适配 |
+| 旧版报 `docs/ARCHITECTURE.md` 等开发文档／测试文件不一致 | 使用0.2.3完整模组包重试；旧提示发生在预检阶段，未导入成功时无需卸载或重装原游戏 |
+| 版本或运行文件与适配上游不一致 | 使用上述固定原版版本；其他分支或修改过同一文件的模组需要合并适配 |
 | 已安装其他版本 | 先用旧版安装器卸载，不能直接叠装 |
 | 找不到 Node | 检查 `node --version`，确保安装脚本运行环境能够找到 Node.js 22+ |
 | 模组素材缺失或损坏 | 使用 Full.zip 并完整解压，不使用 Source code ZIP |
