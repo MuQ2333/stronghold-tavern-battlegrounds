@@ -1,2 +1,7 @@
 * -text
-*.sh text eol=lf
+/*.sh text eol=lf
+/*.md text eol=lf
+/docs/*.md text eol=lf
+/scripts/* text eol=lf
+# Source payload bytes must keep the exact hashes in the install manifest.
+/mod/payload/** -text

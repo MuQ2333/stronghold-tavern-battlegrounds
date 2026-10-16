@@ -1,5 +1,14 @@
-assets/
-asset-manifest.json
+# Game pictures and recordings are distributed only in Full.zip.
+mod/assets/
+# Build products and local development state.
+dist/
 *.zip
 node_modules/
 .cache/
+__pycache__/
+*.pyc
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db

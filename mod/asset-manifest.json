@@ -1,0 +1,664 @@
+{
+  "files": [
+    {
+      "path": "public/assets/bob/portrait.png",
+      "after": "e4f4f9ac6b3b985d843f7ea932fc1a5c0c76b64cb365d3dbe63190d80262b0ca"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AFK_01.wav",
+      "after": "fdd0a8c203eff204d5dcf1bddfc03458f264e7e64c236dd7a61a27c425cb45a8"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterFreezing_01.wav",
+      "after": "ef0862e39499321b9e2cfa5abd09bd9e59002c30d38b46c688c6b4516a9c939b"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterFreezing_02.wav",
+      "after": "5abefeafc9fb0bac7d4bbccc6cda07d16994efb4ca6b5eea8ae03e42931fca11"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterSelling_01.wav",
+      "after": "cf516fbb7c4c39a6abfde94f14f8e1da9e259f79c62806496bf1ba592fd0bdb2"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterSelling_02.wav",
+      "after": "251cf9bcf24ad187a15e5fcec4609a194a17753a41382a90346232013addc450"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterShopUpgrade_01.wav",
+      "after": "04746496a85345688fae96e19dfff6272228488fbba22937f8a90d7d69b8c2cf"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterShopUpgrade_02.wav",
+      "after": "a7e3d37f1a8f564b3b46c63e5f180087880f1dd78ee1f9dca47940e585cdd547"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterShopUpgrade_03.wav",
+      "after": "6d2305471e771a4c1fd18c81cda12dd746e57614b8c1c5cfea60f2ac2ec244b2"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterShopUpgrade_04.wav",
+      "after": "4e771b56f07834f2e8bf001f5436e22e1ffd2428dacbb487562fa3bc1527f3d5"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterTriple_01.wav",
+      "after": "a8365e956f520bdae1e00058350ed872ef2936d8aa4085c43a3bec185e191ae1"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterTriple_02.wav",
+      "after": "523748601d5f9fa14d0b8f5346b6bf174b651d50f70fb1ea9306e35afc3cb39d"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_AfterTriple_03.wav",
+      "after": "ec76afb03f1a960b06502177428fc8ea687e2609eaf12965c4521228090fc599"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Ahead_01.wav",
+      "after": "30293b49346fe7257338d1b95c23e2546595b2ece23fd3f820224c66a8c251c1"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Ahead_02.wav",
+      "after": "dbd4852ab026075ff1e2d1a4485f376f028241dea613ff2cacf75ae698028694"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Ahead_03.wav",
+      "after": "bf9be4313908465929a0b7cb9211fcd9c893b7509d157bfc0429a9202cb573b6"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Behind_01.wav",
+      "after": "2450792b89e4db7d452f7808c359dc025f868a1470310ce6295a103c1dad925b"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Behind_02.wav",
+      "after": "919455abfbbf000195b9982e4119cd48cb93e76ad6b990fee66936d492e62116"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Behind_03.wav",
+      "after": "da5d7b871f99ddafe0249abe8136b6f8796f12be9b6b556be2a83820427bea3e"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatLoss_01.wav",
+      "after": "6756ee377b8e830417477b21a87804e6fb11e2bc2f262d960a89a93c940fe381"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatLoss_02.wav",
+      "after": "7c3178ff0cd9a1d70f88bcf55161daa9324a3086254087b99686cc27607bcaf3"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatLoss_03.wav",
+      "after": "f44fd03e360132436fe23b249587b1d1400ee5453baddc5854de484ad8c40a89"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatWin_01.wav",
+      "after": "a89ccf2d7a6c46fdc3bc83ea43e077f4a29963b25a49342d507c6391bb8f62f6"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatWin_02.wav",
+      "after": "9b85252781f26176ff159cf1d599cc5ca6146258fbe56842897b133e5d343d97"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_CombatWin_03.wav",
+      "after": "e6aff96ac279359eb560f04075cf4a757e654533419a9f84c711344149b4279f"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_FirstPlace_01.wav",
+      "after": "1e7073c86c55ebfff0ad99e66388fb3162b9543ef550e15165e5e3ede488ddb1"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_FirstPlace_02.wav",
+      "after": "d6768437af51d9d0d1d305d44b9f0539356ed4a8eea8495d00671fafc9181ab9"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_FirstPlace_03.wav",
+      "after": "01e28d917d5ba04437a92c86a54f1747ee25fadc629462c546d81ca1cee79e1e"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_FirstVictory_01.wav",
+      "after": "7d0d51fe2e80e2f965e9b929e2bc088ec46d6436ea344a0841dcb29c115a1c4d"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_01.wav",
+      "after": "36efce6143a5551e1c840b77602b5de82ffd548fb216e1a876caf6f97e360a69"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_02.wav",
+      "after": "f4d50d305104e6cb1142550644c4e1782c56a0d72640b22a0143b730352e4dd6"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_04.wav",
+      "after": "21239841e9cf36293127c20664fe4f8c53285e972209b7b1a5edacd9e88f3b0e"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_05.wav",
+      "after": "0552cc2a7728f5eb01aceb27e2653474b424b888c3506786ec05b938a1b3f33c"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_06.wav",
+      "after": "d8064df0dcc401cd0962ec3fa1d10bb43d78680d89ea02206f179433326ebaa6"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_07.wav",
+      "after": "edf07cf8703100b6b5ff392ce8e0d9ea84eeab601ab3763681689d95506697a2"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Flavor_08.wav",
+      "after": "f68ac471582c14650ab1b895c44745d05abc9499e075f50f531f41d12e5be0da"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_General_01.wav",
+      "after": "307006257fbbb73d81cc9b40af2f0bc7ed91e52ec6e3a5456e002c925df9ee8c"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_General_02.wav",
+      "after": "867e779cffa692157b4d9aa89f73248efe2b29353b81d388de7afec68dfc50f0"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_General_03.wav",
+      "after": "8f26300b2e829ec9fe6c8464a63ac15e2a702075444c6e5d38b876742535711a"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_HeroSelection_01.wav",
+      "after": "0d399409736825cdadff4c277b0160e173ce2a3f1299382d2ec56637cfb739e6"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Hire_01.wav",
+      "after": "53399197f853cf403070f915e18be3d60032d23329eb413e5f3c73e1edcb12d8"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Hire_02.wav",
+      "after": "25c23246a29b48a0867961fe076cf409efc54554a502befac6368045f5e4887b"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Idle_01.wav",
+      "after": "2946005e72ab2256dbde6a27fd0d3ac2585c3ef73fe565d753264f49cd546932"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Idle_02.wav",
+      "after": "dfeb5a1f5e0ff2b824e67cc4b64ad0e47e9fc1a94698d1d6bf7e5bd3e0101990"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Idle_03.wav",
+      "after": "4ba8f87442621a4a7291febf035aee7bc46b0ef2eb7167265174db767a20bd09"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Idle_04.wav",
+      "after": "fd66c9066325bcea358638aa3cf9f0ec238a342d9b4ff3b38bdba3dd3d5e1d27"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Idle_05.wav",
+      "after": "db7754d8884b808b7b6ec78ea5c162c1cf24bc720b93f6faac39c3f3bf0c6f8c"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_NewGame_01.wav",
+      "after": "ffd239bae3fe5a7613d9f2ebdf133298b6155ef0d92361fdcf4320e5ff09523d"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_NewGame_03.wav",
+      "after": "7a3b0c48b267daf830a5bc821122df9317c0767e65c92bb458abb278861d4e65"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_NewModeLaunchalt_01.wav",
+      "after": "fa84a1c255582c4d06014225931b296c50b09c0296f788ab18b9dab2ea63cf30"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitLargeMinion_01.wav",
+      "after": "8cff32b49e2f23a9f34a359e117694d14e5d1be46e97ff2aa10fe85ac31d4d6a"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitLargeMinion_02.wav",
+      "after": "00f4d46bd4b6e12fc1b498de5aea7c675fda9331d691b1e54954c2e2c5bfa074"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitLargeMinion_03.wav",
+      "after": "9e69f9cd96b871e22e2335a589951c01fd6c2d0a95e15e4c44cae8933040dce1"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitMediumMinion_01.wav",
+      "after": "ad59697cf2ad2d12bb4410548a01036f8cb3ebaa5dd4692a25fe170f2ca8ba8d"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitMediumMinion_02.wav",
+      "after": "056964838fb8bd3f5f6c69fa3e3a633e5ebd5ca88264f7002666ac301b77f20a"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitMediumMinion_03.wav",
+      "after": "e8c3bc8d5c37a58a82a1294cb269d00dbc6210e26486df899aeb7ebca0345399"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitSmallMinion_01.wav",
+      "after": "861666533f41ac7869dc10bc1e485634c81492a13077a6954a4067bbef5e2bf7"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitSmallMinion_02.wav",
+      "after": "74ff5d7c3519466b95881d6888734dc02197eb61c5baf91a23c81bcdf584c94f"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_RecruitSmallMinion_03.wav",
+      "after": "a69849450c4022de835d4e1e74b9689bc20042ad3cba6e03d4043e1da97f7c33"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_ShopToCombat_01.wav",
+      "after": "a1c25166ffff24229ab14f8385216377e26a94cf8d0128045c57f3537b837f53"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_ShopToCombat_02.wav",
+      "after": "e93d1aa8f40fdc4181539bd413fb90402ceb0a9416aafe0ba80058364dd32254"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Triple_01.wav",
+      "after": "85d8dec9ca0723b5516278cec93bbec55db67396b1bdad2f5fe32c9b86366a15"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Triple_02.wav",
+      "after": "bad48f3845f342a8f4f90d958cd3902e74193b275f502f36459d8681f52c8707"
+    },
+    {
+      "path": "public/assets/bob/voices/VO_DALA_BOSS_99h_Male_Human_Triple_03.wav",
+      "after": "83858925270ce3b0b48ab5625a0e46caa8d92dfcbf567cc9fd82cc168d4bc760"
+    },
+    {
+      "path": "public/assets/heroes/power-alexstrasza.jpg",
+      "after": "f98c57c5e25d4ef9fd52c8c89c94ca0112973c778b46b1d422bced2f49612e46"
+    },
+    {
+      "path": "public/assets/heroes/power-cenarius.jpg",
+      "after": "df2aeb414429dd79cb3c2c34c5c33d26fc7ac6eadcd5820b355550b7fd287f31"
+    },
+    {
+      "path": "public/assets/heroes/power-cookie.jpg",
+      "after": "afab0fa67f89dc3846c63b904c3a9ec4f1241918a4c7da3cdfe08503ecfc4193"
+    },
+    {
+      "path": "public/assets/heroes/power-elise.jpg",
+      "after": "0b5314353a183bd42d38fa767377c5367dacec2201dee145b50ebf6617e1059b"
+    },
+    {
+      "path": "public/assets/heroes/power-eudora.jpg",
+      "after": "408b3a6a067385fbb42ce9ef0c50dce90ac711e155c416b3ec6f864ea8ddc542"
+    },
+    {
+      "path": "public/assets/heroes/power-faelin.jpg",
+      "after": "dbada4eda3ac8affbdd2a475d751c6c33d48985c16903a99514860821fd3e28d"
+    },
+    {
+      "path": "public/assets/heroes/power-flurgl.jpg",
+      "after": "5759c368c65f1a524f1f4511badce1017d721fbf2fe36ec502ba2daf5d06cd1a"
+    },
+    {
+      "path": "public/assets/heroes/power-galewing.jpg",
+      "after": "8135a9154bca0166267d15b69716e60ed63670dae1d2189bdf795efe4d12a4e1"
+    },
+    {
+      "path": "public/assets/heroes/power-gallywix.jpg",
+      "after": "2b15dd6a003ba0d59c8523a6dfdea9c1dc1c042705dbe0e60166cde49b7f8b13"
+    },
+    {
+      "path": "public/assets/heroes/power-guff.jpg",
+      "after": "5caaa6d69c9128efb01e7f0dfe3d43e2baf97a146b12cb6f73c5cf6b605ca097"
+    },
+    {
+      "path": "public/assets/heroes/power-hoggarr.jpg",
+      "after": "1e2efb40793469e92f01cad29f029b8baec025c8cc5f084cc4e6cfaace966cdb"
+    },
+    {
+      "path": "public/assets/heroes/power-hollidae.jpg",
+      "after": "90646f58ff89f73c4ae3e22fcc4cf50e2a995a223551d822ad456d798fa7e872"
+    },
+    {
+      "path": "public/assets/heroes/power-maiev.jpg",
+      "after": "8a7840212cababa616d9d62758d7f8c6d7f02fc1217725d653a967ac8daf5281"
+    },
+    {
+      "path": "public/assets/heroes/power-millhouse.jpg",
+      "after": "6ec4a5bfc539fc5eea07abae34fbd7e352c018dbed339a123f8498a604783edd"
+    },
+    {
+      "path": "public/assets/heroes/power-mukla.jpg",
+      "after": "f36798f95a5e74181d901c7798aec0df9e1bd6e1882d91b5e4d40a7dc499a821"
+    },
+    {
+      "path": "public/assets/heroes/power-nguyen.jpg",
+      "after": "0648d43eba4508d22229e8388fdb1f0829c790a4ad13413978405a7d9f3b6be0"
+    },
+    {
+      "path": "public/assets/heroes/power-nozdormu.jpg",
+      "after": "b529c626d09d5f4b3715977ca2e701103191782192e29722ce94c3f24b17ecd0"
+    },
+    {
+      "path": "public/assets/heroes/power-omu.jpg",
+      "after": "0cbca6a1aa2ae27ee00de6ec0da423499adfc3965e4d05719693b0268b2bbdf6"
+    },
+    {
+      "path": "public/assets/heroes/power-scabbs.jpg",
+      "after": "904c48f4f0d0d03700f9352b741bb1b80ef53eb691eb214e4da97f4000a6cbea"
+    },
+    {
+      "path": "public/assets/heroes/power-sindragosa.jpg",
+      "after": "d59e11c1215a40fada7c9bd7d1a7ad198711702c58b6bbf2b0f65c92d5379898"
+    },
+    {
+      "path": "public/assets/heroes/power-snakeeyes.jpg",
+      "after": "5ae54c5a66225051bfba1c5dd677c45f35d590b437934b4b65b097c246538c5f"
+    },
+    {
+      "path": "public/assets/heroes/power-sylvanas.jpg",
+      "after": "b62a29319dc322a7ca5e861a689b583c14af5c4e56dfd28d6f63de2ea26361e8"
+    },
+    {
+      "path": "public/assets/heroes/power-tamsin.jpg",
+      "after": "400be85ce137edf47b5d2ded00029628d135831adc56beb2d55662bdc67b588b"
+    },
+    {
+      "path": "public/assets/heroes/power-tess.jpg",
+      "after": "4305bba67df72becabbec6053cea2c0a454e95850f8f0bb2aa496a39d754c83f"
+    },
+    {
+      "path": "public/assets/heroes/power-thelan.jpg",
+      "after": "fa7a3012cc166c3524bac8b1b483a9bb063a664e79afc997d9c302c7c04e7dc8"
+    },
+    {
+      "path": "public/assets/heroes/power-togwaggle.jpg",
+      "after": "aefc3b186325b4bd2c548ca23ae5d31c948be501ab5fb431d9c59789f6897b57"
+    },
+    {
+      "path": "public/assets/heroes/power-toki.jpg",
+      "after": "771ff0c61e50dd59049e3252133d466640f35a07eaeaf039b12ce0171473ee21"
+    },
+    {
+      "path": "public/assets/heroes/power-voone.jpg",
+      "after": "b9c23e1493f20a9393a0aaad3a7655b377f4ae59a455fae5bb3d4098888ee8eb"
+    },
+    {
+      "path": "public/assets/heroes/power-yogg.jpg",
+      "after": "54fca5d6ed93b7d2c85af21d7bf01a6c816780785304c022438e0e46f34057bf"
+    },
+    {
+      "path": "public/assets/heroes/power-zephrys.jpg",
+      "after": "2044329d9f8c9846baf1c2c8be67ff935d6af73aa482bb9c03c669b787bbb261"
+    },
+    {
+      "path": "public/assets/heroes/strategy-alexstrasza.png",
+      "after": "98ca4c84b9a2d80d9dab549eecfd6723741b67bee7642ff14de72361ada096d9"
+    },
+    {
+      "path": "public/assets/heroes/strategy-cenarius.png",
+      "after": "db0ac4d398d85c72f449f853fe9c2d48de181c4544d3f552b2ab8d7f000b22c5"
+    },
+    {
+      "path": "public/assets/heroes/strategy-cookie.png",
+      "after": "43eb2a275622c181b2e65b66b40e87964d9fc3efcacf72f14b76745d4029bb98"
+    },
+    {
+      "path": "public/assets/heroes/strategy-elise.png",
+      "after": "fc6153660e5d3a63eed8c00a0098babfe25f4108fc64d7d60dd0c52cc83b1074"
+    },
+    {
+      "path": "public/assets/heroes/strategy-eudora.png",
+      "after": "67d6a6dc0d0c2bb4fd22fbbb4f72fae12f36c14f13757bb9f86b03ae9dd7c36e"
+    },
+    {
+      "path": "public/assets/heroes/strategy-faelin.png",
+      "after": "750d4af3f4386bbd47cb9b01f9932e98fb0db78069ef60ce1a63cf95ed01bdda"
+    },
+    {
+      "path": "public/assets/heroes/strategy-flurgl.png",
+      "after": "2d2d818db99aa0448eea816670bc825fdc70f3cbf1f80b2e098c73dde2f41276"
+    },
+    {
+      "path": "public/assets/heroes/strategy-galewing.png",
+      "after": "e463e439226fac12765e20baf727612921a811ad490fd44702d64473cedfe71b"
+    },
+    {
+      "path": "public/assets/heroes/strategy-gallywix.png",
+      "after": "1aca15398b7777c9b5eeb106fa25185eaff5cdb6574b0060be80bfb451cb1f1b"
+    },
+    {
+      "path": "public/assets/heroes/strategy-guff.png",
+      "after": "d0053777eb4e052640161f0c5f98ccb1d0a6c8c5f2c5efdc089c473c1124f806"
+    },
+    {
+      "path": "public/assets/heroes/strategy-hoggarr.png",
+      "after": "507c1c66b19d2568eb24e01297b3088656f99f1eb364bbb31d8abee996f5b7bd"
+    },
+    {
+      "path": "public/assets/heroes/strategy-hollidae.png",
+      "after": "191c6e2b5238b0b7dbcdb6901b5d7ce7dcf09e3912e6a5a1b3d45c99c2d0e726"
+    },
+    {
+      "path": "public/assets/heroes/strategy-maiev.png",
+      "after": "83d1b5af98a7b454b063febfb9d4b99ccbe65cd8ea9d9651b3dbbd83ba4142ae"
+    },
+    {
+      "path": "public/assets/heroes/strategy-millhouse.png",
+      "after": "7224e98afb591e981d2daa52c58e664faf07309737fa89371a7b30978532d672"
+    },
+    {
+      "path": "public/assets/heroes/strategy-mukla.png",
+      "after": "d6ddc5fa970e89bfaa39d5b931ee5044b11c117659ebb7044602e576851d601d"
+    },
+    {
+      "path": "public/assets/heroes/strategy-nguyen.png",
+      "after": "8757df523d3620759f48896195f275641bb14ed3cbaae154672508c7a4a32e08"
+    },
+    {
+      "path": "public/assets/heroes/strategy-nozdormu.png",
+      "after": "7148634648349157d18aa8a8abaef045ca888e0a74d4015ab4e206cff7fbcdb0"
+    },
+    {
+      "path": "public/assets/heroes/strategy-omu.png",
+      "after": "3ed9bdfe9d47588a4f1621081c7d4250f7b63b1184cf133ed489ca0ae7c3f23c"
+    },
+    {
+      "path": "public/assets/heroes/strategy-scabbs.png",
+      "after": "c617e435e399bc369100a2f39ac01e702605ae91dedbf9f5f0122b4b40a51370"
+    },
+    {
+      "path": "public/assets/heroes/strategy-sindragosa.png",
+      "after": "9749e3a274fa0574cbac879fe2d2d2060afe042d5d16b5befbd064c33178350c"
+    },
+    {
+      "path": "public/assets/heroes/strategy-snakeeyes.png",
+      "after": "505c4805c0dd07b3eb6e823bc2bb7260ee14e7c8e82bafa6e343f73b669c0631"
+    },
+    {
+      "path": "public/assets/heroes/strategy-sylvanas.png",
+      "after": "60688a09c7508d5f3f146b324bbceafb9883d61ae8119aea2108bb22ee3eba2d"
+    },
+    {
+      "path": "public/assets/heroes/strategy-tamsin.png",
+      "after": "fab0e4ee32c10e754b9615b4fcc5336f383cc23b6936d929aade74265ddb9bdc"
+    },
+    {
+      "path": "public/assets/heroes/strategy-tess.png",
+      "after": "d08bdbf45bf1ec1b7ac4d2ea49768aa374e5078223c337eb270fb5c0d4670e54"
+    },
+    {
+      "path": "public/assets/heroes/strategy-thelan.png",
+      "after": "a3eafab95d87ef56074c0f78f5458d0493db88f17fd0b881a64d34bac794c136"
+    },
+    {
+      "path": "public/assets/heroes/strategy-togwaggle.png",
+      "after": "645c4531b7e342ce1c026a59c2f153cdaed485916dd77e4bea48fc2294197912"
+    },
+    {
+      "path": "public/assets/heroes/strategy-toki.png",
+      "after": "98cb5b0985e6800469c6ab0fe087d65c7eaa5e72d0f85f42031e22c57a78e0c7"
+    },
+    {
+      "path": "public/assets/heroes/strategy-voone.png",
+      "after": "7da416a71b74616d2838524ef3a1668cebd2c0ef28838787f078a6e54c889776"
+    },
+    {
+      "path": "public/assets/heroes/strategy-yogg.png",
+      "after": "633c7c9f12713272aa70581d827c8630e2c44fcc1fba21e75be4898c3f3c9f6f"
+    },
+    {
+      "path": "public/assets/heroes/strategy-zephrys.png",
+      "after": "0036ef4944e8d32c9a8444234900d90dcb54dddf0874f3c949346d3709ba096f"
+    },
+    {
+      "path": "public/assets/spells/BG28_168.png",
+      "after": "98134d30b7e3c378f4eec788f36f05965029936305f9c867f4c596d8719eb215"
+    },
+    {
+      "path": "public/assets/spells/BG28_169.png",
+      "after": "895bd13f194614e7c644c6649c166c9a825ebf94a11d60e0952852992dab9063"
+    },
+    {
+      "path": "public/assets/spells/BG28_500.png",
+      "after": "384164fdd13d728fabd3b3c7eadaa18219f04fb08756c63a1a52f3294cfa655a"
+    },
+    {
+      "path": "public/assets/spells/BG28_503.png",
+      "after": "8a975eba20ebc0dbba5f6c8864aef360e339083b3c7e45a7a281bafdca72e56c"
+    },
+    {
+      "path": "public/assets/spells/BG28_520.png",
+      "after": "8c5e4f28d0499a819385c649461ab679037031445d6f48838c5d625387e4785c"
+    },
+    {
+      "path": "public/assets/spells/BG28_571.png",
+      "after": "67449edefb9c4ac2df4814a0c8213072b2e9e879399a89c37a5955ade71d9ae0"
+    },
+    {
+      "path": "public/assets/spells/BG28_601.png",
+      "after": "3955122b52ad8b0f183f9eae50ae0a7a9f48724a7231128bda9fef0420683f33"
+    },
+    {
+      "path": "public/assets/spells/BG28_607.png",
+      "after": "3cc7d22f880fcd9c033b72220546dbc31190d6416625fac0eebbb7f9b610c963"
+    },
+    {
+      "path": "public/assets/spells/BG28_814.png",
+      "after": "7b57a1a18ad196737c2812a9de66f5bf238abf335fa94f40f15c6ef648ab09a1"
+    },
+    {
+      "path": "public/assets/spells/BG28_827.png",
+      "after": "aac3c82555ddf2d237f5ccb2563894c12962ee5e2c662d6f413499f1ccdf7d1c"
+    },
+    {
+      "path": "public/assets/spells/BG28_830.png",
+      "after": "ebdc7693fd2ff2eb0d295e55c3976f21498873baab84cb15585048eeb804bdd8"
+    },
+    {
+      "path": "public/assets/spells/BG28_838.png",
+      "after": "965d1ec1c1313e656299f699854f41cab7fdc46de43a76c1d27339ae9b4421bd"
+    },
+    {
+      "path": "public/assets/spells/BG28_849.png",
+      "after": "d0548ed058d20ec95aff93467a44e2a8c6cf306263752b34dc984b808cc643f5"
+    },
+    {
+      "path": "public/assets/spells/BG28_883.png",
+      "after": "5c18c80db903bae45028cc967882cb5f82d7e940780a11c53271e38fe3eec003"
+    },
+    {
+      "path": "public/assets/spells/BG28_884.png",
+      "after": "c9acc7cdbee9acbe5caa0c01a85cfab04d12dae673be2dae04bf3a04c07fc396"
+    },
+    {
+      "path": "public/assets/spells/BG28_886.png",
+      "after": "d03b8e973c43dcd7cd07c57acb6d510e814853c49275eab42195924c59371d20"
+    },
+    {
+      "path": "public/assets/spells/BG28_888.png",
+      "after": "2516c9468700c4141801a24f934987ac0515ab041daa253807dc28ff8afab832"
+    },
+    {
+      "path": "public/assets/spells/BG28_966.png",
+      "after": "89a4a6a70d8e05539c7ffd93e4cf5cd19f042b8beb00b3c80e3d9f3135e89322"
+    },
+    {
+      "path": "public/assets/spells/BG28_GIL_836.png",
+      "after": "0e634363b5d1bb876c7e5a17528131bf6e05ddbb2f8df61b47c8b5d9c65753bd"
+    },
+    {
+      "path": "public/assets/spells/BG30_802.png",
+      "after": "b3316273e2be4b7c4945cb2d2e9ccb45ea1e6652fd2deddedb4a39581b234ab2"
+    },
+    {
+      "path": "public/assets/spells/BG30_804.png",
+      "after": "1ade3ae7e8a022021c1ed2894630cf940d8c8be5e70978def97b2f05c275f00d"
+    },
+    {
+      "path": "public/assets/spells/BG31_242.png",
+      "after": "82f19326ad6e400a6644b15cdaf7f1e234c51cbe0cab97c1d918b44e2a68cf09"
+    },
+    {
+      "path": "public/assets/spells/BG31_819.png",
+      "after": "072f7fc6161b4ddf5713a8578ec0b2f34d116041a39507500c287a864d9b4ce0"
+    },
+    {
+      "path": "public/assets/spells/BG31_889.png",
+      "after": "60cce8a529ec3f5532020f0f7d995b9607406a8f898cff44e3fdf32ce9957b64"
+    },
+    {
+      "path": "public/assets/spells/BG31_890.png",
+      "after": "7aeecb8348ba78b1c806703c9e5709e4c585beb3a70d6688eb3b3c728000caa0"
+    },
+    {
+      "path": "public/assets/spells/BG32_337.png",
+      "after": "97d11b1b7f73d5e3bc86571823382a99eaceaf591198ed6839051512a8715cc5"
+    },
+    {
+      "path": "public/assets/spells/BG33_101.png",
+      "after": "e2737fef0da50e334be821f52cf0ae1072a148fa40ee58fac2e7d6849abfed9c"
+    },
+    {
+      "path": "public/assets/spells/BG34_330.png",
+      "after": "3e1fd56b0103cacbde5b4fbb53ebe3ee2d719a3fb379b7ae34ef1fbf8564abc0"
+    },
+    {
+      "path": "public/assets/spells/BG34_444.png",
+      "after": "006f82384624f17e4e3a7196fd8a2fe09f9980e1a0e1ec13787aa9faa8f36785"
+    },
+    {
+      "path": "public/assets/spells/BG34_889.png",
+      "after": "55cea60781e84c9d1f4de603cb8d0c670fb6c9c0f8ed6011455ec32142b9df30"
+    },
+    {
+      "path": "public/assets/spells/BG35_912.png",
+      "after": "04833e148eeeef68cdd41d976a75776cc793606a766aee3bf9d1e9428c053364"
+    },
+    {
+      "path": "public/assets/spells/BG35_952.png",
+      "after": "a3411f4b35b3862e42a11ef8afa04ceb88041b000eebb9577d514d35889ff9b8"
+    },
+    {
+      "path": "public/assets/spells/BG36_303.png",
+      "after": "ecf6a83ecd70d2ee3b8946585559bd1641d167a2be9865c38e40ef1df1564cec"
+    },
+    {
+      "path": "public/assets/spells/BG36_883.png",
+      "after": "061a4270e2be642eb0ee5f0623e725a033c46a6f62c3dbdcc5782017d8298d68"
+    },
+    {
+      "path": "public/assets/spells/BG36_884.png",
+      "after": "fe68b85565e618e74f4adc5c3c68e0bad5b9bbad597d257dc68afc129c5b0c68"
+    },
+    {
+      "path": "public/assets/spells/EBG_Spell_014.png",
+      "after": "f1ed14de54a4f3582eeb958ae6e28a821196694196a583e977249e0233c31aac"
+    },
+    {
+      "path": "public/assets/spells/EBG_Spell_017.png",
+      "after": "e7a28b1a2a077413dd2b0bed09822c0a8d7a71ed36684425b601acb7ed94ec09"
+    },
+    {
+      "path": "public/assets/spells/EBG_Spell_032.png",
+      "after": "1aeebf85869c18d178ecd81ee78dcb4c9e87d31b4b85ffdd25161d611134606f"
+    },
+    {
+      "path": "public/assets/spells/EBG_Spell_037.png",
+      "after": "30c57ecef25ba748b7fc5fbd23a043d548403d38ca92b0169374ffc337ae009c"
+    },
+    {
+      "path": "public/assets/spells/EBG_Spell_038.png",
+      "after": "49a825a1347c3414686006efae9ee16f06920d779dce4ecc3f351bf6cb39734a"
+    },
+    {
+      "path": "public/assets/spells/hoshiguma_shield_illustration.png",
+      "after": "e3d198b80c30dbec1c9274ac3ad0f2d2dfb0dd9371f5d28bdc1399fa76c14369"
+    }
+  ]
+}
