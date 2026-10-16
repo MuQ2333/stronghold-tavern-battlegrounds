@@ -1,5 +1,5 @@
 卫戍协议：酒馆战棋模组　使用说明
-模组版本：0.2.0
+模组版本：0.2.1
 适配游戏：原版卫戍协议 v0.3.0
 运行环境：Node.js 22 或以上；Windows / Linux
 
@@ -23,7 +23,7 @@
 6. 玩家访问服务器网页即可，不需要每位玩家再安装一份。更新后刷新网页。
 
 GitHub的Source code ZIP / Download ZIP是源码，不含图片和录音。
-请下载Tavern-Battlegrounds-0.2.0-Full.zip。网盘也使用同名完整包。
+请下载Tavern-Battlegrounds-0.2.1-Full.zip。网盘也使用同名完整包。
 安装不会自动下载原游戏、安装依赖、修改端口或关闭已有进程。
 
 三、功能开关

@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "gameVersion": "0.3.0",
   "upstreamCommit": "c24e17eec3af1e6dedfa9935a6d15245cf2f4586",
   "files": [
@@ -46,7 +46,7 @@
     {
       "path": "docs/design/client.md",
       "before": "84dfb815222cc38583e467d816da534f0673beb233dd4d8d71d4097c69f3dab8",
-      "after": "414b4f272275b0ed575fbd79e52c66e292b820e6c0cdf0d073e4e0407ded1225"
+      "after": "770639f57538fa10d8939182cab3cc6922916bafc05dcc9b5307356cb69bc4a8"
     },
     {
       "path": "docs/design/match.md",
@@ -66,7 +66,7 @@
     {
       "path": "docs/history/0.3.0.md",
       "before": "cb47a0b8362ccdaae66550aef8ac93cd33617c8273ca6e55d622587f94ea7c02",
-      "after": "9019b1d27b16fa45781c212f824716a37e303c3873547d705e4d116c28fd7746"
+      "after": "8ee46161f5a72c443a5caac22142bdb2d6f70ef5b4022d852dfe34e9391027d2"
     },
     {
       "path": "mods/hero-strategies/README.md",
@@ -92,6 +92,11 @@
       "path": "mods/tavern-heroes.json",
       "before": null,
       "after": "d268e1fb3e8c660185e65a9106e0dd8742762792a364979fc7ee85625541a3a3"
+    },
+    {
+      "path": "public/css/devices.css",
+      "before": "d4824535cd1d60242166d699804b65cacd7604dfaac64e7c72387fda7dea4289",
+      "after": "0baec1552f59b76903f2f6e366f4b6081b338c8f56c19b63c5b25c149f0df0d4"
     },
     {
       "path": "public/css/screens/game-panels.css",
@@ -229,6 +234,11 @@
       "after": "a09b53d23010f0f3fa3f079a2df75c89d0416e8fdc192678ba2b1b474626eabc"
     },
     {
+      "path": "public/js/ui/device.js",
+      "before": "4ca072a84ed310765a1bd95211387076a1e14767411c9d9284b1adb6146bb0e8",
+      "after": "1da2d600eff714425c956ad5fa2d069c051ec99ae7d456c4aea6bfffed2a1f9b"
+    },
+    {
       "path": "public/js/ui/effectsList.js",
       "before": "feea2db3e9f8ebe97ae13aac8957eb90dda04b058f8e9d5aa630d46202bb329e",
       "after": "0a97a374d97910446a5edcc9780319643f740a6b50f5b86fe98a6bc92cfbe08e"
@@ -292,6 +302,11 @@
       "path": "public/js/ui/spells.js",
       "before": null,
       "after": "574065cd516533496aa0dc69e070de0ae920a26cf01d87f8e0e062fd9610a56e"
+    },
+    {
+      "path": "public/js/ui/viewport.js",
+      "before": null,
+      "after": "69d62d093f91fc8e3a3ba67085cadc31c49ad2e483560f9bca70b452afad1aa4"
     },
     {
       "path": "server/lobby.js",
@@ -597,6 +612,16 @@
       "path": "test/ui/hero-power.e2e.test.js",
       "before": null,
       "after": "fbc00e9df954f45798611cb7f01666ea33e91837cd246614b859b88c15aea048"
+    },
+    {
+      "path": "test/ui/mobile-viewport-basic.e2e.test.js",
+      "before": null,
+      "after": "2bafd31633067134966f30a3e00e1c7667f04d0095f8ec5ef75a9f458930b90e"
+    },
+    {
+      "path": "test/ui/mobile-viewport.test.js",
+      "before": null,
+      "after": "f17844098cf795cf00c9d4081c0ec6a602fa03be45673883124191b0a5b21faa"
     },
     {
       "path": "test/ui/nguyen.e2e.test.js",

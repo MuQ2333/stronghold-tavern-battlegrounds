@@ -2,7 +2,7 @@
 
 把酒馆法术、英雄技能和酒馆老板鲍勃加入网页游戏《卫戍协议：盟约》。这是一个非官方、非商业的同人模组。
 
-**[下载完整安装包](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.0)** · **[使用说明](使用说明.txt)** · **[安装与卸载](INSTALL.md)** · **[更新记录](CHANGELOG.md)** · **[反馈问题](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/issues)**
+**[下载完整安装包](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.1)** · **[使用说明](使用说明.txt)** · **[安装与卸载](INSTALL.md)** · **[更新记录](CHANGELOG.md)** · **[反馈问题](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/issues)**
 
 ## 模组内容
 
@@ -18,7 +18,7 @@
 
 | 模组版本 | 适配游戏 | 环境 |
 | --- | --- | --- |
-| 0.2.0 | [原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0) | Node.js 22+；Windows / Linux |
+| 0.2.1 | [原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0) | Node.js 22+；Windows / Linux |
 
 先准备能够正常启动的原版游戏，再导入本模组。本包包含模组图片和录音，原游戏及其原生素材需自行准备。
 
@@ -26,7 +26,7 @@
 
 ## 快速安装
 
-1. 下载 **`Tavern-Battlegrounds-0.2.0-Full.zip`**，完整解压到游戏目录以外。
+1. 下载 **`Tavern-Battlegrounds-0.2.1-Full.zip`**，完整解压到游戏目录以外。
 2. 停止游戏服务，运行对应安装入口并指定游戏目录：
 
 | 系统 | 安装 | 卸载 |

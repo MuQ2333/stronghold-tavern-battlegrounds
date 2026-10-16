@@ -565,3 +565,6 @@ Bob portrait anchoring fix (2026-10-15): speech captions are absolutely position
 2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
 
 0.3.0 tavern UI integration retains the native plugin surfaces, optional combat metrics, hovered-card buy hotkey and single-flight purchases. Spell preview follows Operator Loadout with tier chips, search, selectable rows and a detail pane; left/right keys change selection and compact screens switch between roster and detail. Reward selection hides all merchandise categories.
+
+
+2026-10-16 tavern 0.2.1 viewport recovery: the document is fixed and clipped where supported, while internal lists keep scrolling. Visual viewport and lifecycle events trigger bounded recovery samples after transient fullscreen system bars settle; focused text editing follows keyboard geometry. Native Android system UI requires real-device verification.

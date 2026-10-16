@@ -371,10 +371,10 @@ index 00000000..96855d4d
 +
 +其他模组需要逐项核查协议、商店槽位、价格与奖励、库存、策略数据、准备与战斗事件、素材和界面插入点；不得以整文件覆盖代替冲突合并。
 diff --git a/docs/design/client.md b/docs/design/client.md
-index 43259a8c..695ebe49 100644
+index 43259a8c..19085346 100644
 --- a/docs/design/client.md
 +++ b/docs/design/client.md
-@@ -514,3 +514,54 @@ restarts (a new match / a rewound round); a new round's prep clears only 当前
+@@ -514,3 +514,57 @@ restarts (a new match / a rewound round); a new round's prep clears only 当前
  enters b.progress / b.result, and a tracked battle's result and rendered events are byte-identical to an untracked one
  (test/match/combat-metrics.test.js, test/match/runner.test.js). Ported from [xinhai-ai/Stronghold-Protocol](https://github.com/xinhai-ai/Stronghold-Protocol)
  (其公开部署分支，作者 @临夏俨然) with thanks.
@@ -429,6 +429,9 @@ index 43259a8c..695ebe49 100644
 +2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
 +
 +0.3.0 tavern UI integration retains the native plugin surfaces, optional combat metrics, hovered-card buy hotkey and single-flight purchases. Spell preview follows Operator Loadout with tier chips, search, selectable rows and a detail pane; left/right keys change selection and compact screens switch between roster and detail. Reward selection hides all merchandise categories.
++
++
++2026-10-16 tavern 0.2.1 viewport recovery: the document is fixed and clipped where supported, while internal lists keep scrolling. Visual viewport and lifecycle events trigger bounded recovery samples after transient fullscreen system bars settle; focused text editing follows keyboard geometry. Native Android system UI requires real-device verification.
 diff --git a/docs/design/match.md b/docs/design/match.md
 index 15781228..5e7a19e4 100644
 --- a/docs/design/match.md
@@ -570,10 +573,10 @@ index f062743d..652ad231 100644
 +
 +2026-10-15 phase narration: welcome, prep, combat and prep battle-outcome cues bypass playback and attempt cooldowns; their existing probabilities remain unchanged. An accepted new queued cue immediately cancels the current narrator and caption. Operator voice priority and mute remain respected.
 diff --git a/docs/history/0.3.0.md b/docs/history/0.3.0.md
-index 68cf4efe..d7f44ec1 100644
+index 68cf4efe..a30950fc 100644
 --- a/docs/history/0.3.0.md
 +++ b/docs/history/0.3.0.md
-@@ -4027,3 +4027,21 @@ not later, not without the skill's effects; 锡人 S1's zone as the flask's reac
+@@ -4027,3 +4027,24 @@ not later, not without the skill's effects; 锡人 S1's zone as the flask's reac
  time, not outside the skill, the procedural zone without the prefabs; 焰影苇草 S2's carrier strike by owner 'skill';
  the summon pillar and the arrival bursts against the birth effect, not in a later frame, not without it). Golden:
  unchanged (client only).
@@ -595,6 +598,9 @@ index 68cf4efe..d7f44ec1 100644
 +
 +References: docs/TAVERN-MODS.md, docs/SPELLS.md, docs/BOB.md and docs/HERO-POWER-POOLS.md.
 +Validation is recorded in the mod release's VALIDATION.md. No official golden fixture is intentionally changed.
++
++
++2026-10-16 tavern 0.2.1 viewport recovery: the document is fixed and clipped where supported, while internal lists keep scrolling. Visual viewport and lifecycle events trigger bounded recovery samples after transient fullscreen system bars settle; focused text editing follows keyboard geometry. Native Android system UI requires real-device verification.
 diff --git a/mods/hero-strategies/README.md b/mods/hero-strategies/README.md
 new file mode 100644
 index 00000000..3ee3dde6
@@ -1511,6 +1517,27 @@ index 00000000..6d2c503e
 +    "totalHp": 15
 +  }
 +}
+diff --git a/public/css/devices.css b/public/css/devices.css
+index 923a97c9..1c9271a1 100644
+--- a/public/css/devices.css
++++ b/public/css/devices.css
+@@ -156,3 +156,16 @@ html:not(.sp-in-match) .toast-host { margin-top: var(--sa-t); }
+ 
+ .rotate-hint__pwa { pointer-events: auto; margin-top: 6px; }
+ .rotate-hint__pwa[hidden] { display: none; }
++
++
++/* Keep the document itself immobile when transient fullscreen browser/system bars return.
++   Internal lists and dispatch cards remain their own scroll containers. */
++html.sp-viewport-lock { overflow:hidden; width:100%; height:100%; }
++html.sp-viewport-lock body { position:fixed; inset:0; width:100%; height:100%; overflow:hidden; overscroll-behavior:none; }
++/* hidden still creates a programmatically scrollable box. clip prevents browser scroll
++   anchoring/scroll-into-view from retaining an offset after a fullscreen system gesture.
++   Keep hidden as the fallback on older engines; descendant lists remain scroll containers. */
++@supports (overflow:clip) {
++  html.sp-viewport-lock, html.sp-viewport-lock body { overflow:clip; }
++}
++.sp-viewport-lock .app-root { left:var(--sp-vx,0px); top:var(--sp-vy,0px); right:auto; bottom:auto; width:var(--sp-vw,100vw); height:calc(var(--sp-vh,1vh) * 100); }
 diff --git a/public/css/screens/game-panels.css b/public/css/screens/game-panels.css
 index 414df250..060e5da5 100644
 --- a/public/css/screens/game-panels.css
@@ -5058,6 +5085,36 @@ index 5f068666..244dbd93 100644
        ${detail.type === 'enemy' ? html`<${EnemyDetail} enemy=${detail.enemy} snapHp=${snapHp} count=${detail.count} live=${liveNow} />` : null}
        ${detail.type === 'token' ? html`<${TokenDetail} token=${detail.token} piece=${detail.piece} ownerId=${detail.ownerId ?? null} snapHp=${snapHp} live=${liveNow} />` : null}
        ${detail.type === 'terrain' ? html`<${TerrainDetail} terrain=${detail.terrain} />` : null}
+diff --git a/public/js/ui/device.js b/public/js/ui/device.js
+index 42905938..8488c79f 100644
+--- a/public/js/ui/device.js
++++ b/public/js/ui/device.js
+@@ -23,6 +23,7 @@ import { useEffect, useState } from '../../vendor/hooks.module.js';
+ import { pwaInstall } from '../pwa.js';
+ import { html, Icon, Button } from './components.js';
+ import { t } from '../../../shared/i18n.js';
++import {installViewportSupport} from './viewport.js';
+ 
+ /** A touch held this long without moving opens the detail (contextmenu) on DOM controls. */
+ export const LONG_PRESS_MS = 520;
+@@ -210,14 +211,9 @@ export function installDeviceSupport(win = globalThis) {
+     else if (typeof m.addListener === 'function') { m.addListener(apply); offs.push(() => m.removeListener(apply)); }  // Safari < 14
+   }
+ 
+-  // visible height (the URL bar of mobile browsers comes and goes): --sp-vh = 1 % of the real visible height
+-  const setVh = () => {
+-    const h = win.visualViewport?.height || win.innerHeight || 0;
+-    if (h > 0) root.style.setProperty('--sp-vh', `${h / 100}px`);
+-  };
+-  setVh();
+-  on(win, 'resize', setVh, { passive: true });
+-  on(win.visualViewport, 'resize', setVh, { passive: true });
++  const viewport = installViewportSupport(win);
++  const setVh = viewport.sync;
++  offs.push(() => viewport.destroy());
+ 
+   // rotation: the new viewport size settles a few frames late on iOS → one more resize after it settles
+   let rotTimer = 0;
 diff --git a/public/js/ui/effectsList.js b/public/js/ui/effectsList.js
 index d65939d6..0c162a1a 100644
 --- a/public/js/ui/effectsList.js
@@ -5890,6 +5947,97 @@ index 00000000..690150c3
 +    noCustom: t('无法对自编干员施放'),
 +    target: t('目标干员'),
 +  }) : text;
++}
+diff --git a/public/js/ui/viewport.js b/public/js/ui/viewport.js
+new file mode 100644
+index 00000000..1a6f9e5c
+--- /dev/null
++++ b/public/js/ui/viewport.js
+@@ -0,0 +1,85 @@
++// Track the visible browser box independently of the layout viewport. Native system UI can
++// pan it without firing window.resize; do not retain that pan after the keyboard is closed.
++export function editingText(doc) {
++  const el = doc?.activeElement;
++  if (!el) return false;
++  if (el.isContentEditable || el.tagName === 'TEXTAREA') return true;
++  return el.tagName === 'INPUT' && !['button', 'submit', 'reset', 'checkbox', 'radio', 'range', 'color', 'file', 'hidden'].includes(el.type);
++}
++
++export function visibleViewport(win) {
++  const vv = win.visualViewport;
++  const positive = (v, fallback) => Number.isFinite(v) && v > 0 ? v : fallback || 0;
++  const editing = editingText(win.document);
++  return {
++    width: positive(vv?.width, win.innerWidth),
++    height: positive(vv?.height, win.innerHeight),
++    x: editing ? Math.max(0, Number(vv?.offsetLeft) || 0) : 0,
++    y: editing ? Math.max(0, Number(vv?.offsetTop) || 0) : 0,
++    editing,
++  };
++}
++
++export function installViewportSupport(win) {
++  const doc = win.document, root = doc.documentElement;
++  const off = [], last = new Map();
++  let frame = null, disposed = false;
++  const timers = new Set();
++  const on = (target, event, handler) => {
++    if (!target?.addEventListener) return;
++    target.addEventListener(event, handler, {passive: true});
++    off.push(() => target.removeEventListener(event, handler));
++  };
++  const put = (key, value) => {
++    if (last.get(key) === value) return false;
++    last.set(key, value); root.style.setProperty(key, value); return true;
++  };
++  const sync = () => {
++    if (disposed) return;
++    const v = visibleViewport(win);
++    if (!v.editing) {
++      // Only reset the root scroller. Scrollable lists, the shop and chat keep their positions.
++      const scroller = doc.scrollingElement;
++      if (scroller?.scrollTop) scroller.scrollTop = 0;
++      if (scroller?.scrollLeft) scroller.scrollLeft = 0;
++      if (win.scrollX || win.scrollY) win.scrollTo?.(0, 0);
++    }
++    let changed = false;
++    if (v.height > 0) changed = put('--sp-vh', `${v.height / 100}px`) || changed;
++    if (v.width > 0) changed = put('--sp-vw', `${v.width}px`) || changed;
++    changed = put('--sp-vx', `${v.x}px`) || changed;
++    changed = put('--sp-vy', `${v.y}px`) || changed;
++    if (changed && win.dispatchEvent && win.Event) win.dispatchEvent(new win.Event('sp:viewport'));
++  };
++  const schedule = () => {
++    if (frame !== null || disposed) return;
++    if (!win.requestAnimationFrame) { sync(); return; }
++    frame = win.requestAnimationFrame(() => { frame = null; sync(); });
++  };
++  // Native status/navigation bars can finish their animation after the last resize/scroll
++  // event. Sample the settled box as well; do not poll forever or re-enter fullscreen.
++  const recover = () => {
++    schedule();
++    if (!win.setTimeout) return;
++    for (const timer of timers) win.clearTimeout(timer);
++    timers.clear();
++    for (const delay of [120, 400, 900]) {
++      const timer = win.setTimeout(() => { timers.delete(timer); schedule(); }, delay);
++      timers.add(timer);
++    }
++  };
++  root.classList.add('sp-viewport-lock');
++  on(win, 'scroll', schedule);
++  for (const event of ['resize', 'focus', 'pageshow', 'orientationchange']) on(win, event, recover);
++  for (const event of ['resize', 'scroll']) on(win.visualViewport, event, recover);
++  for (const event of ['fullscreenchange', 'webkitfullscreenchange', 'visibilitychange', 'focusin', 'focusout', 'touchend', 'touchcancel', 'pointercancel']) on(doc, event, recover);
++  sync();
++  return {sync, destroy() {
++    disposed = true;
++    if (frame !== null) win.cancelAnimationFrame?.(frame);
++    for (const timer of timers) win.clearTimeout(timer);
++    timers.clear();
++    for (const f of off) f();
++    root.classList.remove('sp-viewport-lock');
++  }};
 +}
 diff --git a/server/lobby.js b/server/lobby.js
 index bb8f0845..4f980e91 100644
@@ -12664,6 +12812,147 @@ index 00000000..d7305b08
 +    await page.waitForFunction(()=>!document.querySelector('.ff-piece__hand-lock'));
 +    assert.deepEqual(errors,[]);
 +  }catch(e){await page?.screenshot({path:'.cache/hero-strategies/ui-failure.png'});console.log(await page?.evaluate(()=>({requests:globalThis.__heroRequests,heading:document.querySelector('.shopbar__reward')?.textContent})));throw e;}finally{await browser?.close();await srv.close();}
++});
+diff --git a/test/ui/mobile-viewport-basic.e2e.test.js b/test/ui/mobile-viewport-basic.e2e.test.js
+new file mode 100644
+index 00000000..11c018b2
+--- /dev/null
++++ b/test/ui/mobile-viewport-basic.e2e.test.js
+@@ -0,0 +1,52 @@
++// Desktop Chrome emulation checks page containment and delayed recovery, not native Android system UI.
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {existsSync,mkdirSync} from 'node:fs';
++const chrome=process.env.CHROME_PATH;
++test('basic mobile fullscreen retains root containment, list scroll and editing after delayed recovery',{
++ skip:process.env.SP_E2E!=='1'||!chrome||!existsSync(chrome),timeout:60000,
++},async()=>{
++ const {startServer}=await import('../../server/index.js');
++ const puppeteer=(await import('puppeteer-core')).default;
++ const srv=await startServer({port:0,host:'127.0.0.1',quiet:true});let browser;
++ try{
++  browser=await puppeteer.launch({executablePath:chrome,headless:true,args:['--no-sandbox','--disable-gpu']});
++  const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
++  await page.setViewport({width:844,height:390,isMobile:true,hasTouch:true,isLandscape:true});
++  await page.goto(`http://127.0.0.1:${srv.port}/`,{waitUntil:'networkidle0'});
++  await page.waitForSelector('.app-root');
++  await page.evaluate(()=>{const b=document.createElement('button');b.id='viewport-fullscreen-test';b.textContent='Fullscreen';b.style.cssText='position:fixed;top:100px;left:100px;z-index:99999';b.onclick=()=>document.documentElement.requestFullscreen();document.body.append(b);});
++  await page.click('#viewport-fullscreen-test');await page.waitForFunction(()=>!!document.fullscreenElement);
++  await page.evaluate(()=>document.querySelector('#viewport-fullscreen-test').remove());
++  const cdp=await page.createCDPSession();
++  await cdp.send('Input.synthesizeScrollGesture',{x:420,y:30,yDistance:160,speed:500,gestureSourceType:'touch'});
++  await page.evaluate(()=>{scrollTo(20,90);dispatchEvent(new Event('scroll'));});
++  await page.waitForFunction(()=>scrollX===0&&scrollY===0&&document.scrollingElement.scrollTop===0);
++  await page.evaluate(async()=>{(await import('/js/screens/title.js')).enterSession('视口回归');});
++  await page.waitForSelector('.lobby-screen .spell-preview-entry');
++  mkdirSync('.cache/viewport-basic',{recursive:true});await page.screenshot({path:'.cache/viewport-basic/lobby.png'});
++  await page.click('.spell-preview-entry');
++  await page.waitForSelector('.spell-preview-row');
++  await new Promise(r=>setTimeout(r,300));
++  const list=await page.$eval('.lo-list',el=>{const r=el.getBoundingClientRect();return{x:r.x+r.width/2,y:r.bottom-25,overflow:el.scrollHeight-el.clientHeight};});
++  assert.ok(list.overflow>50,'real spell list overflows');
++  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:list.x,y:list.y}]});
++  for(let i=1;i<=10;i++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:list.x,y:list.y-i*12}]});await new Promise(r=>setTimeout(r,20));}
++  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
++  await page.waitForFunction(()=>document.querySelector('.lo-list').scrollTop>0);
++  await new Promise(r=>setTimeout(r,500));
++  const before=await page.$eval('.lo-list',el=>el.scrollTop);
++  // Getter injection models an event followed by a late metric change only; it cannot recreate OS bars.
++  await page.evaluate(()=>{globalThis.__testHeight=visualViewport.height;Object.defineProperty(visualViewport,'height',{configurable:true,get:()=>globalThis.__testHeight});visualViewport.dispatchEvent(new Event('resize'));setTimeout(()=>{globalThis.__testHeight=350;},180);});
++  await page.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--sp-vh').trim()==='3.5px');
++  assert.equal(await page.$eval('.lo-list',el=>el.scrollTop),before,'recovery preserves inner scroll');
++  await page.click('.spell-preview__search input');await page.keyboard.type('背靠背');
++  await page.evaluate(()=>document.dispatchEvent(new Event('touchend')));
++  await page.waitForFunction(()=>document.activeElement===document.querySelector('.spell-preview__search input'));
++  assert.equal(await page.$eval('.spell-preview__search input',el=>el.value),'背靠背');
++  await page.evaluate(()=>{delete visualViewport.height;visualViewport.dispatchEvent(new Event('resize'));});
++  await page.waitForFunction(()=>Math.abs(document.querySelector('.app-root').getBoundingClientRect().height-visualViewport.height)<1);
++  mkdirSync('.cache/viewport-basic',{recursive:true});await page.screenshot({path:'.cache/viewport-basic/fullscreen-preview.png'});
++  assert.deepEqual(errors,[]);
++ }finally{await browser?.close();await srv.close();}
++});
+diff --git a/test/ui/mobile-viewport.test.js b/test/ui/mobile-viewport.test.js
+new file mode 100644
+index 00000000..a4a39824
+--- /dev/null
++++ b/test/ui/mobile-viewport.test.js
+@@ -0,0 +1,77 @@
++import {test} from 'node:test';
++import assert from 'node:assert/strict';
++import {visibleViewport,installViewportSupport} from '../../public/js/ui/viewport.js';
++function events(){const all=new Map();return {addEventListener(k,f){if(!all.has(k))all.set(k,new Set());all.get(k).add(f);},removeEventListener(k,f){all.get(k)?.delete(f);},dispatchEvent(e){for(const f of all.get(e.type)||[])f(e);},count(k){return all.get(k)?.size||0;}};}
++function fixture(){
++ const css=new Map(),classes=new Set(),root={style:{setProperty:(k,v)=>css.set(k,v)},classList:{add:k=>classes.add(k),remove:k=>classes.delete(k)}};
++ const doc=Object.assign(events(),{documentElement:root,activeElement:null,scrollingElement:{scrollTop:0,scrollLeft:0}});
++ const vv=Object.assign(events(),{width:844,height:390,offsetTop:0,offsetLeft:0});
++ const win=Object.assign(events(),{document:doc,visualViewport:vv,innerWidth:844,innerHeight:390,scrollX:0,scrollY:0,Event:class{constructor(type){this.type=type;}},scrollTo(x,y){this.scrollX=x;this.scrollY=y;}});
++ return {win,doc,vv,css,classes};
++}
++test('fullscreen system-bar pan does not become a permanent page offset',()=>{
++ const f=fixture(),p=installViewportSupport(f.win);
++ try {
++  f.win.scrollY=31;f.doc.scrollingElement.scrollTop=31;f.doc.scrollingElement.scrollLeft=5;
++  f.vv.offsetTop=31;f.vv.offsetLeft=5;f.vv.height=359;f.vv.dispatchEvent({type:'scroll'});
++  assert.deepEqual([f.win.scrollY,f.doc.scrollingElement.scrollTop,f.doc.scrollingElement.scrollLeft],[0,0,0]);
++  assert.equal(f.css.get('--sp-vy'),'0px');assert.equal(f.css.get('--sp-vh'),'3.59px');
++  f.vv.offsetTop=0;f.vv.height=390;f.win.dispatchEvent({type:'focus'});
++  assert.equal(f.css.get('--sp-vh'),'3.9px');assert.equal(f.css.get('--sp-vw'),'844px');
++ } finally {p.destroy();}
++ assert.equal(f.vv.count('scroll'),0);assert.equal(f.win.count('focus'),0);assert.equal(f.classes.has('sp-viewport-lock'),false);
++});
++test('keyboard editing follows the visible box without resetting the focused field',()=>{
++ const f=fixture();f.doc.activeElement={tagName:'INPUT',type:'text'};f.vv.height=210;f.vv.offsetTop=90;f.doc.scrollingElement.scrollTop=90;
++ const p=installViewportSupport(f.win);
++ try{
++  assert.equal(f.css.get('--sp-vy'),'90px');assert.equal(f.css.get('--sp-vh'),'2.1px');assert.equal(f.doc.scrollingElement.scrollTop,90);
++  const internal={scrollTop:88};f.doc.activeElement=null;f.vv.height=390;f.vv.offsetTop=0;f.doc.dispatchEvent({type:'focusout'});
++  assert.equal(f.css.get('--sp-vy'),'0px');assert.equal(f.doc.scrollingElement.scrollTop,0);assert.equal(internal.scrollTop,88);
++ }finally{p.destroy();}
++});
++test('visual viewport falls back to window metrics; range controls never count as keyboard editing',()=>{
++ const f=fixture();f.doc.activeElement={tagName:'INPUT',type:'range'};f.vv.offsetTop=29;
++ assert.equal(visibleViewport(f.win).editing,false);assert.equal(visibleViewport(f.win).y,0);
++ delete f.win.visualViewport;assert.deepEqual(visibleViewport(f.win),{width:844,height:390,x:0,y:0,editing:false});
++});
++
++function clock(win) {
++ const pending=new Map();let id=0;
++ win.setTimeout=(fn,delay)=>{pending.set(++id,{fn,delay});return id;};
++ win.clearTimeout=n=>pending.delete(n);
++ return {pending,run(delay){for(const [n,t] of [...pending])if(t.delay===delay){pending.delete(n);t.fn();}}};
++}
++
++test('resamples system-bar geometry after the browser stops sending viewport events',()=>{
++ const f=fixture(),c=clock(f.win),p=installViewportSupport(f.win);
++ try{
++  f.vv.height=340;f.vv.dispatchEvent({type:'resize'});
++  assert.equal(f.css.get('--sp-vh'),'3.4px');assert.equal(c.pending.size,3);
++  // Native UI settles without another resize. Recovery must read fresh values.
++  f.vv.height=390;f.win.scrollY=46;f.doc.scrollingElement.scrollTop=46;
++  c.run(400);
++  assert.equal(f.css.get('--sp-vh'),'3.9px');assert.equal(f.win.scrollY,0);
++  assert.equal(f.doc.scrollingElement.scrollTop,0);
++  for(let i=0;i<20;i++)f.doc.dispatchEvent({type:'pointercancel'});
++  assert.equal(c.pending.size,3,'recovery bursts replace previous timers');
++ }finally{p.destroy();}
++ assert.equal(c.pending.size,0,'destroy disposes delayed callbacks');
++ assert.equal(f.doc.count('touchend'),0);
++});
++
++test('delayed recovery keeps keyboard focus and internal scrolling intact',()=>{
++ const f=fixture(),c=clock(f.win),p=installViewportSupport(f.win);
++ try{
++  f.doc.activeElement={tagName:'INPUT',type:'text'};
++  f.doc.dispatchEvent({type:'focusin'});
++  f.vv.height=190;f.vv.offsetTop=80;f.doc.scrollingElement.scrollTop=80;
++  c.run(120);
++  assert.equal(f.css.get('--sp-vh'),'1.9px');assert.equal(f.css.get('--sp-vy'),'80px');
++  assert.equal(f.doc.scrollingElement.scrollTop,80);
++  f.doc.activeElement=null;f.doc.dispatchEvent({type:'focusout'});
++  f.vv.height=390;f.vv.offsetTop=0;c.run(900);
++  assert.equal(f.css.get('--sp-vh'),'3.9px');assert.equal(f.css.get('--sp-vy'),'0px');
++  assert.equal(f.doc.scrollingElement.scrollTop,0);
++ }finally{p.destroy();}
 +});
 diff --git a/test/ui/nguyen.e2e.test.js b/test/ui/nguyen.e2e.test.js
 new file mode 100644
