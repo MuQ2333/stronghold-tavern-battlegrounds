@@ -1,7 +1,7 @@
 {
   "name": "卫戍协议：酒馆战棋模组",
   "version": "0.3.0",
-  "bundleVersion": "0.2.1",
+  "bundleVersion": "0.2.2",
   "upstream": "https://github.com/sganggs/Stronghold-Protocol",
   "commit": "c24e17eec3af1e6dedfa9935a6d15245cf2f4586",
   "versionBase": "0.3.0",
@@ -12,7 +12,7 @@
     "bob": false
   },
   "controls": "Room host controls spells and heroes before a match; Bob is a browser-local preference.",
-  "patchSha256": "111ec1250f4f1c870c7cc61a5b7e0644a2dc8cd33412662d3431b8fad9abfb43",
+  "patchSha256": "f70631b9988c3e74ea8e3fad54007db0f9c754f83a7ee3cbcd772075be760fc5",
   "patchFiles": [
     "docs/ARCHITECTURE.md",
     "docs/BOB.md",
@@ -135,10 +135,12 @@
     "test/spellWhiteAttack.test.js",
     "test/tavernBundle.test.js",
     "test/ui/bob-voice.e2e.test.js",
+    "test/ui/hero-panel-layout.e2e.test.js",
     "test/ui/hero-power.e2e.test.js",
     "test/ui/mobile-viewport-basic.e2e.test.js",
     "test/ui/mobile-viewport.test.js",
     "test/ui/nguyen.e2e.test.js",
+    "test/ui/shop-skill-layout.e2e.test.js",
     "test/ui/spell-art.e2e.test.js",
     "test/ui/spell-caster.e2e.test.js",
     "test/ui/spell-presentation.test.js",
@@ -159,7 +161,8 @@
     "Upstream 0.3.0 plugin APIs, native temporary queue and stock accounting are retained.",
     "Bob retains 63 original WAV files; 62 are in the cue manifest, line 18 is inactive, line 34 is excluded.",
     "Other untested third-party mods and Android app builds are not claimed compatible.",
-    "0.2.1 adds only baseline-compatible document viewport containment and bounded recovery; native Android system bars have not been tested."
+    "0.2.1 adds only baseline-compatible document viewport containment and bounded recovery; native Android system bars have not been tested.",
+    "0.2.2 makes mobile hero skill details fit their content and hides shop operator skill icon buttons on mobile; gameplay is unchanged."
   ],
   "releaseDate": "2026-10-16"
 }

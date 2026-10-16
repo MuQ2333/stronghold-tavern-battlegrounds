@@ -1,5 +1,5 @@
 {
-  "version": "0.2.1",
+  "version": "0.2.2",
   "gameVersion": "0.3.0",
   "upstreamCommit": "c24e17eec3af1e6dedfa9935a6d15245cf2f4586",
   "files": [
@@ -46,7 +46,7 @@
     {
       "path": "docs/design/client.md",
       "before": "84dfb815222cc38583e467d816da534f0673beb233dd4d8d71d4097c69f3dab8",
-      "after": "770639f57538fa10d8939182cab3cc6922916bafc05dcc9b5307356cb69bc4a8"
+      "after": "52976a1754ed9334cdb9b1a01435c7aec404da204643230a479ac76a79579e7e"
     },
     {
       "path": "docs/design/match.md",
@@ -66,7 +66,7 @@
     {
       "path": "docs/history/0.3.0.md",
       "before": "cb47a0b8362ccdaae66550aef8ac93cd33617c8273ca6e55d622587f94ea7c02",
-      "after": "8ee46161f5a72c443a5caac22142bdb2d6f70ef5b4022d852dfe34e9391027d2"
+      "after": "e97035081a8b1b7c5826f7b2239512c620958bf02a8daf1f46cc18197953a71a"
     },
     {
       "path": "mods/hero-strategies/README.md",
@@ -96,7 +96,7 @@
     {
       "path": "public/css/devices.css",
       "before": "d4824535cd1d60242166d699804b65cacd7604dfaac64e7c72387fda7dea4289",
-      "after": "0baec1552f59b76903f2f6e366f4b6081b338c8f56c19b63c5b25c149f0df0d4"
+      "after": "a9ac7937318af42bf67d791c34cff34853b1c966402e222d2a4763da493e6e66"
     },
     {
       "path": "public/css/screens/game-panels.css",
@@ -111,7 +111,7 @@
     {
       "path": "public/css/screens/game.css",
       "before": "ef6e6834fa7963d645862fe73fa1310efe70ff8e1a4c49c155e98f739d2940e4",
-      "after": "1f6f6717314a6e850ac30aa79622deac4454b68ea2c4cd554b776d3427159374"
+      "after": "afbfc8732def3b655588935edc8ec686669b20c49ec2cccd016a1afb74f79471"
     },
     {
       "path": "public/css/screens/room.css",
@@ -609,6 +609,11 @@
       "after": "542b4f0f579531bada1ea57c180255ca0864ff44336678e584d19e4b786a7adc"
     },
     {
+      "path": "test/ui/hero-panel-layout.e2e.test.js",
+      "before": null,
+      "after": "4198da5b4b1fd8fcabb63f5e49e8bf2f6065aa0e0756befd25e0b96c1fe323a9"
+    },
+    {
       "path": "test/ui/hero-power.e2e.test.js",
       "before": null,
       "after": "fbc00e9df954f45798611cb7f01666ea33e91837cd246614b859b88c15aea048"
@@ -627,6 +632,11 @@
       "path": "test/ui/nguyen.e2e.test.js",
       "before": null,
       "after": "1759c408a91cc8cc9f60d7c41c6a2544ae5bc8af3ae50c7283aea0324f016e82"
+    },
+    {
+      "path": "test/ui/shop-skill-layout.e2e.test.js",
+      "before": null,
+      "after": "efc76f4e0e969c58683e0a361af28bb665a8d08027f071d172f75e07567dbce0"
     },
     {
       "path": "test/ui/spell-art.e2e.test.js",

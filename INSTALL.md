@@ -1,11 +1,11 @@
 # 安装与使用
 
-模组 **0.2.1** 适配[原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0)，固定提交 `c24e17eec3af1e6dedfa9935a6d15245cf2f4586`。需要 Node.js 22+。
+模组 **0.2.2** 适配[原版卫戍协议 v0.3.0](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.0)，固定提交 `c24e17eec3af1e6dedfa9935a6d15245cf2f4586`。需要 Node.js 22+。
 
 ## 准备
 
 1. 确认原游戏能够正常启动，再停止服务。
-2. 从 [Release](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.1) 或网盘下载 **Tavern-Battlegrounds-0.2.1-Full.zip**。
+2. 从 [Release](https://github.com/MuQ2333/stronghold-tavern-battlegrounds/releases/tag/v0.2.2) 或网盘下载 **Tavern-Battlegrounds-0.2.2-Full.zip**。
 3. 完整解压到游戏目录以外。选择模组包里的安装入口，指定含 `package.json`、`server`、`public` 的原游戏目录。
 
 Windows 和 Linux 使用同一个完整 ZIP。它包含模组图片和鲍勃录音，原游戏及其原生素材需自行准备。不要只复制安装脚本，`mod/` 和 `scripts/` 必须一起保留。GitHub 的 Source code ZIP 不含游戏素材。
@@ -69,7 +69,7 @@ Windows 同样可以使用，替换成自己的游戏路径。校验只读，不
 下载包旁的 `SHA256SUMS.txt` 用于检查 ZIP 是否完整：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 .\Tavern-Battlegrounds-0.2.1-Full.zip
+Get-FileHash -Algorithm SHA256 .\Tavern-Battlegrounds-0.2.2-Full.zip
 ```
 
 ```bash

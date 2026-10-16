@@ -568,3 +568,6 @@ Bob portrait anchoring fix (2026-10-15): speech captions are absolutely position
 
 
 2026-10-16 tavern 0.2.1 viewport recovery: the document is fixed and clipped where supported, while internal lists keep scrolling. Visual viewport and lifecycle events trigger bounded recovery samples after transient fullscreen system bars settle; focused text editing follows keyboard geometry. Native Android system UI requires real-device verification.
+
+
+2026-10-16 tavern 0.2.2 mobile UI: hero skill detail panels use content height and scroll within the available viewport instead of inheriting operator-panel bottom placement. Mobile shop operator cards hide skill icon buttons; existing card detail access and desktop icons remain available. Gameplay and battle data are unchanged.

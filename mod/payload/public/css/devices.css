@@ -123,11 +123,11 @@ html:not(.sp-in-match) .toast-host { margin-top: var(--sa-t); }
    desktop bottom (1.02rem) it hid ⚙ / 📖 / ⛶. (gameLogic panelSlots keeps the taller desktop slot: conservative.) */
 @media (max-width: 767px) {
   .gm__corner { flex-wrap: wrap-reverse; align-content: flex-start; width: max(72px, calc(3 * .56rem + .2rem)); }
-  .dpanel:not(.dpanel--right) { bottom: calc(.44rem + max(1.51rem, 72px) * 55 / 151 + .56rem); }
+  .dpanel:not(.dpanel--right):not(.hero-power__panel) { bottom: calc(.44rem + max(1.51rem, 72px) * 55 / 151 + .56rem); }
 }
 @media (max-width: 767px) and (pointer: coarse), (max-width: 767px) and (any-pointer: coarse) {
   .gm__corner { width: max(96px, calc(3 * max(.56rem, 34px) + .2rem)); }
-  .dpanel:not(.dpanel--right) { bottom: calc(.44rem + max(1.51rem, 96px) * 55 / 151 + max(.56rem, 34px)); }
+  .dpanel:not(.dpanel--right):not(.hero-power__panel) { bottom: calc(.44rem + max(1.51rem, 96px) * 55 / 151 + max(.56rem, 34px)); }
 }
 /* With the shop folded (收起) no bar covers the corner: one row again, so the folded shop's prep camera, which keeps the
    bench above the corner's hit areas (ui/fieldHost.js hudBands), grows the board on narrow phones too (public issue #5). */
@@ -169,3 +169,8 @@ html.sp-viewport-lock body { position:fixed; inset:0; width:100%; height:100%; o
   html.sp-viewport-lock, html.sp-viewport-lock body { overflow:clip; }
 }
 .sp-viewport-lock .app-root { left:var(--sp-vx,0px); top:var(--sp-vy,0px); right:auto; bottom:auto; width:var(--sp-vw,100vw); height:calc(var(--sp-vh,1vh) * 100); }
+
+/* Mobile shop portraits stay clear; skill and module details remain in the card detail panel. */
+@media (max-height:600px) and (pointer:coarse), (max-width:767px) {
+  .gm .shopbar .scard__skill { display:none; }
+}
