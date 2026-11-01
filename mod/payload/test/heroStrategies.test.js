@@ -64,6 +64,7 @@ test('Hollidae grants one eligible normal spell once, refuses full hand without 
 });
 test('Yogg casts at round three once without needing space; missing target fizzles',()=>{
   const {h,ps}=setup('yogg');let casts=0;
+  const notices=()=>h.sent.filter(([,m])=>m.t==='m.toast'&&m.msgid==='尤格-萨隆施放了{name}');
   const original=h.m.dispatchItem.bind(h.m);
   h.m.dispatchItem=(...args)=>{casts++;return original(...args);};
   // Tier one has the coin and identity card; force the first sorted data candidate to be the coin.
@@ -71,10 +72,14 @@ test('Yogg casts at round three once without needing space; missing target fizzl
   h.m.itemPool.canGain=id=>id==='chess_item_1_03_e_a'&&canGain(id);
   h.m.round=2;heroEvent(ps,'onRoundStart',{});assert.equal(casts,0);
   h.m.round=3;const funds=ps.funds;heroEvent(ps,'onRoundStart',{});assert.equal(casts,1);assert.ok(ps.funds>funds);
-  heroEvent(ps,'onRoundStart',{});assert.equal(casts,1);
+  const sent=notices();
+  assert.equal(sent.length,1);assert.equal(sent[0][0],ps.playerId);
+  assert.deepEqual(heroView(ps).lastSpell,{id:'chess_item_1_03_e_a',round:3});
+  assert.deepEqual(sent[0][1].params,{name:{dn:ps.gd.item('chess_item_1_03_e_a').name}});
+  heroEvent(ps,'onRoundStart',{});assert.equal(casts,1);assert.equal(notices().length,1);
   assert.equal([...ps.hand,...ps.temp].filter(Boolean).length,0);
-  h.m.itemPool.canGain=id=>id==='chess_item_1_04_e_a';h.m.round=4;
-  heroEvent(ps,'onRoundStart',{});assert.equal(casts,1);h.invariants();
+  ps.spellPool=()=>['chess_item_1_04_e_a'];h.m.round=4;
+  heroEvent(ps,'onRoundStart',{});assert.equal(casts,1);assert.equal(notices().length,1);h.invariants();
 });
 function stocked(ps,tier=1) {return ps.gd.visibleChess.filter(id=>ps.gd.tierOf(id)===tier&&ps.poolOf(id).has(id)&&ps.poolOf(id).left(id)>0);}
 

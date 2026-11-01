@@ -1,5 +1,6 @@
 import { spellShopEnabled, spellTarget } from '../../shared/spells.js';
 import {isHandLocked} from '../../shared/lockedCards.js';
+import { GROWTH_RESOURCE_LIMIT } from './player/common.js';
 // server/match/invariants.js — engine invariants (DESIGN §11) as a non-throwing check. Used by the test harness
 // (i18n-ignore-file: developer reports in English with the game's terms, never shown to players — docs/I18N.md)
 // (test/match/harness.js checkInvariants asserts the list is empty) and by tools/matchrun.mjs --check sweeps.
@@ -11,7 +12,8 @@ import {isHandLocked} from '../../shared/lockedCards.js';
 //            piece is always a slotted slot of its owner's, and a DIY shop / reward card one of its stocked slots
 //   economy  funds / pendingFunds non-negative integers, LP finite, shop level in range, prices ≥ 0
 //   pieces   unique uids; hand 10 / temp 5 slots; temp holds pieces only while the hand is full (a free hand slot pulls
-//            a temp piece in, PlayerState._fillHandFromTemp); chess carry ≤ equipPerChess known items; a normal piece
+//            a temp piece in, PlayerState._fillHandFromTemp); chess carry ≤ equipPerChess known items
+//            (morphPairing plus: a 变形同构体 does not count toward that cap); a normal piece
 //            holds ≤ 1 copy, an elite ≤ goldenCopies; merges are immediate (never `mergeCount` normal copies of one
 //            chess, never two copies of a mergeable normal item); every token's owner chess is deployed
 //   board    tiles inside the own region and legal for the piece (a range-bound summon inside its owner's attack
@@ -25,7 +27,8 @@ import {isHandLocked} from '../../shared/lockedCards.js';
 //            with one to three different cards
 //   match    phase known; teamLp / boss pool within range; combat fields match the alive players
 
-import { PHASE, BOND_LAYER_CAP } from '../../shared/constants.js';
+import { PHASE, bondLayerCap } from '../../shared/constants.js';
+import { morphSlotPolicy, ruleOption } from '../../shared/plugins/rules.js';
 import { FIELD, canPlace, placeClass, positionClass, parseKey } from './board.js';
 import { computeBonds } from './bondsMeta.js';
 
@@ -65,14 +68,15 @@ export function collectViolations(m, { limit = 25 } = {}) {
     if (ps.hand.length !== gd.benchSize) fail(`${id}: hand has ${ps.hand.length} slots`);
     if (ps.temp.length < gd.tempSize) fail(`${id}: temp has fewer than ${gd.tempSize} visible slots`);
     if (ps.temp.length > gd.tempSize && ps.temp.some((x) => x == null)) fail(`${id}: overflow queue has an unfilled slot`);
+    if (m.growthMode && ps.hand.filter(Boolean).length + ps.temp.filter(Boolean).length > GROWTH_RESOURCE_LIMIT) fail(`${id}: growth bench exceeds twenty resources`);
     // 临时整备区 = overflow only (PRTS 卫戍协议/帮助 §手牌区 "常规手牌区出现空位时自动移入", GitHub #82)
     if (ps.temp.some(Boolean) && ps.hand.some((x) => x == null)) fail(`${id}: a temp piece waits while a hand slot is free`);
     if (!(ps.shop.level >= 1 && ps.shop.level <= gd.maxShopLevel)) fail(`${id}: shop level ${ps.shop.level}`);
     if (!(ps.shop.upgradePrice >= 0)) fail(`${id}: upgradePrice ${ps.shop.upgradePrice}`);
     if (!Number.isInteger(ps.shop.freeRefreshes) || ps.shop.freeRefreshes < 0) fail(`${id}: freeRefreshes ${ps.shop.freeRefreshes}`);
-    // the official per-bond layer cap (shared/constants.js): no writer may pass it
+    // The native cap remains 999; growth allows finite non-negative counts above it.
     for (const [b, v] of Object.entries(ps.layers || {})) {
-      if (!(Number.isFinite(v) && v >= 0 && (!(BOND_LAYER_CAP > 0) || v <= BOND_LAYER_CAP))) fail(`${id}: ${b} layers ${v}`);
+      if (!(Number.isFinite(v) && v >= 0 && v <= bondLayerCap(m.growthMode))) fail(`${id}: ${b} layers ${v}`);
     }
 
     if (!ps.alive) {
@@ -102,7 +106,9 @@ export function collectViolations(m, { limit = 25 } = {}) {
         const rec = pgd.chess(p.id);
         if (!rec) { fail(`${id}: unknown chess ${p.id}`); continue; }
         if (rec.isDiy && !rec.diyFor) fail(`${id}: owns ${p.id}, a 自选 slot it has not filled`);
-        if (!Array.isArray(p.items) || p.items.length > gd.equipPerChess) fail(`${id}: ${p.id} carries ${p.items && p.items.length} items`);
+        const slots = morphSlotPolicy(ruleOption(m.rules, 'morphPairing'), (it) => !!pgd.item(it?.id)?.canGiveBond);
+        if (!Array.isArray(p.items) || slots.slotsUsed(p.items) > slots.slotCap(gd.equipPerChess)) fail(`${id}: ${p.id} carries ${p.items && p.items.length} items`);
+        if (ruleOption(m.rules, 'morphPairing') === 'plus' && (p.items || []).filter((it) => pgd.item(it?.id)?.canGiveBond).length > 1) fail(`${id}: ${p.id} carries multiple morphs`);
         for (const it of p.items || []) {
           note(ps, it);
           if (it.kind !== 'item' || !gd.item(it.id)) fail(`${id}: ${p.id} carries a bad item ${it.kind}:${it.id}`);
@@ -152,7 +158,7 @@ export function collectViolations(m, { limit = 25 } = {}) {
     for (const p of all) if (p.kind === 'chess' && !isHandLocked(p) && !(p.meta?.spellLockUntil > m.round) && pgd.chess(p.id) && !gd.isGolden(p.id)) { const b = gd.baseIdOf(p.id); copies.set(b, (copies.get(b) || 0) + 1); }
     for (const [b, n] of copies) {
       const need = gd.mergeCount(b);
-      if (need > 1 && gd.goldenIdOf(b) && n >= need) fail(`${id}: owns ${n} normal copies of ${b} (merges at ${need})`);
+      if (need > 1 && gd.goldenIdOf(b) && n >= need && !(m.growthMode && ps.growthCombatMerges?.has(b))) fail(`${id}: owns ${n} normal copies of ${b} (merges at ${need})`);
     }
     for (const [itemId, n] of itemCounts) {
       const rec = gd.item(itemId);

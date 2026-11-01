@@ -1,22 +1,32 @@
 {
-  "version": "0.2.3",
-  "gameVersion": "0.3.0",
-  "upstreamCommit": "c24e17eec3af1e6dedfa9935a6d15245cf2f4586",
+  "version": "0.2.4-beta.1",
+  "gameVersion": "0.3.3",
+  "upstreamCommit": "f07b8965061bbc311ad7aa815879b09264a1e47d",
   "files": [
     {
       "path": "docs/ARCHITECTURE.md",
-      "before": "514fe8cc7399428c553c87d9cda3488407a75d71e66cc9b20ef3cf87bb24e5e2",
-      "after": "d052cf870a43b2301f9fffd3b0faa8115a136734782f274e28b5ff3660dde094"
+      "before": "bfde817d31c52baa2aa3cc30f29fc982b1602ca337e8ba5b1f38a8bd147059c2",
+      "after": "18f2c4c4f352896558caf8f959738e09c264d1cfdf30d125dd8f7e9373bc3169"
+    },
+    {
+      "path": "docs/ASSETS.md",
+      "before": "1bcded19f6737d7a5edebb8d32fb2693a9221da2c0e1ff8b17907aece572faef",
+      "after": "b4d090e70c91534ad1077e9a36189306d1bde13d2f655982571684f80474a54c"
     },
     {
       "path": "docs/BOB.md",
       "before": null,
-      "after": "61edd5d9d1e4992e7872d59d732e3bd894a6599e42122ed5d968271ea72f4139"
+      "after": "5838d02a8d56cd58c115ec63edd8aba96a6b528b67d1bef1f3b28f2a0ca50435"
     },
     {
       "path": "docs/DATA.md",
-      "before": "90c1944bcbd39df88323e101456e8539a2b1ad6dd6792efb44fa621de8030383",
-      "after": "61dca0f4c80fb2285929109ad810ddc2033ae9223965cf519bb0c35966903e68"
+      "before": "3017239731baa783ce20460764c87f9006a833d5db90f3de31c81dec215e5846",
+      "after": "f2770f7936e8698d08b45b77a715c6284b2387c3626268178216293b7005e5ad"
+    },
+    {
+      "path": "docs/GROWTH-MODE.md",
+      "before": null,
+      "after": "be80c106c4688cff5375e1ba8dc904e4219c0bb2ccd1e75594b167456e759444"
     },
     {
       "path": "docs/HERO-POWER-POOLS.md",
@@ -24,39 +34,74 @@
       "after": "2a521c19726e3dd73cb62f12e05bf29c8d5b5fd8e38aed1b5fe43ca7880d842b"
     },
     {
+      "path": "docs/I18N.md",
+      "before": "466029753a7856ecb9c6344dd70e1a758747fe195921b0d7d87f71c11c4fe387",
+      "after": "e11e07e8bdefdc1900cda3e3f63a7170167cf34435c0812d247f4fade21bbf44"
+    },
+    {
       "path": "docs/META.md",
-      "before": "acfa8944520e8a7814303b0103ff72ec2559daf978ab98a0f413b95a35d4fe41",
-      "after": "fa96b6a963865a69137e9ca329e87fb7aa3350fc5e1842dcafd8d76523b65147"
+      "before": "5c99b533ef052db8b821bbe1d83803a64190623ef2b8fc6d7d30afd6b61440d4",
+      "after": "3adba6aad26b19d9eb973310c03730f5c98042424dc2758db5f2b720c7ed8702"
+    },
+    {
+      "path": "docs/PLAYING.md",
+      "before": "629d9aec32ae9526b632f5336684478964eb8f21df99b3eaee9dbadeb17a35ee",
+      "after": "bf715a6be01c38dd7b534988d3ae7a97b7183a02f4b74c7f1b4f733946cd1724"
+    },
+    {
+      "path": "docs/PLUGIN-API.md",
+      "before": "7c16a00d972251859e697b10db6e0560cb52290a4f0538ead67a1a89018c0481",
+      "after": "858bc7a480033fc87df195b124b157ea77decfcc2dc2733d7e0b745cbae64811"
+    },
+    {
+      "path": "docs/PLUGIN-GUIDE.md",
+      "before": "6a53847f58d9385e318627119c5350b235550daec53c237f9c26cd2200b5e2cd",
+      "after": "092408637310ff02d53c0496dc6412f4d65425acfa1310ecc132c58e42a34593"
+    },
+    {
+      "path": "docs/PLUGINS.md",
+      "before": "22aab1e2a8f60e93146241d5c4d29891729e749643f0e7acfe6332570bd51b86",
+      "after": "6b09efc2ced8bb90adf97e25ce80f6e508344e23da495e8491e26a12e5a1089b"
     },
     {
       "path": "docs/SIM.md",
-      "before": "08f53eac8beede357a58cdc04d660d5f152bfb5ae8e3fdfabb9b8f3594cff2e1",
-      "after": "e27885599d1ec088acff8f85da6f8cc45074d1b8014fcd8711964267eb8c3957"
+      "before": "6a99a3f1c1312b5bca73b73fcfdfafed2aaf6f22bf83f2b94dd831010837e13b",
+      "after": "ff4b1f94069867a86c908be5afc3cd69cdba919549ee6bb427c9d18449e60872"
     },
     {
       "path": "docs/SPELLS.md",
       "before": null,
-      "after": "2159314347a84b1810cddf21dd66206548d8687046f69848822d0fb5b2294340"
+      "after": "2ef7de819596e23df8ee82da47d9131301f419698b24a05368a851c689fcdb99"
     },
     {
       "path": "docs/TAVERN-MODS.md",
       "before": null,
-      "after": "c3c9f9a38fcf2edc533fe4c72409f0755ce2ca8afe647be351a4182f15544b93"
+      "after": "a1406835a2328a25d64fb153dba337b0ab23cbf03c3e41f52684c353f2f7d4ae"
+    },
+    {
+      "path": "docs/WINDOWS.md",
+      "before": "f932e3cea02b81aebcf81a5456d82894a869125453fbb91bb90e1a24d08b4da4",
+      "after": "5ecd7fbad16cb2b21b4bbaa1ff82abe8f620b16367b54e9ab497ee5e8d80898e"
     },
     {
       "path": "docs/design/client.md",
-      "before": "84dfb815222cc38583e467d816da534f0673beb233dd4d8d71d4097c69f3dab8",
-      "after": "52976a1754ed9334cdb9b1a01435c7aec404da204643230a479ac76a79579e7e"
+      "before": "376ca3237be5b67a184a4096f164c216e8f8b21d44cbcfa01803ef9584cb2fe0",
+      "after": "2d0e89ec293eea508200b68d9f8f95019382bf8b2121930f68a6b2379bbbebb9"
+    },
+    {
+      "path": "docs/design/engine.md",
+      "before": "33eb4c44668009b6cdc1cbcd1aba5fbb7489dfee76920f86a11d14e0a7f48b67",
+      "after": "1b7a808089e67407947aa10f2326d1eaac5c67f2879d4722147c24c9cf33f16a"
     },
     {
       "path": "docs/design/match.md",
-      "before": "69bec8ed95812e73f0438b8a3a02f5a927e2ae9a464da29f441734a69908fdfe",
-      "after": "6f688665cf345cc7e2a1458992b48b67b55035408f1926566e23a0416bf96678"
+      "before": "b6b451ac69e2fd1a3114749952b7bc0852adcfd9315db416c03eb7bb9cd47439",
+      "after": "920c0ea0a1146c5b2265b8e14ea4273cc5ba35b7c0f1c5af32148b1074317c54"
     },
     {
       "path": "docs/design/network.md",
-      "before": "7cb32e565e1661aed70a85d5134599ab1aa800a4f51189b06bacd009c0cb7e57",
-      "after": "38fdf5a1db5b14970b07f1034c04d3f58a37a3f7ef80ad2a86a10918597849fe"
+      "before": "3fac4b351c7a42fd75216fe8fea3fc2fc9f52b9755e58ce9160b1272790b48dd",
+      "after": "c8662fe4f65e68de61bde0088784928900fb74fef4ad4b4703423ff740b58c69"
     },
     {
       "path": "docs/history/0.2.6.md",
@@ -67,6 +112,16 @@
       "path": "docs/history/0.3.0.md",
       "before": "cb47a0b8362ccdaae66550aef8ac93cd33617c8273ca6e55d622587f94ea7c02",
       "after": "e97035081a8b1b7c5826f7b2239512c620958bf02a8daf1f46cc18197953a71a"
+    },
+    {
+      "path": "docs/history/0.3.1.md",
+      "before": "1bc4b39143865e74ebf445d663f3f9f416c4d35f454606defba09ba8088517ae",
+      "after": "904f70c48b26bc8d361eb3d9de6b64daf4554198515411ba9c23855bab65d254"
+    },
+    {
+      "path": "docs/history/0.3.3.md",
+      "before": "242139ee509e22c8b292ccdf8a2ce763ba2c512804f82d935acf4b9ee02ea7a7",
+      "after": "aed9ad106d6cb5661bc650e296cb0fc5dc258d0cd6a82e7aecd4a5701b098358"
     },
     {
       "path": "mods/hero-strategies/README.md",
@@ -91,87 +146,117 @@
     {
       "path": "mods/tavern-heroes.json",
       "before": null,
-      "after": "d268e1fb3e8c660185e65a9106e0dd8742762792a364979fc7ee85625541a3a3"
+      "after": "54af52d2713a250568e2676e963a72170db92f339f61b74b653755ca67514029"
     },
     {
       "path": "public/css/devices.css",
-      "before": "d4824535cd1d60242166d699804b65cacd7604dfaac64e7c72387fda7dea4289",
-      "after": "a9ac7937318af42bf67d791c34cff34853b1c966402e222d2a4763da493e6e66"
+      "before": "765a21913f7ff3ec17f506842d25a05637b4d127d96b1a51313fb5e71e5d0448",
+      "after": "41d303567e9653b5fd252b7d9dcad5b79f3723f72ae6b34036d3a7fe1e0b8e08"
+    },
+    {
+      "path": "public/css/screens/draft.css",
+      "before": "365ec20ff7c5f30541fd19473a6117ce5ecf1290f8a21ece777143edc770b0a3",
+      "after": "6de8f01f3202c9471fa27ee504d1f83d6242faf1b57815a169c5f4eadbbb242a"
     },
     {
       "path": "public/css/screens/game-panels.css",
-      "before": "341dc68869dfd72e5b431b19cbff5b1b3fd0f9671d22049d8237619db77724f0",
-      "after": "e15eeb840f71efddbb1e7a2dea59c9fd7300eb7bc4eea05210ad9529d3d68a04"
+      "before": "f72a47936b235edf3c72d1eacd6c83cb204d03756e4cca7b8a7c1a900c85c984",
+      "after": "cbf5826f38d9bd0003987939071c3cee4da4a3b98f22c755fae63dc2a06dea92"
     },
     {
       "path": "public/css/screens/game-shop.css",
       "before": "9c29567cba12a18d156cc13936b7248e4dc6d887eb5426ca389857ee02f5e229",
-      "after": "88eb2690069a6e7899198685cbead065a3a074ee7cdc85e1c197af2883fd0d36"
+      "after": "7a36ddeac9c3c4e161dd89d0c318e728627b2d1f8825b083a410cbcce48503bc"
     },
     {
       "path": "public/css/screens/game.css",
-      "before": "ef6e6834fa7963d645862fe73fa1310efe70ff8e1a4c49c155e98f739d2940e4",
-      "after": "afbfc8732def3b655588935edc8ec686669b20c49ec2cccd016a1afb74f79471"
+      "before": "932e09ac3ff34fbb990142b2f9dff71d3bb85408843d428d43ba261404b63ba5",
+      "after": "e6e5e80b6ea3f15cd3041e0b3c925686cede501200f2ae53ec56a02757865df0"
+    },
+    {
+      "path": "public/css/screens/loadout.css",
+      "before": "c5e41bb6d797f42978967ec1002e1f6c565456b033f4a4537b63d52eec1f2b88",
+      "after": "eaba21455517687509625bbd1bce3fe68969ec3fa8b59f8f4970d5ee6c395303"
     },
     {
       "path": "public/css/screens/room.css",
-      "before": "ec74554ca892e1f08eeb751d5bcc0a08069610e59848e7d7626a93d82d913fed",
-      "after": "fa67656239f3300d599c41607f534faf08021853ce84583ef347235e6eba9108"
+      "before": "0414def42c528f38b0b819691a139dc9246c324105bf5c163b88ee134621fe9c",
+      "after": "7127b616be3f2f7d418538e863ba4962d8708bc4ff6b0fb66c7fe52129681997"
     },
     {
       "path": "public/css/screens/spell-preview.css",
       "before": null,
-      "after": "dfe66e369d5684e0f3b947daeb9507e83785352d6719c24c82f26fc1e1a425bc"
+      "after": "e5dfa7745f4173cddb96f1e2351e6d778afba4289d4a50737e1f09b3aa644633"
     },
     {
       "path": "public/i18n/en.json",
-      "before": "bf01bf2b0218352da34636b56a817e7d8bcfcb73373624be220ea56dec8dca61",
-      "after": "0e6bba8380551b415a4a971f8196b23addf0263c618ae2d0e8b5c8c63c20f39c"
+      "before": "35a8c7b671b1f2c0c2a5ac0c45e7196d516780831f9fa93efed902157d36f7d2",
+      "after": "0db099f01207689c66f94eb2460e1fe6811ed74e4304cacb461c183469c41772"
     },
     {
       "path": "public/i18n/ja.json",
-      "before": "91214b43f6bdae0fae0bf2b0ab4ec1094a424982754ef7f79ee32fe930bf2d27",
-      "after": "dae8b7c7df38dc4796f89ec32633ff9a1fcbb48acb6afc11da9b2397e1c3e60d"
+      "before": "8ff60d8c7ee182363e26e9c228e32fb18dad6ff1dbad01da5363c6f4b6394ff2",
+      "after": "007f438b4d34801314d0f7b167d79943e03f47e89152c5c502d83e54a1582bae"
     },
     {
       "path": "public/i18n/ko.json",
-      "before": "4da121e4acb0884b6704ea2a79b1ebd55db7f6e4961404dca44e7efbe4604cc9",
-      "after": "bb9f8b5740d1310c88cbe60ffb3f51d811c73f60b59ed12da207c9a089705172"
+      "before": "aa77e9abe4ce9460b20b4e944fa38f75987bde8529dbb3f015c68fb4d177b584",
+      "after": "afc6accfd9ee3d8cbcaa0931fd19cf047e23411060874cd270923f3bc404e8a0"
     },
     {
       "path": "public/i18n/zh-TW.json",
-      "before": "a105ce84f1d8d7b902fc0216279d67631be01a75ec9a877d5a9e886085439e7f",
-      "after": "5c81c0654e6920db108f7c2fdd95c79bba8fab9ee1196f1ade188bdc05c48d9c"
+      "before": "30e1885f86c7e48c3d4ca73a13fc818c4dcaf8dd0e33a5e24fa0777b23428f13",
+      "after": "dfa76bac230e22143b3fac3f1d29c415d2e7881ff0c5d523bc0c23542541b611"
     },
     {
       "path": "public/index.html",
-      "before": "7f8690e47a3a52fce60fe0574662c35456b2693c3ccde572d72633cfd8b38a50",
-      "after": "09c9eac5f5605b3caaeba3eb7d417efbad2efdb765e4abce1dabbbede9b8610f"
+      "before": "aa7c361f015afce5d1c0ef503e668ae7669693bbffa1ef39b36d164642259bdb",
+      "after": "d7e974302c718aaee1a95b45e1fb60d5576ea946935c9e101b41882cafc539df"
     },
     {
       "path": "public/js/assets.js",
-      "before": "3b2c1632fb76f79c074a021b2e5c97472d0baa5dcdb8a59d9ab0d441ea6aa43d",
-      "after": "a5024c20ebfae5cc88a7b8b1701242a94f6bd1ea547c2b4733e9ae2208cc9c07"
+      "before": "d3e935e6c4deeca8d521333018383c41f28dfb19306a593eb983a0a1389f5f6a",
+      "after": "f7a9cb285a0c8c86b52c33e41efe9bf884cd7b31959d402617f688624eb3e6b5"
     },
     {
       "path": "public/js/audio.js",
-      "before": "d97a136864309c9e1dca9e022d3c717cd84f33a68159165620e67e0fb0b0566f",
-      "after": "3b41774a7019c435621adef2bebe17ca1512382d8fcfa5d48a9fd714c8b27163"
+      "before": "4efe7cfead5503d95c03fc5782d332de5e8e8bdf75e61779eb8091bc6c9016f2",
+      "after": "cc3f58c9f67bfd902ca7b7642109cb55c9fdbb1861c8f4e8c1c10b037b2b8766"
+    },
+    {
+      "path": "public/js/battle/metricArchive.js",
+      "before": null,
+      "after": "77e755d634ba0d4e3bcb5e834a2001fa301ea07e0d48ea96ee89096e18efe6f0"
+    },
+    {
+      "path": "public/js/battle/metrics.js",
+      "before": "612ed5b856779af2df3c305cfc098d44d16545d6669a64ec88edae90ae97ee08",
+      "after": "d4ea74fca7604f98fb5cfe5967537e73e5852d4ae7e2dce623e4e1269bdec196"
+    },
+    {
+      "path": "public/js/battle/runner.js",
+      "before": "58465f7df8c526c13d90b73101d49af69dd71f6205ab503ced4718540c2d57b4",
+      "after": "41613d2794e3c0aeda40647ed3a16307631709ee13fe2139caa8d8a40be237ab"
     },
     {
       "path": "public/js/data.js",
-      "before": "034bf383d747a1af9a35df4f7e05bddffea6379010dd2b5f4434d82a0a85bce1",
-      "after": "255b6b2e8c07a879527bd53c5015573c0b02f6f5d377d7638d2b543946e533e0"
+      "before": "fb3c1e3fc8266b478ddbf4400e92ec82b04c93d2b222bcb80571318cf674c1e6",
+      "after": "ac1790319c8a6c785aa1c4eddb6a0c7a25f2f6756195d34a124eb355d7128dff"
     },
     {
       "path": "public/js/main.js",
-      "before": "0b4f871e50822d6275f75b5859af23c0e4e6c6eb8b7b4d445fac8d178061f9e8",
-      "after": "8340ef3303fc2df22082f9f34d47fdaace249e87955ebc00a9affae3306885d3"
+      "before": "ea612f3200ee3199ea78738c6579217ed19eba320cc38eb5e4fdf8ceb4d0fec7",
+      "after": "c4c7b20adb17b69125a419d684663543d15ede12fc98748a8d27f8bfe8d1195a"
     },
     {
       "path": "public/js/render/app.js",
-      "before": "2d5f4353a0d061e38dad3fb8ab6ac0b0f6ffafbb0eb6d68d121ec029c5ab00a0",
-      "after": "ef0d019d31603f26dabba67e5ebe1113cc14bd811b03cf75bebaad303c85890d"
+      "before": "68f1edb03ff68e8fec99100761d29e47311865be5291d91ec4163167b4d30178",
+      "after": "6ddaaf3cded490ebe12baa1a7dad748993136ab6622237849c88618fbb6afa00"
+    },
+    {
+      "path": "public/js/render/app/info.js",
+      "before": "b6949673b5546232aa843ffeb8b97503a959eae0684a80289818dcfbedec91fc",
+      "after": "7a7f6a95fde7efaea6531db2eeaa897bb7483d6a6d81359d2c2de993730998ad"
     },
     {
       "path": "public/js/render/drag.js",
@@ -179,34 +264,44 @@
       "after": "d585d570bc73a1b3a455cf919b30b56011bc5cd54122675ceaa15d687f0c7557"
     },
     {
+      "path": "public/js/render/summonedScale.js",
+      "before": null,
+      "after": "1256fcf3c65635272ab231d723aa23ea05173d9aaa98ef8998c640bf54cb7eb5"
+    },
+    {
       "path": "public/js/render/textures.js",
-      "before": "677a8a9d1112809c4299484497e0c7ca9356cd29c56e409c93ad24295e5e0009",
-      "after": "a2b3e8e8775ad669881bb54c986b18d82c191c97a4f8f06b4a9ee0e075537148"
+      "before": "2ac64701c13f04311dc5051176600c19121a2b6bf337722ab7d54f7f9b90f030",
+      "after": "4bede6b859a810fbd62e49859a12f5aaa88264c6ba39b5035eb247aaf39dc418"
     },
     {
       "path": "public/js/render/units.js",
-      "before": "396e9e442f79b9ce7e82544c2aeb3930cdb29863484b6a9f8583b5eeb5c602bc",
-      "after": "53191090d29e3e38dbabe41d205b8ec0a63fbe1bfa27102d39b41ff6af365124"
+      "before": "50cab1df385b418dc77dd52790dd4657f9802ec4978b6cc38edf6f862f2f9081",
+      "after": "0be8d60e6f28e20732a74f6bf35b932df69fee5aa5e04b7e5cc9a18c98cddaa9"
     },
     {
       "path": "public/js/screens/bandDraft.js",
-      "before": "fb5a7a93d524178605de211a46a54d8e69ef12b5be8860a6913a1f6217fe4791",
-      "after": "4917ca59260a036f83ac0fd78bac7b23a76296b1b9dcc9f5cb998aac1fe94019"
+      "before": "497fd39520b73f48965464acc4d8cedf9006edc58c5fc6618f67393780ca0f67",
+      "after": "9de5849caca0823dd68a234e1bf6486b37952bd9195d9d0f23d0edbe520ea89d"
     },
     {
       "path": "public/js/screens/game.js",
-      "before": "c39697e44709240ea6699668960b325edc1511d11c96db12fd202b73c029a115",
-      "after": "502e82fbdd4fa64fbb401c875114676cc06407a8a25e612bd11b8178f428edc0"
+      "before": "a78a5a080eb48daf63011ce033147510ac60d37a8e5ae81073af9b332a40a1cc",
+      "after": "8d9349ef87ddf0139fc53b2098f74e81df7158dfb183e3ae4f1c279f67aad085"
+    },
+    {
+      "path": "public/js/screens/loadout.js",
+      "before": "5fc753055c301d0bc029019ba16b64a2c55fe1040ba6b0531d579c7c80d03697",
+      "after": "8f0b9656865447e1b1711720ecb5b4637218b23a3f4913ed357b9b56193f7ecc"
     },
     {
       "path": "public/js/screens/lobby.js",
-      "before": "d0c2baaee73c8cfeda00c6d1e4f436b5b367fc98f4ebecfeb56383f655eb6737",
-      "after": "fae587cb9e444f3e974fb796244eb190916a3997a8bc3e35907c205f6e347e6f"
+      "before": "c616ec60ebdc15dab96effecc7ed498fc7097ffe78e46df3d53c3ce6c82d7782",
+      "after": "1784653c4b1944298751d8d38f07199ae64b6962edb1c0f14ac66aaa6dc16fb0"
     },
     {
       "path": "public/js/screens/room.js",
-      "before": "782f8eb9e6184115345d6c52ac7e08e6baf2a263e6390f19cd31ed1e9a702c5b",
-      "after": "69de0f6cd3eadf9d9644e74cc1ca92247e53f1f6e13c6f87ca443995d77f4a0c"
+      "before": "6a62fa7b4b323b22ac439d97b7ab4d1d7b3aea67c99eac640234fe6347c1cac1",
+      "after": "01aeda36929b537e85a8a47bf5be551c7b34be8053cc3ece1fd2febce7a6c923"
     },
     {
       "path": "public/js/screens/spellPreview.js",
@@ -215,8 +310,8 @@
     },
     {
       "path": "public/js/ui/assetUrls.js",
-      "before": "2d80fc4ffaf993154cea3032e7615f634c16fc98864b3488d8c44ee17b372fe2",
-      "after": "2c5b4ce80756e2a7554d87a540e9beff8a87d0033040f29ba7bff8ff7d3c53d7"
+      "before": "08353639a635a353d57a748c3577f3e033043ff9d8049839f86291b1e74e2055",
+      "after": "d701567c03641555caf35cc0e489f5d4e1f7dc755a0f16a1f10144df84fbd05c"
     },
     {
       "path": "public/js/ui/bobShopkeeper.js",
@@ -229,14 +324,29 @@
       "after": "44bd9d8cc1fb16b8b5eea343ec06ca37da1f6fcef78715df425076ab3ce8eefc"
     },
     {
+      "path": "public/js/ui/bondStrip.js",
+      "before": "9057663ab8faa94e251513170d0de7d61895d83b6ec7a79e92f46dd53e34eef1",
+      "after": "18de571bf365485cade1894d7456cc94a5646283fe82f9740b5c22a11e77ab78"
+    },
+    {
+      "path": "public/js/ui/combatMetrics.js",
+      "before": "d164b0d8b1f7521907129afbca801375e061410bda63831e54641addaf786042",
+      "after": "9f02a8bfd7d5abb771b6eff7e3eb24866a30ca39f9ed1fbf7ac78a6e92e13b09"
+    },
+    {
+      "path": "public/js/ui/components.js",
+      "before": "d92abb813dd76ada729e340729e7eee4d25d2c57422b4ff642898ef811db6a67",
+      "after": "f27bbf8ffb312a737a321aed661bab4dfcdbb559225059a30223f7d4bf53dc9e"
+    },
+    {
       "path": "public/js/ui/detailPanel.js",
-      "before": "a09e525e888e0aef2fe08db2690861be708ea2fa98befe080d86f9531e7d3923",
-      "after": "a09b53d23010f0f3fa3f079a2df75c89d0416e8fdc192678ba2b1b474626eabc"
+      "before": "deca98a9a1ba16967c7e3a7e6c2851fbdadd593a10b576bba6a773063ca4b558",
+      "after": "b06c87a5c2b92fba334377bdae0d3f3caca658fcae73c533a6d3f28b043ef921"
     },
     {
       "path": "public/js/ui/device.js",
-      "before": "4ca072a84ed310765a1bd95211387076a1e14767411c9d9284b1adb6146bb0e8",
-      "after": "1da2d600eff714425c956ad5fa2d069c051ec99ae7d456c4aea6bfffed2a1f9b"
+      "before": "e58a647abc42f5a579fd69230fcdfcf5e06787f070dcac8d5a10171c6c2fd332",
+      "after": "8db258bdc0a0d03bb8a28b4f6ed0dfd36006f4839fb1a79b724276c8e409fb09"
     },
     {
       "path": "public/js/ui/effectsList.js",
@@ -244,29 +354,44 @@
       "after": "0a97a374d97910446a5edcc9780319643f740a6b50f5b86fe98a6bc92cfbe08e"
     },
     {
+      "path": "public/js/ui/equipReplace.js",
+      "before": "444ee88bbd7eee431008b7933b225bef1e982d732b52c18c993571e9ccadfc8c",
+      "after": "21c7e26c7f339bbe19d0d5050a072a46a27e097e346b48723f171cd48e0a8e90"
+    },
+    {
       "path": "public/js/ui/facing.js",
-      "before": "85583b18b5017ce0d08b174fa27d3e1584b0d43826811958e0c67c2f49525c78",
-      "after": "d1e82209adb00c0a3976726ed626afc1976f011f1af3843aed832191a62be268"
+      "before": "1c1c44b7eeabf28710021d674a6f99eb92ef596b15a019c67c34e4fdbc62c83d",
+      "after": "8217300f9440b0bc8a1cc4d0f1145401b91959e959e29d662fa972bc889c63fd"
+    },
+    {
+      "path": "public/js/ui/facingWheel.js",
+      "before": "069ddf00e1f143f51cd7df47ca1532eb3b1a6b8a5a4013ff222c810fb49cd638",
+      "after": "2afaca978386717efa909a585ef1ac23abaf73ab25c92e0e5989bd0ac072d780"
     },
     {
       "path": "public/js/ui/fallbackField.js",
-      "before": "f15b8604e3e760dfe6e14e56be015ac04995ccae16ad2dc531711f3e41d71cee",
-      "after": "08975fc9cb91aa8a046f762f1e01ea7c3a35578841913d43037421826893f48a"
+      "before": "fb958b8e6ac7064ae9a3925bd71b84aec0b2b4f8fd5eae16ff834cbdc86113b0",
+      "after": "6a77cd187adb8caa972a190025ba5faa0761c904485ca352c1139792d51678bb"
     },
     {
       "path": "public/js/ui/gameActions.js",
-      "before": "d69537563c367e39e59d107e84c4a29916900356ff5611dd824c43ee0e213cc0",
-      "after": "1167e157817e8748579607ff7f36a208e9b1a0802245aa865330efd58eba008a"
+      "before": "6e549e403e47b30c26dce82424c7d97dcd71b14d70de17f2cc082af8713cd662",
+      "after": "45e5cbd0c0975a2d2255e4ffd5e0cd7b1344eead3712cb10dd7411fe199b4829"
     },
     {
       "path": "public/js/ui/gameLogic/placement.js",
-      "before": "b47e5f93f42dd31138a15c9c48a9a8cc6af90415adec08266761aa6d8d95404b",
-      "after": "ff631c0414d2f2f2252f1cc2c930fe5bf59a4b77686a358d5149afa37938a8b4"
+      "before": "52759f7ca1622465c02abefe7f4d9b4b24f9f825d3665a95eed377d7a39e0bf2",
+      "after": "6bc851d3bc29123ba3c809aa72ca7ad903ce9529b191216ea226d5ac9d6a46eb"
     },
     {
       "path": "public/js/ui/gameLogic/shop.js",
-      "before": "52cbb810ae6719f5e16618cd32985fdee0e0f31b68011a47ee99daf560408652",
-      "after": "8a8788bc43238d837f78f9a31308f86c9d110982abc09b789036b41234a385e5"
+      "before": "3e58bbc49743a40e34e74fa94c618f9f64a434bd28d28a0377244d03f6d48a68",
+      "after": "8d1128a2f78e17ac93a5ae64c5e51bb5b7a9f85aa5859b3de485cd37ddd17115"
+    },
+    {
+      "path": "public/js/ui/growthTrait.js",
+      "before": null,
+      "after": "96767157aa30fa5e9404a3a6bcddfe8afb6d7bc20d6cf908ba091d8a52825937"
     },
     {
       "path": "public/js/ui/heroDiscovery.js",
@@ -276,7 +401,22 @@
     {
       "path": "public/js/ui/heroPower.js",
       "before": null,
-      "after": "d5cf14625aad0c7d4399030e6dba8e7e57ef7b6d7b33a4147a81853065ff2a8d"
+      "after": "15f5e1874ebaf90af88fe41e67fe0009490f48f580b590226c2d0cc0318116b6"
+    },
+    {
+      "path": "public/js/ui/hud.js",
+      "before": "7509cc42e1bea0410fb0dbdb61b4517ff0a75ffbeac3a01f321c91f15d41d4b4",
+      "after": "ab9f31394987e184fcbdcfece48b3e4e082f71db2e6c2940499822c5381b96f2"
+    },
+    {
+      "path": "public/js/ui/layerCount.js",
+      "before": null,
+      "after": "e4a88e65fc0e4552989ff100a65d004a687f84226083e3d1ea08880c3a5670de"
+    },
+    {
+      "path": "public/js/ui/liveLayerHud.js",
+      "before": null,
+      "after": "6bcb2c7a1d54682f2ac80d62102843e954be3aac310acdd29a398319d832361f"
     },
     {
       "path": "public/js/ui/lockedCards.js",
@@ -284,14 +424,34 @@
       "after": "b2ea404571342202cbf40211783cf9838eb6a51ec0dd1f8f01dc0316a4cab949"
     },
     {
+      "path": "public/js/ui/matchStatus.js",
+      "before": "017c2db4b3e206c24c92508ed2bc3bc234458b3845f32099346e9065613fcd83",
+      "after": "cb55475d2e85d8968a0d80ef51ad36374881f720e4dc19358137b036e19e3ccc"
+    },
+    {
+      "path": "public/js/ui/quickTrade.js",
+      "before": null,
+      "after": "ef83037a8256c321b5310a88d5df26f09a042c0e1b76b429d843376b4b12f3ef"
+    },
+    {
       "path": "public/js/ui/rewardOverlay.js",
       "before": "5b4ab555a1232e0204a3bf35755704147900b80e8f1b74d294d98f274643de95",
       "after": "c5737c8fdf93d208e035d445760a149a1cade90dabb09b3c9056303caf4f46f8"
     },
     {
+      "path": "public/js/ui/richText.js",
+      "before": "567c8906cb45117513a191991048032ce64d42dd8df23fed424e0006b8669001",
+      "after": "c0ca41c225d875f26e4bb2ec9504bb36117c2ad1e6d31f27666b5372e9789b22"
+    },
+    {
+      "path": "public/js/ui/settings.js",
+      "before": "058c70f4dfcc609085e0bdcf581187d6a576a3f70cb6a76853138fe17f438012",
+      "after": "3bd7325777fd0249932e8ce2786f2c4f03af99ae73efc3f23d7d384aff024a06"
+    },
+    {
       "path": "public/js/ui/shopBar.js",
-      "before": "7b8dda441a7d741fa0712f2e81ae8bc30d5dcbc0b59607044d74890ea72a5ade",
-      "after": "4822b3741a2de01bac92f1c2435200253e1339cf359546f32fa44982f4f5e469"
+      "before": "e92739cbac2107c32f07c10d409b9fafb8663386c88fb7a2d68f38b57b11faa7",
+      "after": "6614ec6d6f06c230bb9a24cc3f67cee8ba8bf803419b96571665b1ace51ff86f"
     },
     {
       "path": "public/js/ui/spellPreviewModel.js",
@@ -301,7 +461,12 @@
     {
       "path": "public/js/ui/spells.js",
       "before": null,
-      "after": "574065cd516533496aa0dc69e070de0ae920a26cf01d87f8e0e062fd9610a56e"
+      "after": "989d852f40918be63dae6897c0978e5d90ecbf0d279d70248d8c359bb18c9667"
+    },
+    {
+      "path": "public/js/ui/testConsole.js",
+      "before": "76252370ed3090adb036d26dda7569a9036e17c9c68c5bee41ed2eabffdb6ca0",
+      "after": "44fe7473b67fcd51f6af83500b38303e191a143f865d5aed1e2bc25985db68c3"
     },
     {
       "path": "public/js/ui/viewport.js",
@@ -309,54 +474,169 @@
       "after": "69d62d093f91fc8e3a3ba67085cadc31c49ad2e483560f9bca70b452afad1aa4"
     },
     {
+      "path": "public/js/ui/watchBonds.js",
+      "before": "49e48a1aa6bc7e52621f180f0afb5bb10f8adbc2a33f5413bfacf453e52ae362",
+      "after": "852a082a86ef31d728c9438f00aee70e40fb6aa463c4e05d434b47d6f0eb521e"
+    },
+    {
+      "path": "schemas/plugin.schema.json",
+      "before": "9aada869f3e0711778744e7946920e05682847884578a98da02b5d8a36933246",
+      "after": "5c12a1cce3b0d9877474438086ac0cbd442abd8c8854e5f033217f96b5514eb5"
+    },
+    {
+      "path": "scripts/make-windows-bundle.mjs",
+      "before": "75ea43f28cf5ad4ae511e2ab90f2dd1c7a885d1e79d1377dc2462941a10731d3",
+      "after": "1a415628311d4701ebd56c0833408a51c280bc8a89fd1e40bafc5e89b3837562"
+    },
+    {
+      "path": "server/http/routes.js",
+      "before": "4c81060eb3af1c2917149e4984cdc4676373fdb609714efde8a90a8e7712f94a",
+      "after": "405acae46cf588b9357104836c72d32b6cdb5ffe583991a11ee494462235f515"
+    },
+    {
+      "path": "server/index.js",
+      "before": "2bf80a19345a2cd203cc957fae92abbc98404040a0cc8be0110e9d317a9ec084",
+      "after": "0ab36b48d5b721f09364bccd241bf534ba5b4d9b97b1aae987117ab22caafda9"
+    },
+    {
       "path": "server/lobby.js",
-      "before": "f98676eb99aa526b536a32b2a7b06eb301c70f7258557ae2006ba31a3623ae31",
-      "after": "76d7a0eb2aec01fd06dde091230ba904837d7178fc77837e5321d53ce89692d4"
+      "before": "69fccd2d7ad1421c28ba4573d0574de3dd488f599743f9d3394cfeaf579e9a9c",
+      "after": "0ae8d7570945f5ea4d50e0d370f323dd13b0a756e3ac4e18a55311f11dc7d989"
     },
     {
       "path": "server/match/Match.js",
-      "before": "f1b3a70af908e1a6f9c70c45635d0363c603c217aa24eaf3c84b56d8ae0a3475",
-      "after": "5fa6a821ad5a8ca8123b11502771f7099b1ea476a2a723ef3e4e20efaed782d3"
+      "before": "561ae48b5690c73bc0b52f7216bd165db25f25929234b372443c1c3d5b9335f0",
+      "after": "354d9670b34c4dd914a80d473bb849c461a8ec59126209c48f22880a6a222625"
     },
     {
       "path": "server/match/PlayerState.js",
-      "before": "20061eaa0d91e86e9ad9156bf8c7dd5a33c4a9d8b4c2ac2c4e42a9a9c1a1cfbe",
-      "after": "a350234d51ad36dc550a7809ada90f743c7e65c281c9382be34f8eecea54853d"
+      "before": "a920455c4db2121a84b511bb3a41d98dcccb86a35a145757d77bfaae1eec0e96",
+      "after": "2dd6ae1680d8b62366871d1b2aa37d905e26b7563e7b07781517bf3026190c33"
     },
     {
       "path": "server/match/audit.js",
-      "before": "05ea662ddf56789622b615e8d268fc039ef2e78a14666d1cacbe48eb29d734e4",
-      "after": "b0867e274031ed3f49cad500457cd1e9dcfbc468af3979ca9bfe3a3839670e39"
+      "before": "ef776a8816ba26b8dc2a8b49a7456f816e209dfe2982fea339291bf7a3cc1dc5",
+      "after": "6381e541e967929d8e8b16c9e7daaa583b3ddfbe78088401ede7982f27c0a4e7"
+    },
+    {
+      "path": "server/match/bondsMeta.js",
+      "before": "e705d81848c1bbba102b4e160d46cf26cc94af3d8186fa94419f73710d6d472a",
+      "after": "8436204827da8ae8f2dd00a30e4334a894ae379c6d1793b0f18e995d72f09097"
     },
     {
       "path": "server/match/bot.js",
-      "before": "bbdf346145416275e59d2bcd047189184769af3a99e51afad54af33424b4009b",
-      "after": "988aa3642a8bcfa76e97c0a7ab1abb7415572d407aca2856af08f0e08d1f31c0"
+      "before": "968bdf540ffd29f52efd7e4587ae67704aef452ae455492f902230014c31e841",
+      "after": "e9c62e4cace4992b681e8fa4dd4a404020ed9f2dcc49fec52541a22711d0881a"
+    },
+    {
+      "path": "server/match/builtinMeta.js",
+      "before": "b9c6f4665e33a3e386302f815907dc85a8e63d757a215555bc3c07645edde7a8",
+      "after": "7cf0e704768fdc000f17b9623010de3f220557c253288234ea777a99160b4567"
+    },
+    {
+      "path": "server/match/choices.js",
+      "before": "1aa7ff5bb44cf3bac4592572d3ffbdb7542cb802f9763dc02d95d50e292d1d4f",
+      "after": "3922387f017b43a9d4fc38efe98e30b43a045beb2421faf92f7ae2533f548e61"
+    },
+    {
+      "path": "server/match/combatMetrics.js",
+      "before": null,
+      "after": "3136d07230b42c184a4030b673ecb8bb1110a6095f35d2b9bd256f24a2bd940c"
     },
     {
       "path": "server/match/effectsMeta.js",
-      "before": "602f1b22d9f702380422ecfbe1a58625e9644c9d65ba980f8901b7058d0eea7f",
-      "after": "bedfa4ec699015b45881011e461201eadee3107e7d4537890ba842e2d9e4a83d"
+      "before": "60d6382bf7eac56c3efb056670c05810f99fd8f1061ea00eaa199bdd7ea4f4a4",
+      "after": "bc910d010dbec9c69119e5967730783b4f00445e333546790f78f146af8da1a5"
     },
     {
       "path": "server/match/fields.js",
-      "before": "377a5c12b4d37f93857b355271dd5afe0989a40f8c8521e982f298eed082246e",
-      "after": "490c38bc1ccdc42157aee64185f376d0aa347157381c8f841fc49a536b9240c3"
+      "before": "5e9d315b9a899d2db9cbe58e9c98582aa8a6c40b783e1e9f5a286072efd6ef61",
+      "after": "d0fa13e7019858dd967140c6179f5e696d39aa3c83dd0fdb2c2054c61a537846"
+    },
+    {
+      "path": "server/match/finalAssault.js",
+      "before": "a3cb1b2fecca01b69a5dab706889a04345a61564580671b286728a69b570b580",
+      "after": "8685e3776ce219165a3eccb38bdedced6315b6622b25939737b6574eecfe58b2"
     },
     {
       "path": "server/match/gamedata.js",
       "before": "f93d2c3cff9680d7414ab03691ef76f24f0012b133f919bf7ac247a7bc5a25b3",
-      "after": "572e86cf0f67a0176ff36c9f4d8914fc301377d5efdab9389db1ea4382393a01"
+      "after": "dd8eb04ff5f4465dee0ff95ad3faf77419fdaf2f22d276c6973309e7a50b8057"
+    },
+    {
+      "path": "server/match/growthCombat.js",
+      "before": null,
+      "after": "6b1d4feaeb3cae627005ea4da0faa308ca7f9f7f1f0eb7aa992e1272f2faab1e"
+    },
+    {
+      "path": "server/match/growthDevour.js",
+      "before": null,
+      "after": "78a70025bb8637d996a067bc51c2073ced5d6e40ab7b1c3814b3f8771a320873"
+    },
+    {
+      "path": "server/match/growthKazdel.js",
+      "before": null,
+      "after": "88b51f050b605113f87844808ac0fc3195dfa63ed4116e4e7922b0b38c599ddf"
+    },
+    {
+      "path": "server/match/growthLayerSettlement.js",
+      "before": null,
+      "after": "f8e8165a8198877efab067d818c55c4158f1000cb6d0e63d04aa449e4848f10c"
+    },
+    {
+      "path": "server/match/growthRewardPolicy.js",
+      "before": null,
+      "after": "448ab3824efca7d9c1e28e2583461ca6a9000ca6045731f238bb5c564f7334b4"
+    },
+    {
+      "path": "server/match/growthSpells.js",
+      "before": null,
+      "after": "b7595dbf94c9d75d7f15dcae00e6948352fde909126b8ef9844265505a4c9998"
+    },
+    {
+      "path": "server/match/growthStar.js",
+      "before": null,
+      "after": "26f044423bd2a2a1e98e0f49a3eea61bd82d92efa23712308c43d4fe3b802cb9"
+    },
+    {
+      "path": "server/match/growthTraits.js",
+      "before": null,
+      "after": "e5b017181fa4cf23347174da2cc55f2b90e3f5b3b33471508cd3b631e666899f"
     },
     {
       "path": "server/match/heroPowers.js",
       "before": null,
-      "after": "e6c6a00036964b5151edb7bcb9865e5cf20d1c58de9caf6092029bf9d1be7e4f"
+      "after": "e8d78048132756e37ba67fdb5a88d400d8d5a413204bd8bd9094184fde0fe24c"
+    },
+    {
+      "path": "server/match/host/childHost.js",
+      "before": "436eb37702cb1d8d10de75d228a780b807842031004bdb771a73ec8f14bc3033",
+      "after": "e3429abf2475d738b212b1686f6f91cf6492d743b611309043915e632980195f"
+    },
+    {
+      "path": "server/match/host/entry.js",
+      "before": "78c98b6a2a6b969fa973e139201a6a8fed7e364d91edaebd101e8448b20dfe9a",
+      "after": "22f0ab05db9a93a728af32aad2893f904e632f779684f89af4cd7d387f86e51b"
+    },
+    {
+      "path": "server/match/host/index.js",
+      "before": "1be933a852c0230ffd19f6128d80b331f644e67b766d158daa6302e6aa967e20",
+      "after": "1444b1530202116d2e16965d7a7885d49a31085ba9a38473b0b313b1e5da9e33"
+    },
+    {
+      "path": "server/match/host/proxy.js",
+      "before": "bbb997af2f73c06fcebb92d3e5b310cb6be0b69895634a69e5a1be1695fab640",
+      "after": "f71d2ef02ce7525ed3782f7d23150bb23d1b69261b8f91025836ef4b1d642985"
     },
     {
       "path": "server/match/invariants.js",
-      "before": "66e800a132f0d914f6e6ee6579c499be7fbcaee3914f267089c8aff0561db568",
-      "after": "78e212466b0dcf2fd2781690f34aef1baa2e5b9af00cfcad20fe68884c6b1e9b"
+      "before": "3ef40e7232c7b4179eefec79c5b9042447b71c658a1a11d4f3c479cff5a26ec2",
+      "after": "0da893d9487f4a5d7455e50f30b2e15eef547ea6ca01930766d58802fb9252ae"
+    },
+    {
+      "path": "server/match/liveLayers.js",
+      "before": null,
+      "after": "450caa79adada977cca3dfb7b6c2989c9542a5630177901862b3ec4b0301f7d5"
     },
     {
       "path": "server/match/lockedCards.js",
@@ -365,98 +645,243 @@
     },
     {
       "path": "server/match/match/bossRounds.js",
-      "before": "006d468b4d9427ba095f22edac2b38c8ca6de2054751dacd7ba8985d7a391662",
-      "after": "244bf4da43199d8f4c0fe4e90df5ab1ba2090409a27f16d65d1bbca2d516e8c4"
+      "before": "4c5f58cadf83fde323dca8d1987601cefe48259a601edc3e455f716105bcc9da",
+      "after": "f54219bfd47bd04afbcc83596da99d6a869dde024502d9125b6c2fb32d08ecef"
+    },
+    {
+      "path": "server/match/match/clientCombat.js",
+      "before": "86cb5f44e0bee0272967de56b08902f57aa5981dbec820dbcc14694019720c71",
+      "after": "dc92f1ba8fad38526f615fbd31926d787a550c79261d416c8ef641ee8acc89cc"
+    },
+    {
+      "path": "server/match/match/combat.js",
+      "before": "e15f3641d74a1b7d3ed99f09c1d4409508cd946e741d2227aa546a1c831abeba",
+      "after": "cfd101a3947e3be3761b002d770014d1f4ea38be3d98a0cf2d43860ccc6256f3"
     },
     {
       "path": "server/match/match/infra.js",
-      "before": "c49feb8041428e26fb14cdb3474dedbbb4cf62b12d43f26192096fa13f0219a5",
-      "after": "fe76ebe436bf1b8a7c92522cdc453cee14f99c1fb447c15862ff496a1420b1dd"
+      "before": "e8e4f338bf6fc7aa0403a2886af7c586e9bce17a85110b69f5c0df50706c7800",
+      "after": "bdde71aa012020f2300ff9dba6a3cec0155b98e5a3a8da3fc15d8c094fdaaeed"
     },
     {
       "path": "server/match/match/intents.js",
-      "before": "0ef9b0e87b17029575c391e0f8056103ac801884afa994545f147eecb0786878",
-      "after": "776f064f710ca19fb696af170a4d67e84c4be16f25d3ffc1a3c3a88efcad268b"
+      "before": "27ad250cf85f28979518c783e7a535558dbe302394c4d61c8545bcdf8b6ff6d2",
+      "after": "9f7790eb476894972ab2d7ee6f78d6ae07eddaa5a194147ffec87c74ed19a8e5"
+    },
+    {
+      "path": "server/match/match/offers.js",
+      "before": "6910fc9110909cc2fac15ef5f0d4a79b41312fff2d69fd4f3418e62240123d3c",
+      "after": "0193f1e542f107f205452c51193869e80ff3efb3a7d19b162c38b2c917d107ac"
+    },
+    {
+      "path": "server/match/match/pause.js",
+      "before": "6ae35cd1fc6d56a434e53329cfcdc1d2110e9d60c985d1d385e549cfffdea9fa",
+      "after": "97ab8524d8557ff1b65f5ca14b487faa5918154cef9af32a12f29e56ffb2bf65"
+    },
+    {
+      "path": "server/match/match/phases.js",
+      "before": "7074f6ca4152095b901f75a90b25ab9a354fcca69ec16a88f3bb5adf95cd0ae4",
+      "after": "ec7ce20cd8e5f037ea8c8674f258ae7163176ac53ed41f0a2b8bcbd2a7eac263"
+    },
+    {
+      "path": "server/match/match/platform.js",
+      "before": "7072251703d08ce6372f1132137a1ddfa4bab49254dee6843704d871acf34dff",
+      "after": "83931ce5dd3b61fa21e2bf3650cb6d72c2c3139337fe679212e86ee66f0cbf68"
     },
     {
       "path": "server/match/match/prep.js",
-      "before": "7a1f30e2883a317bd5d3ca4a461b427a1e5817bb6ee3b2e0d3fc00a2f77082f2",
-      "after": "6227eb26e00c57c3ccf2b32c5c94b0bf0fed8b6409457a9e642371b5381a527e"
+      "before": "1ab4b3e28990dbf5700ee2dfb9746f036e5b6aedee1b28750fd0920157ca94b9",
+      "after": "349395ff5f6c33a1f47fc12dc2a3cb15c7367b83b6d3e1d51d59f157c82445b4"
+    },
+    {
+      "path": "server/match/match/rehearsal.js",
+      "before": "ff463533359f1bd98c7f1549e678237cd87a0cf0c9c4bbc13cb1533eb1f06ccd",
+      "after": "bb9172a0705eb0ba5f8833af43d6c3b23271da9a5ea04284767cf38d88a347dc"
     },
     {
       "path": "server/match/match/settle.js",
-      "before": "51905f61ebe8f6442f5650e639b1eab8691be04f25c0492f9890a874706ccd64",
-      "after": "3c682144384ddc08a56125b005ac10cc27dea65da01ca85c9d590975ae9b0533"
+      "before": "bd3ce67a27934b205c2212559595fc3d5c43555ee752bdad81a0f785515b5ede",
+      "after": "08490feaf56da8c10e10595b5dc86d1d1214a0a57b14c6bede6a10b8ae2ff8cd"
+    },
+    {
+      "path": "server/match/match/spDraft.js",
+      "before": "9ee2e981fd199198c8e4047d60658df3fd4dc717303fc1513a5141565c2a1b00",
+      "after": "42bf4fc55f7a6298f3acd7daee9fc39b20cd11063e112123a73cdb5341c72bd0"
+    },
+    {
+      "path": "server/match/match/testCommands.js",
+      "before": "7bf0688a11bb26038220a270361f13d9a7d3cd6dfc1f9f3c029ad082e6dc0013",
+      "after": "5e713836cde4764d7088737da446d4854660d568d9f170ca43634586f6eb791e"
+    },
+    {
+      "path": "server/match/match/unitePhase.js",
+      "before": "05f0c530fa21f4590337413a36f7e55352478fe8a5aeb77a030a27e21a0b894e",
+      "after": "a2d0d276d5068befe66dc2a1b7acc30ec38234c1c78b1b8a3f77c2a1ebb198b1"
     },
     {
       "path": "server/match/match/views.js",
-      "before": "275ab6428a1fbfcb36f35e29163a8a10d3030e6dc8e672a7032910a5e33a17ac",
-      "after": "da262a860ca956e325e0ca533c22785ab0a7d04786b06b3273f6dea64a6406ea"
+      "before": "018135cdb565162c66e17724f32b3cf6053933dbf3f23ab46c402b5dbd7174cb",
+      "after": "f648ae3b9f3173a08b4140db4a538c36f6e072fb6c4d92dc1274b8ce1c3dcb80"
+    },
+    {
+      "path": "server/match/match/watch.js",
+      "before": "d6cb9f007472a6cc63c9db9665c3611d9423ee8a32218a7147903da480d0758a",
+      "after": "f8d881f8ebb54bd7a902340c68718b8f2f1d09beb85a65aad7a6e37bf3da87cf"
+    },
+    {
+      "path": "server/match/operatorTraits.js",
+      "before": "b4e7a023e0784c611d71ef97ba9d9ff964095dc56433e6a18cc230a35e00a6bb",
+      "after": "99909f2af50d0387e2fe2f70e746af7f3c7aafcdfc6323ed75b5c85aaba9cfc5"
     },
     {
       "path": "server/match/player/acquire.js",
-      "before": "ae0762d70da02e01bcabfd3ec14662e034091f2a9ff33b15328fb19dff5c7f99",
-      "after": "4b0097e0980146e45733b3a554bc76524f94513f010d7bb358683fd02aa94da8"
+      "before": "eac5c5e1610eea2c30637cdaa5916b6025b7c291f627e21876f13c43b63c0d5a",
+      "after": "9545bc89e79c89c6d91d4e6f34e8a20dfb4f43a629384c957a8624fc864c9bd7"
+    },
+    {
+      "path": "server/match/player/common.js",
+      "before": "dc2f0eb751b83bf5c568e83f80f4a3261498a9e726412f57f8e9c79cddda603e",
+      "after": "b8f313514b0b487b2546fc5611dc65cb4d45349ba00cb288cd7026e6fac30674"
     },
     {
       "path": "server/match/player/economy.js",
-      "before": "ef17b270754c9de9347e1351f3cf3b50708ea5425652dbd028d4f1a065677784",
-      "after": "7d76002862edc48f7cb40ed69a2979879bcdb097f2c6c029e95c82e056226e1b"
+      "before": "fc1c7a749afeab0bdab49c8cb1c7c754d2525dacc74e9ca08baf39ed9e0d07a3",
+      "after": "8d5f4b3df8edbcac550431db00229a1392c2fdc7343e301c460ea91d02183d6c"
     },
     {
       "path": "server/match/player/items.js",
-      "before": "34f87a4f838f38525856fb4bb3ba3bca6c05b1482b95175241b265c70923d66a",
-      "after": "418d1f0aa961f97be3f5e86221070af4398551657f832af479a2563719b46bb3"
+      "before": "b95b0ec9290031343b8303cce371164cdb5963586446d3f22f547a1550a8a5ef",
+      "after": "2fe973d61324bbbc7efe383262374608703f7eb3206dd6366a21441acdb33dd0"
+    },
+    {
+      "path": "server/match/player/pieces.js",
+      "before": "bfb1ace266bac9eaccba84a0fcd2881e4c3550ad00d450cf4f0cf604b943d52a",
+      "after": "1d84c2eb46269323df2a31ad0235b3ed9d00877a1f0f042afdb47643f8bb7d1c"
     },
     {
       "path": "server/match/player/placement.js",
-      "before": "fa6837f1feb4c19511a1bf97d70e70c08c11be20edb0fc2fa93a78efbb4f47fc",
-      "after": "6db9174ad6d688050486496b1c1257ac4fa221308e3f52149b37e1b61d887fee"
+      "before": "2929d7db8c9b9f47947e6690a9c032c80275ff10139a018ab9fc16e80fe9a5cd",
+      "after": "c48888cda472039120d9a9bb7c6c2cbeae6db217f19d5a31c02729d414bce77a"
     },
     {
       "path": "server/match/player/prep.js",
-      "before": "dcc28e269fd85f7045a3afb84402ca360701f111d14c420f2111976a51efa89a",
-      "after": "491dcd486f2184f99b247f2b7d522799d9e7351c592994f43f67756dfd2eb973"
+      "before": "7d91801bc163e0492ec3f8468839e83f52441d106a1e15a6ac1dc7600ed304d0",
+      "after": "251bce57e7427e715ec0a3b46767e15251ca3c55641300e5c7d02b7ff4347ea9"
     },
     {
       "path": "server/match/player/round.js",
-      "before": "7f2462e1cbca850c089fd00e4620b78c93497d634e5722af676150654e776ded",
-      "after": "74c875d7821f59dc5eabad3ab4eb2c6a52c7b32d48eba18bb49751b79adc412c"
+      "before": "49e613a8d37745e72d8faba03c86c23f30cbda71cdcf3f403ffd2a173b113073",
+      "after": "71e1e8aac1ba7a82a2031bbef0cc16fbd36f338f366d1b91cd1e0a3a601fdf08"
     },
     {
       "path": "server/match/player/spells.js",
       "before": null,
-      "after": "a86fb52165233d6eda547a8be152dd2cf3a0c7b14f375c946298f6c5c8e52f4e"
+      "after": "ef7c76313f3782128df4101a7e6365196ddd617af2be4f6d03359e3f25a5b0bd"
     },
     {
       "path": "server/match/player/views.js",
-      "before": "a1701137fb8843e66b452af87d55cb61b0b5a9838b662b51af21d35694204794",
-      "after": "a9229e7f2fee2e5ff57ea92c33c3e72b09e9163f30e705f46766173e3efe52c0"
+      "before": "aec7a63ea4222cf3e2fae5ef61607330949d7f55542926da083873ea53e554ab",
+      "after": "097c765ac6a0a984366d0b79e5b67990287c73a78ddbcf3b13bf986e04fb6d35"
     },
     {
       "path": "server/match/pool.js",
-      "before": "40b213eb3592c4ccbafb4fe76db0759c6ed4c6b81141fe879e86c03215824b09",
-      "after": "350784e8ee3b4f51e3e7b0dd23e4825f5b65ad5a01c184b7567b1e7bbeefc392"
+      "before": "5b5df53dab81523125f0a9e1e0a062d69ad33f04aff11a8f8dab433ced053adf",
+      "after": "395c6985c2c4760b0ca6ac6cbde0a58d6e9148c82d19043e830b7077aa9ab988"
+    },
+    {
+      "path": "server/match/results.js",
+      "before": "26d8c14fc9b98499a557b34001a49df14e76a05c7878243407c6616f0889ef6b",
+      "after": "4a9aef47b7148381ea61383316097a7e23167565f9c8daf9f559ea789bd976ee"
     },
     {
       "path": "server/match/spellWisdom.js",
       "before": null,
-      "after": "47dd26e418a328382224d94cb8f8f1ea605a191c8b9874edf90f66adc3e67753"
+      "after": "b2e846ffa90270cb7812e447fdf9114fb05003d6d511efe1c762c406888f76f5"
+    },
+    {
+      "path": "server/match/testEnemies.js",
+      "before": null,
+      "after": "79c1975d3aa1411475090f00b9adf9c33fc3ed1d4352ce1cea5c50ac9186d89d"
+    },
+    {
+      "path": "server/match/testTrace.js",
+      "before": "777d791c17cb6238f8bbab5a68ab0e0d65731f687131448855abf361b2a177a9",
+      "after": "1b55249bf3870c0cd882a9304bb4e9c8f6584a7030bda7e7967c7089d20face9"
     },
     {
       "path": "server/match/unite.js",
-      "before": "719a25be8e5844f51c0226333a7fba6addfb63200dddf49ca11cc15b593833db",
-      "after": "aa660c2c661a1637071ffeb1ded55d81721913609d9540da9b84fa80df9a67c5"
+      "before": "b42de7d12bdfc76e6e06addd831e67b0aaad6720ea2feafe5050ba33bf896f31",
+      "after": "312f18c89a00134274cd814b4d91ffe5e48db74b27078396c690661e0d81df0a"
+    },
+    {
+      "path": "server/match/waves.js",
+      "before": "9d6dbdb198695a0d6295011668a14650cd1d8f9101e9b633c547b46440bafc9f",
+      "after": "a769599a686b5598c89665e1690a953282fe6afa2fa624de53b459162f217d82"
+    },
+    {
+      "path": "server/plugins/contentSet.js",
+      "before": "0d040658c7f00623e2fdbc166860c9e71d47f24b0147baea0025dfecc6746be7",
+      "after": "bb881b645c3a3ceee44a20872e1b01d80e7f3b20dd1005b6c3a5038783cc270c"
+    },
+    {
+      "path": "server/plugins/forgeImport.js",
+      "before": "b30b9914ca955e641ff18cc8cd9d028aa5b1f954799fa107006dea9fc05a8ed4",
+      "after": "7f792fecb7e0bf1c2a7098cc3f3df8d908fdb69b9c24936d4f26b093aecbeb1a"
+    },
+    {
+      "path": "server/plugins/forgeRecords.js",
+      "before": "dd176f7fa1d910a871293bbde6c8952aa12f27c8278e8435d4a885559e59d5ea",
+      "after": "2543b6aa6be15365e334df409eececc9b6267208d220b2418569bd915d776c21"
+    },
+    {
+      "path": "server/plugins/trustedApi.js",
+      "before": "0a920482d355a783ebe1deecaf12145523a875e2f494f610298537eb246ec6ef",
+      "after": "573036a7ed5053abb651d181454d1bc7075dcd8b97df9ebcf3743037f5d8e8d3"
+    },
+    {
+      "path": "server/plugins/trustedEntry.js",
+      "before": "ead4766a123bb42f1612e610a2047a0a39cb00868b326ff3d7e7c920bd7921eb",
+      "after": "fe3c046d3d1d85b89952ed86d01814584cf846658840e5efc6d098b006790b96"
+    },
+    {
+      "path": "server/plugins/trustedRuntime.js",
+      "before": "1ae3380d2a9c50317b3ec992c81fca6c9e28ff7e8bbb4fbd5241f6b624084848",
+      "after": "12da627f7be0570c83da7593123ef748d9a55ed93eae6982baef2ecf419a658b"
+    },
+    {
+      "path": "server/sim/Battle.js",
+      "before": "2ba42014c62d63cac377a434c6387ba2e4eaed030d56cbe058a1d5b539b9e86f",
+      "after": "b19f3d4dacd659ae0fc46bbf4208c612b9e81a53545d9f029a63faebddb32b84"
+    },
+    {
+      "path": "server/sim/attack/health.js",
+      "before": "12222d864d9b4968565e4135634b960eaaac778881837ae832d7aa5e385be991",
+      "after": "e3f2e26b03352adbe4119485a5bbc107375aec1b21ed4df629e836d399666a94"
+    },
+    {
+      "path": "server/sim/battle/deploy.js",
+      "before": "58c10efe132aa8ad2f93bebbc15a5843c7eef7f612e8cec5e734e15813824c4b",
+      "after": "15f16562090684b0217bfd1d61f7728095c76afa72d7dcaf790162be617eee62"
     },
     {
       "path": "server/sim/battle/economy.js",
       "before": "194dda9be4c7eff13b3b16673c95f86f40015e9aba488e47fee8f9ab029c1faf",
-      "after": "2404c2001bca9c3f1e75b8b7f426cb2d2112ede8c3cbd790de3257f29dce8259"
+      "after": "dde40799b8b511de47888f3dd3765bfc1a1ffb6a272023afb8cdcb213fdc12cc"
+    },
+    {
+      "path": "server/sim/battle/players.js",
+      "before": "d90aee2598e8b23db7ee154a9aebdf33b8bf33e049d37075878b3cc7849405cf",
+      "after": "a2c5db956529cf12dac72f7cecf1dc2cc1cea9314a2da7b20adcdc6ae2277c49"
+    },
+    {
+      "path": "server/sim/battle/tiles.js",
+      "before": "db59d81f8d88ebc0028dc35c2ee931a09bcc7f40ee06d1f073fa35075cbae4c8",
+      "after": "0de64545a1f114f61edebd2760d0a9f0bdc0d6c26ef2b658654d9f12ccd51aa6"
     },
     {
       "path": "server/sim/content/bands/battle.js",
-      "before": "c659015202267b1bee48172f384b46fe49fa3f4a5a5a7f81263c5c02841aa64d",
-      "after": "c45b6865ac2bba77f294545abaa8ac7f17181f888eee958d03a18b40750430f0"
+      "before": "f08bc8afe79db0167553286b7586b670870a13a894a677376e9bdf6380708f86",
+      "after": "87deb6d07c7dd456c94fbc980f74aea616f3f586d4be065b19260628aab977a4"
     },
     {
       "path": "server/sim/content/bands/heroes.js",
@@ -464,24 +889,254 @@
       "after": "3493b35c3960d15c1c0cb705bb643f6e3bfa3ef27d5e439e22b37a9bea2957f4"
     },
     {
+      "path": "server/sim/content/bands/meta.js",
+      "before": "6b6589943c7c7f4639021bc18f1a144ec2a73c68be6b54cbe6d560aadc926f86",
+      "after": "c3486286d1e71c2a7de284a8b7e42aeef7cf1966c5c99fe281789840cad45b5b"
+    },
+    {
+      "path": "server/sim/content/bonds.js",
+      "before": "efb8599a69feee06d2efa4ffeaf30783e3a650ed474359b4d37f42122acd8f89",
+      "after": "7772cf59ae8387418fc58717c4529b2a1d0c5e8e3a95159582a439633bb1d1f6"
+    },
+    {
+      "path": "server/sim/content/bonds/addon/battle.js",
+      "before": "1c912730ab506925a3c2257bd2f14db48d3ecdacd8b4a04ccccfff18325e7bf8",
+      "after": "9f30b113c2e69d9ea4bbc560b9674d71d3b63705db11a89b19bb4d04d225b366"
+    },
+    {
+      "path": "server/sim/content/bonds/addon/meta.js",
+      "before": "0df8179cb083f5122c04aeb1343718846fd44f27302e19240f25315786065f92",
+      "after": "78db390e8c85db5c620f02be8b98706a30ee061c1b9eb6cedba3a42d3c0dd31b"
+    },
+    {
+      "path": "server/sim/content/bonds/core.js",
+      "before": "9ff26f02524b49afb8957653a0ea8f31ccbdec3745d6b8240fbf4f7a1d70984b",
+      "after": "9fc91043691cbcf716b51a0b0e26806b964180cf169d0248f3564c8587488c89"
+    },
+    {
+      "path": "server/sim/content/bonds/growthOverflow.js",
+      "before": null,
+      "after": "e6cbae9d8b2fed4d47611e403752d199663f06416d051730538496f5a50d2c0a"
+    },
+    {
+      "path": "server/sim/content/garrisons/battle.js",
+      "before": "0aeb7748fbc7946f6e19d7044c8c8b226ab37b623d28ab2beb2b2993ca7e7ba9",
+      "after": "abe02750384bbf167f6acfc5bf8c3f12e2a86d115d09cc274e77ee0090364b54"
+    },
+    {
+      "path": "server/sim/content/garrisons/growth.js",
+      "before": null,
+      "after": "03f91c82a4afd582c848137d1d182f4526e11951ae47d77c1f62e0c6f0a6bff4"
+    },
+    {
+      "path": "server/sim/content/garrisons/growthKazdel.js",
+      "before": null,
+      "after": "fd372d281115ce6824a64b748153d0fa3d106f64ae02681fbfb41ce98ac679ab"
+    },
+    {
+      "path": "server/sim/content/garrisons/growthSeaNymph.js",
+      "before": null,
+      "after": "e4261bbc78b55d9187dba7c8bf43d57a3a1784f7fdb7fb85713bd9a11815b7ce"
+    },
+    {
+      "path": "server/sim/content/garrisons/growthSpawn.js",
+      "before": null,
+      "after": "806498f2ab02e91d4d50097b222f55be21c6c5c774e17d220c518b2349d97f17"
+    },
+    {
+      "path": "server/sim/content/garrisons/growthSpells.js",
+      "before": null,
+      "after": "e088bff8523038177561cf9a17bb493eb381faed732b2c4bf658475954712123"
+    },
+    {
+      "path": "server/sim/content/garrisons/growthTriggers.js",
+      "before": null,
+      "after": "be415ba601d6df0286b29fb80def600c0b730fd013d2b747ef4a35e5baef81d7"
+    },
+    {
+      "path": "server/sim/content/garrisons/meta.js",
+      "before": "545d67e4d5e598440485118251630562b6cfed359d76d081ceb52930e7fb9d81",
+      "after": "1be40a23b04522baa367e14ce33dec6347f830911151759f07453ef10c7b2972"
+    },
+    {
       "path": "server/sim/content/index.js",
-      "before": "d4baec82d6b48a26ce79e79fb713848deaf1d6385c01bc28a1a52253bc7aabc9",
-      "after": "f03d81649f093112c4e443a9d72879c6f10d5b781086afb935548fa3128989fc"
+      "before": "afca32d16436244f1e53c5fd9bb18f51e5924e5773cd0442a121e0f883e3088a",
+      "after": "29e70efd65eaf374b1a32102105d9dbb18cf549eb98dae8e01f6e7e43484839a"
+    },
+    {
+      "path": "server/sim/content/items/battle.js",
+      "before": "783074271938da285408fcecfc7dfa0aff41ec1141cafb5489d6a73a77ec0f63",
+      "after": "9bf16d480fb5b7af457504ef187c086e1dce14401b6f54d2bcc8f1edd02419c5"
+    },
+    {
+      "path": "server/sim/content/items/meta.js",
+      "before": "9a440e72c7a35e966bc35f25ced0a3cecda2273c4512dc32345dea69ea36d7f5",
+      "after": "74cbb6a3ae101b4b8fc9fbee54b786a0ff3b2fc015675cbb85715e2ccf7c9f77"
+    },
+    {
+      "path": "server/sim/content/kits/growth/chess_char_2_30_a.js",
+      "before": null,
+      "after": "53879f52eae445b54efbb4cc80b0e6fdb50efb26789b7276a155abc786c66a89"
+    },
+    {
+      "path": "server/sim/content/kits/growth/chess_char_9_02_a.js",
+      "before": null,
+      "after": "220fa01e6612053224280eae69c63e604ab43c2da6e73f92f377bb0f256fac9c"
+    },
+    {
+      "path": "server/sim/content/kits/growth/chess_char_9_06_a.js",
+      "before": null,
+      "after": "cf797a0003410e5349830732ff78ae6136f45f48eb023f6facc30fa7476ea4bd"
+    },
+    {
+      "path": "server/sim/content/kits/growth/chess_char_9_09_a.js",
+      "before": null,
+      "after": "23de4c6e8ab931b6b01df33a4df09bfe79c4cf9ea09a0b429a20c8fd1049b6cd"
+    },
+    {
+      "path": "server/sim/content/kits/growth/chess_char_9_10_a.js",
+      "before": null,
+      "after": "89e6cfba6edb277d66fd1b5ed7fbf12021c401eb1b73b1d50e60768504f071be"
+    },
+    {
+      "path": "server/sim/content/kits/growth/index.js",
+      "before": null,
+      "after": "8e220da2a55f07d937fc492c0198dbf3ba50b22dab9dcde1220d1a8e9cb3fb44"
+    },
+    {
+      "path": "server/sim/content/kits/growth/lib/bb.js",
+      "before": null,
+      "after": "111492a12b803c9a3495d7a447dc6072f39ee719ac92de19560d3efc00c9f721"
+    },
+    {
+      "path": "server/sim/content/kits/growth/lib/engine.js",
+      "before": null,
+      "after": "636d25693cd1eb1e180d8b9a0694b5847bfaa3e44b3df562be56bee252ee4d67"
+    },
+    {
+      "path": "server/sim/content/kits/growth/lib/unit.js",
+      "before": null,
+      "after": "64d3ef098d4c17813fe90c27edb1392c63feb656b8175b5cbaa69bbbad1c88d6"
+    },
+    {
+      "path": "server/sim/content/kits/ops/chess_char_3_05-skadi.js",
+      "before": "e46fcfc319291334f9441d481b87acf114caafb3e142e5e76a5186e9d3e426c1",
+      "after": "104a1c3c9a7fbee6353c74086f1187a4c4833760eeb4b548e18a365167ca8942"
+    },
+    {
+      "path": "server/sim/content/kits/ops/chess_char_5_13-ghost2.js",
+      "before": "d641584add63afb335b2fe0201a2c9072261074ba062ad6a843d3687d96bab2a",
+      "after": "7101606ea001ff019a43b2decf9ea35b0f25bc7d923e21ce19a820c363f9171f"
+    },
+    {
+      "path": "server/sim/content/kits/ops/chess_char_6_01-lemuen.js",
+      "before": "002771ff2da32dc92a558e2577b53f7e2993b7bdfc8082cc0c527306b3164ed2",
+      "after": "7b9c263ff020f4bc63b488aae908279ab5708dd37edf300582a37bd7ed32ce39"
     },
     {
       "path": "server/sim/content/spells.js",
       "before": null,
-      "after": "f5ae6c592d4096144759c6068025bf86210d011c56dabf4b869760d724e69b5d"
+      "after": "e4b41d9743836eae3ea51d902b7dc0dfc0f915abdd4c65c25bad7fac53b4c104"
+    },
+    {
+      "path": "server/sim/content/support/index.js",
+      "before": "75df8dc808008832ae3537725267e852d68789c1d3c18a38e34e8eb21fc8a82d",
+      "after": "358fd0c1e284591bcc3b43d65c32ba144434500301348ec741996bec49012198"
+    },
+    {
+      "path": "server/sim/simdata.js",
+      "before": "100be69df4311471506197f14cc7aef976ff58579100a1a1a29ebbdf6610e561",
+      "after": "d32462b8746b288cfd126029266deb282cdafe326d8259671ac8bf0f14846817"
+    },
+    {
+      "path": "server/sim/snapshot.js",
+      "before": "178d4733e1e82214d4647b87cc52a334c50755b4de6ea4f1b4ec4e4101d2b7d9",
+      "after": "fde2587a4c411eaf8f431d3f34595b5e3b1a6387aa0d6594dda20fc6a13c7e3a"
     },
     {
       "path": "server/sim/spec.js",
-      "before": "bdb7b3f127efbbd65b8ccc38cb04ad1fa63b9bb4b97cd55b746a60c65dcd48a6",
-      "after": "807123609deb3ece5f9f355dd4a2ace30d9a2cf064c3823315b915b579ac0319"
+      "before": "41dea1d875ee1be700da441d45934dc706a177bce22d26f4ab7d47801188b99f",
+      "after": "11af9a6e12fb949dd3f5b523ca78a91b1a07665c0f6f483f5628e8bb41a6e770"
     },
     {
       "path": "shared/bobShopkeeper.js",
       "before": null,
-      "after": "b4352ce0c7d13a172e248c9a91453c7ad94e21cd54ec2c8621a4388a0cfa13d8"
+      "after": "9b09d58d7f31cf32ecb00960fc501494ee31a1709d52caf2b83d946ad3568d39"
+    },
+    {
+      "path": "shared/combatMetrics.js",
+      "before": null,
+      "after": "ec002d589dec4eafa270d1daf28236939ae1d0ec466ad6a01d7d2130ddd12392"
+    },
+    {
+      "path": "shared/constants.js",
+      "before": "37073d6a2b7cab3bc97190b6828d854c98776a9c4d0bad3de708bce82a336fd3",
+      "after": "cabdff5e0a8bd7baa0649fadf5feffd7435576601e19f7c87ebdd261654ac08c"
+    },
+    {
+      "path": "shared/garrisonDescriptions.js",
+      "before": null,
+      "after": "969841b2941224417653bd0d9fd5cb4f062a3d39a7c9bc5cce005c2620a5ad5c"
+    },
+    {
+      "path": "shared/growthAssets.js",
+      "before": null,
+      "after": "0dcae3743c2eb89f4e2fb7e1e528e0a837e90a8c13ef284c407d8b7e69373239"
+    },
+    {
+      "path": "shared/growthBluePoison.js",
+      "before": null,
+      "after": "eedd84587123d5bb6f9856c5fc8b010ccb21482ce22aed82104d709d0e0a1fac"
+    },
+    {
+      "path": "shared/growthBluePoisonAssets.js",
+      "before": null,
+      "after": "d92f53a8183f59a91e0376ebf6367d5c7252eda535b54972c19a83c6ee3803a5"
+    },
+    {
+      "path": "shared/growthBondDescriptions.js",
+      "before": null,
+      "after": "779383f1937e21ee79d5b5dbddebd6afdc20fa0b1b190c8d104e675f558e9f3b"
+    },
+    {
+      "path": "shared/growthEarlyWaves.js",
+      "before": null,
+      "after": "3455283b44c4a1316217ec12c4a84d0563e7a9ca6cd82e7f863c59c903ae00da"
+    },
+    {
+      "path": "shared/growthEnemyCurve.js",
+      "before": null,
+      "after": "db6a516759ad360ef91f8bee3eb61645441e1c5816337173cca041d810d02edd"
+    },
+    {
+      "path": "shared/growthKazdelAssets.js",
+      "before": null,
+      "after": "f4d463b785300dc1acd6d41203035cbcde5926c81c6ad6ac739a9c562651bc30"
+    },
+    {
+      "path": "shared/growthKazdelRoster.js",
+      "before": null,
+      "after": "505ee6982406bde7d0a6c8db0c369e528a3f5ad6c3aa6af060bc92def2554b09"
+    },
+    {
+      "path": "shared/growthMode.js",
+      "before": null,
+      "after": "69e86e4c71abf66a898ffadbdfac8929f4b97af093790f80526be4a3b308f14f"
+    },
+    {
+      "path": "shared/growthRichText.js",
+      "before": null,
+      "after": "cd7220c5765e86524126419d4a32e9432ed31d6b643a1a8738abfd4faa204023"
+    },
+    {
+      "path": "shared/growthRoster.js",
+      "before": null,
+      "after": "9bc2b000fd3a1c5bdd352cf26c74626ab19e87066ecb79709ce4acb89df0f840"
+    },
+    {
+      "path": "shared/growthTraitDescriptions.js",
+      "before": null,
+      "after": "29baa39d262c4b4256c9493b6d39dadc6ab9a054012959806b2ae383789049bf"
     },
     {
       "path": "shared/heroCatalog.js",
@@ -496,7 +1151,7 @@
     {
       "path": "shared/heroPowers.js",
       "before": null,
-      "after": "6f54e3e2dbaf135d3937fa68a739f35d9c38af1fe046481b9a34199dee72a9bd"
+      "after": "a63ed054f3c56ed00465982f178f6697f62df92efd1d14fe9a9d4f1afe6fa0a4"
     },
     {
       "path": "shared/lockedCards.js",
@@ -504,9 +1159,29 @@
       "after": "4e8f7f42c6a6e743b264f8a937fbdc711f6756eb3f097dca95b3cdf4ab8e07dd"
     },
     {
+      "path": "shared/plugins/errors.js",
+      "before": "bd27b0fad60ed6b08fa17f4f0a0458f8fe4aeea81e065900320706954eb9b1e4",
+      "after": "71c5988208d7eef0ab67959eaec2b6fc9c257cadb0bcff2457c258180aadbe7b"
+    },
+    {
+      "path": "shared/plugins/records.js",
+      "before": "a48cc048b5c2fc19bab2428ad13fc0c0ebc582e7eaf501a44f2f66c442e33622",
+      "after": "f4bae09db175a1d1b8062f930f98f5757e1e5099ee7016dec62423e148f32a52"
+    },
+    {
+      "path": "shared/plugins/rules.js",
+      "before": "273595f152c4e163d5d2eef1a08680b93ae881faff734192733d6ad19db7f838",
+      "after": "358fc94fbe0c413e231c557f8da94c504977fec541dbab77fed6fe52832b05a1"
+    },
+    {
+      "path": "shared/plugins/surface.js",
+      "before": "ba72e813d57b3f04c2c836f3394efda954343fd8ceb41d5db5966f8c06f1ae3c",
+      "after": "ed46efabbe11389a6e87aaeb8547580102b8771cbee5c1a974ba7b5389f09433"
+    },
+    {
       "path": "shared/protocol.js",
-      "before": "155f96c2e4d60b50beea31de22c738941d52e2e9b13162122a115bb557efe88a",
-      "after": "3ad9e3b2eda099e34eb64168cc883dcd499ee9d6bce37de57f8745e26b538713"
+      "before": "e5928e37f59db7994e6b008e938597d7f50ba94190d19d129e30ffdb6a630fe1",
+      "after": "31455e04330a309c99095d6885e16ccf01bcb2ac384d7b9a03e4e6d33d37ad3b"
     },
     {
       "path": "shared/spellBands.js",
@@ -516,57 +1191,417 @@
     {
       "path": "shared/spellCatalog.js",
       "before": null,
-      "after": "a26abc30fdd630bf21660763a4a3146a9e7bfbe64ec77cecd5ade95eca005e76"
+      "after": "b353bb8541dae84afb0f8ae2bd0da29094aa0b26161cd001d191292f3529dcef"
     },
     {
       "path": "shared/spells.js",
       "before": null,
-      "after": "90202e40b7661784cb3008dcc9142c52ea0dfd2890cff8014041b885a787cdb5"
+      "after": "c09d8fee486790025f9fac39ecb1357ec64e8ca8bfe07acfdaf3ba7bb45fee0a"
+    },
+    {
+      "path": "shared/standIn.js",
+      "before": "237b59e9bed89a42feee7cdf97710ce878e917320dc09f88b95c9cb2e390664e",
+      "after": "e2a100c33fa9a9782ad8ac865bd0c09f573fb00b28d340e9c24e71f3ba4379e9"
+    },
+    {
+      "path": "shared/tavernContent.js",
+      "before": null,
+      "after": "935d2ccc14b54b355c9e2ffa16951841c7989855084b2183e26f612614993e54"
     },
     {
       "path": "shared/tavernMods.js",
       "before": null,
-      "after": "275fc033789e7fb7573bb898c1506a033435f9bb57a4e5471da56ec894e4ed45"
+      "after": "fe1ca6312ee228277cbb1ee920dc59dab6f9a3c31f9338fb127fa9a7b7c18dd2"
+    },
+    {
+      "path": "shared/testMode.js",
+      "before": "863433f350a4ed1beb6ad07c71579f3e17cbcec7d380e44422dcddc4e10f99d2",
+      "after": "45cb6fdc006a263ae1e1f4c2fda593da43abc5323c90ba705d5f06020531398b"
+    },
+    {
+      "path": "test/asset-index.test.js",
+      "before": "613a6635143f0f0d5ecffff0ac6ba943362a179fa983cdd4e42eb91cb5313c6c",
+      "after": "9f5711e73a4948efee7d27b825524378a6d69974421b7790731ce508cf6354f1"
+    },
+    {
+      "path": "test/audio-pools-data.test.js",
+      "before": "528f66ebfa29d5f309ebe0c88fc96cccad4dad915a464d3c633b30d178366aa7",
+      "after": "15115d1aca253a12987e4a2c3e8f9ef0bd3dad312b25fb981e7929b492162d79"
     },
     {
       "path": "test/bobNarrator.test.js",
       "before": null,
-      "after": "11beb161d9b6c12b461a315cb563f2b81bb7651c3a0ed2f38cd823f03484222b"
+      "after": "81dd8a123031390feb4db911744ec06bb0ffb5979b04d23a04e0d398c345f948"
     },
     {
       "path": "test/bobShopkeeper.test.js",
       "before": null,
-      "after": "087c565258c651ddab52d0c66ec0d6c278c9f369194e15337d62c5afa6647193"
+      "after": "a2872f9fdd4c5822bf269de4b1e21d12d5929005923bc7d3bab4aac87620e238"
+    },
+    {
+      "path": "test/content/bonds_core.test.js",
+      "before": "7a0197f2b131baa9e04edf6021294df8599cc3c1c161bc8f9272b2502073d661",
+      "after": "e7933abb9912e9d60c414cc87ab448826dc277fc879c2e1b7df8b1f013e5b4f9"
+    },
+    {
+      "path": "test/content/items.test.js",
+      "before": "ed315aef2dfbdf668b4f59c206668ba5bca875b257adf3c90dfba70bc58e00e4",
+      "after": "fb658603a7db71f7871c8c8450c5229a4919d907cb80e9fcccf71b2424f735bc"
+    },
+    {
+      "path": "test/developer-mode.test.js",
+      "before": null,
+      "after": "f3954dfe52215aa375748e605ca8a3fcc2b56caa6dc9780ca8e5f3195814ed75"
+    },
+    {
+      "path": "test/docs-consistency.test.js",
+      "before": "1d1d90a92271d8f3c4affad2a4bdf386ad16a274f8b146071e6bc274b4078f2b",
+      "after": "d924bf824c4960d007876250b56dc8dee6aa71fa5e2b2c593593e33248f11b08"
+    },
+    {
+      "path": "test/dynamic-operator-effects.test.js",
+      "before": null,
+      "after": "75412b15ef81b5363c4c20a6a0229e9efad8c5982d5651210e9ca37b577882a3"
+    },
+    {
+      "path": "test/feedback7-voices.test.js",
+      "before": "3054ab7f825ace42649eb008a34606fe9de39cf30145e3d85bcdd4ce35818e29",
+      "after": "32e636d27c2ac2826e476f363f532eabc64eff6537d6702e58007eba393cc9b5"
+    },
+    {
+      "path": "test/fixtures/growth-enemy-curve-20261023.json",
+      "before": null,
+      "after": "295ed8b0142f7c8bcf3d8729b4eadec930243eaa86e215bcfbc90b691b0cdd8a"
+    },
+    {
+      "path": "test/fixtures/versions-default-guard.json",
+      "before": "21fc0a08aede8ca9eeae737c2fcd30ee01c0a28e82b56914ed859b796d655d61",
+      "after": "f4c5c5d0a64ebb0b433aeac8a814badba90090075810d4de09c5bb224018374f"
+    },
+    {
+      "path": "test/garrisonDescriptions.test.js",
+      "before": null,
+      "after": "cf091d5cee8f4667224486a6c7564ad9c32fdb58589b7965701fd1cb35cc1db1"
+    },
+    {
+      "path": "test/golden/act1autochess-v1_1/matches.json",
+      "before": "f0820f0ff9fada5be201009dd3fe3d592dadede73b56340104ebf52d433aa609",
+      "after": "dd600e7f79fa0c454e120feec315ebc5ec9b63f347f3b9b8e8a70c26c0a4dc3c"
+    },
+    {
+      "path": "test/golden/act1autochess/matches.json",
+      "before": "4f9e74a471f3532173d5d3f7e18ee849bc7fc8a0dfe9cc880abe917366b3cc34",
+      "after": "c2848be84a09075b7653effdc7e312992abbc4fc49f8e154a0ceb30371047c56"
+    },
+    {
+      "path": "test/golden/act2autochess-v2_1/matches.json",
+      "before": "fc853cebe87b42edfdf456830164938b52f9770eb15745ea078aee9b4570890b",
+      "after": "4ae447742f746c42530508e4fb4157474ccd7a04afde91196dae8b3643492c64"
+    },
+    {
+      "path": "test/golden/matches.json",
+      "before": "24d50ca505879f826b9e83ebe2d288d163d6df5b35013c664af155cbcbc9cff7",
+      "after": "ad1f6af38756beef71c95d74bb473195d39bdadb7cc0e6c70d2d563cf73116ea"
+    },
+    {
+      "path": "test/growthAegirSpecter.test.js",
+      "before": null,
+      "after": "c5d3886f59e188f73102526455f36c4ea510ce9ced082073fb4219915e767864"
+    },
+    {
+      "path": "test/growthBatch3.test.js",
+      "before": null,
+      "after": "53452d9fb6b0a45a37b5948da0ecdcd39aa5b93eb472414d1450457b37b339b2"
+    },
+    {
+      "path": "test/growthBluePoison.test.js",
+      "before": null,
+      "after": "ebdf46e27c7a57aa3e6d398fdb9e000c777b4e3fe66c857950826e0d61d95f9b"
+    },
+    {
+      "path": "test/growthBondDescriptions.test.js",
+      "before": null,
+      "after": "01b2aa9258d370e64ec9c77c8565499c47233590090e72def1c63e091a00623c"
+    },
+    {
+      "path": "test/growthDevour.test.js",
+      "before": null,
+      "after": "0f20b89c90fc12e7c72498241df1d44fc6b0f057839b15c71b6a347407afd9f2"
+    },
+    {
+      "path": "test/growthEarlyWaves.test.js",
+      "before": null,
+      "after": "7c67dee5a8d347ce474ce3cbb433d1163c2d196c8ea373465369e987db025082"
+    },
+    {
+      "path": "test/growthFundCaps.test.js",
+      "before": null,
+      "after": "62cc6466f7cc1d928f27638e13d2cb7785c6c958d9411eeb16d5a5be8dab21ec"
+    },
+    {
+      "path": "test/growthGainReplay.test.js",
+      "before": null,
+      "after": "67ae57dfab9849595cc828551c016bb08ea214bc62aaab05f5a908a685286ec2"
+    },
+    {
+      "path": "test/growthKazdel.test.js",
+      "before": null,
+      "after": "c613d7624ded2fa750f234650c1eaf9d647e270e32a6bee3aee8c814e6db2fc3"
+    },
+    {
+      "path": "test/growthLatestWorkbook.test.js",
+      "before": null,
+      "after": "cc89c2948f7add9601861be21bd8a0582445e194f8d2a4d2ccae78a3e7ada8b6"
+    },
+    {
+      "path": "test/growthLemuen.test.js",
+      "before": null,
+      "after": "62e7b5f3b0e8e987ce541155a6fc72225b3741bec1e499d255756066743d6dd6"
+    },
+    {
+      "path": "test/growthMode.test.js",
+      "before": null,
+      "after": "b84286460ae60767fb6bd44d8555a740166691d24b64f8fbe990ea36abc6506e"
+    },
+    {
+      "path": "test/growthOverflow.test.js",
+      "before": null,
+      "after": "ac94159f751cad4b81b1274a1267cb9551bd480de19ee60c87dc60bbc11b3370"
+    },
+    {
+      "path": "test/growthPacing.test.js",
+      "before": null,
+      "after": "9381ca05fd60543447ca82270c011ae3d7995d98261722f7cc232a26712cfa54"
+    },
+    {
+      "path": "test/growthReviveCopies.test.js",
+      "before": null,
+      "after": "10a16925860c6ac17d362e8ae560e05f7a11d594fc1556584d3bb5bbce53a789"
+    },
+    {
+      "path": "test/growthRichText.test.js",
+      "before": null,
+      "after": "6ae2a51b1b99b6b4ce235803f0e58877deb19be7be6b995c334d685269f31f00"
+    },
+    {
+      "path": "test/growthSeaNymphAudit.test.js",
+      "before": null,
+      "after": "35092142fd07c5feefe7920e3fe4237a53968b53a9e43bc66ead181be0339ed6"
+    },
+    {
+      "path": "test/growthSeaNymphStar.test.js",
+      "before": null,
+      "after": "80cbb9e1f7034c81759e1c41f0b0314a0d773e264c3e45e35bec3d78d2b1e223"
+    },
+    {
+      "path": "test/growthSpellTraits.test.js",
+      "before": null,
+      "after": "3da896caf06965d6026e1b5c3724d936f05f55347b0fe670423335400d47ffbb"
+    },
+    {
+      "path": "test/growthStageSettlement.test.js",
+      "before": null,
+      "after": "b152d48495b1f238726b87a53597c00373479462db897e3b89474994d1ac93b4"
+    },
+    {
+      "path": "test/growthSummonPlacement.test.js",
+      "before": null,
+      "after": "c0a67a101df2a95b0b7417b4eb17972eaad2081d1d14de56e7766b1dacf57618"
+    },
+    {
+      "path": "test/growthTriggers.test.js",
+      "before": null,
+      "after": "a9d0d4fdcef38cb76a747b2378e020d98819095faafae7b12ba28601a4ec593e"
+    },
+    {
+      "path": "test/growthWorkbookAudit.test.js",
+      "before": null,
+      "after": "15a412cffddf638909a5a5528ffe9cfa7adb55de46fd0c5622ea7f9c5cf40313"
+    },
+    {
+      "path": "test/helpers/fileSymlink.js",
+      "before": null,
+      "after": "8f13b2e3aa2b650eb12eafca5ee6230a6cac7fc9a47ce91ba38f06f278345d37"
     },
     {
       "path": "test/heroStrategies.test.js",
       "before": null,
-      "after": "53431cd65b6872e34212bc4aaaff500b3df5a9aa35dcc9e98a43a904f315384d"
+      "after": "9c2f7aa7ad5c4191830a1e05ed4697ad4c9cc05953579ef85e52158c03a61b26"
+    },
+    {
+      "path": "test/live-layer-display.test.js",
+      "before": null,
+      "after": "b6e0bd76e64de2b33df88f9926f92c518374d1f8627b320d77f839b514cdf6e4"
+    },
+    {
+      "path": "test/lobby-solo-unlimited.test.js",
+      "before": "0f9699a66afec4f75aa8401837209be91ad60143a8497879645a4a9fcb8373f0",
+      "after": "6ba023e0e29c51faa6c560738e90938afea14aa9302e42c1bc3015c031ab555e"
+    },
+    {
+      "path": "test/lobby-versions.test.js",
+      "before": "bd75ca1d52b1538945a9d17755ee53f7d0a4c898333ac16ec1f967c045b2c0b0",
+      "after": "9765a0fd750feec12a1815c8ce4f02eceb151393d19282ad6e5ff1bc971f625f"
+    },
+    {
+      "path": "test/match/combat-speed.test.js",
+      "before": null,
+      "after": "ed003e02d53a514b5aca5befda849cf1de7a984b72dfbf899bda1f163973b1c2"
+    },
+    {
+      "path": "test/match/feedback3-gift.test.js",
+      "before": "51b3eb65480d14b6b8304eaa3907ee59504980efb093ea0b1873f5259921005e",
+      "after": "db0359f6240bc50f2355960461f0b62d39bd4a13ef9cc527460900bc173b9069"
     },
     {
       "path": "test/match/fuzz.test.js",
-      "before": "40720a9547a8bfe87a575511571249249e84987261e691f564acfe02e42eb055",
-      "after": "6424eabafde04c55ac38a737dd67185e242fc044207c2536f041faa786f0c4f7"
+      "before": "27a3b22ab50901139b5e2a047fe136c718834c73a679a36b2baa7f061759bec9",
+      "after": "a1896ea3716ac767e0b54027a7cf5d43c97ae631acb48921480a2cb0f1059ab9"
+    },
+    {
+      "path": "test/match/growth-combat-metrics.test.js",
+      "before": null,
+      "after": "e35eac8a3fc3f3deaa0bf7244fdede5b7378e38ef42de7365276c669bc5c2dc0"
     },
     {
       "path": "test/match/harness.js",
-      "before": "dd8e067f661596bd284cae2470c218a9047392afe88cf8bb4d1ad597cc44bfdd",
-      "after": "a4814ee7daafd7ee5dffe1d23fb0e4d5353c16d9c14e92c44a46dd8130f5d646"
+      "before": "06802d4a2c39e24a41d24891cbe0c217d3587f7df639474f92d0d097094e8848",
+      "after": "ad34e9223efeb276f6480513697193bcd01d876749f9c97c0fb0708cee0b31fb"
+    },
+    {
+      "path": "test/match/merge.test.js",
+      "before": "c957a10ebdaa470487f6dead3673783773f4e709c38e487c24ed23d03d519387",
+      "after": "d084eccacd1a3f54261d368dd109febbcef3c379898728ed010f31d46bc148cc"
+    },
+    {
+      "path": "test/match/runner.test.js",
+      "before": "842cabf4c9ddfc5588ba8ac52c0aa53cb765d8da2bd57b40325897104738efb9",
+      "after": "cfb93104e213ea510e047e32f59cb3ad89500fd100f856a1e0e32ee2a1427a50"
+    },
+    {
+      "path": "test/match/shared-stock.test.js",
+      "before": "d4a3c33ecc1b8c52a1ba268da196912715d9072e0ec4597e70cf4f2bf9cbd105",
+      "after": "976122b08b102ef107107e83d02b017b680d7d1a07423c3f55d04c12a50b452d"
     },
     {
       "path": "test/match/spectator.test.js",
       "before": "5cda7961c99bf452012887f0177c2dd49fe11968cb4db76bbbb5b0f19a1c0b5b",
-      "after": "ace9133cab7109e8a8f1e72f7af509a75ef11424b4725eca27d6eb66ab91e222"
+      "after": "3e6b067241de976078775812b56a66d14a2b28135d649a5b758fd45542e761df"
+    },
+    {
+      "path": "test/match/unitStats.test.js",
+      "before": "c4ed8345e4f776f7df5a5f151b268467168fd017c9d06c9d135565a509ace378",
+      "after": "66ab8958d586afcd4afec7f66abb5907c77189dafeb6442d7f24594c130a2774"
     },
     {
       "path": "test/nguyen.test.js",
       "before": null,
-      "after": "497a4cf9d545c4358c62ecf304b01fc12dc11da475d96ab90990b247938013ad"
+      "after": "b4eb79a64cf5c4bf60dccd1602b9b62bcbf125e60e6de9fb0c60972ca76c6814"
+    },
+    {
+      "path": "test/package-llm-gate.test.js",
+      "before": "730ad922c381e3d8f8f44e6b9c988958b04a5ca0dc1e58f3516ef4a5f0ac9b28",
+      "after": "5a132f0837afb27e6ce8f51bbcc16ea94c95b0de53ccd3ebf35faf744877af9e"
+    },
+    {
+      "path": "test/plugins/forge-dynamic-operator.test.js",
+      "before": null,
+      "after": "66107632bf00d6150a63a523fef25171d691d20530289599c47f8818a25229fa"
+    },
+    {
+      "path": "test/plugins/forge-live-layers.test.js",
+      "before": null,
+      "after": "93f4a7709bb826f8ec50059e9c5e2694abfbee2d7a33d3333001e68bbf4c51c9"
+    },
+    {
+      "path": "test/plugins/forge-tavern-boundary.test.js",
+      "before": null,
+      "after": "d34e63c7686eb8251e855a41d9c24712b4d048a0c92cc4424f371ad6cfd6b584"
+    },
+    {
+      "path": "test/plugins/forge-tavern-fullmatch.test.js",
+      "before": null,
+      "after": "999328af3e2dcd0fda36a1e8ff49d0e09fe884fd239efee26d7ce5c8874484c7"
+    },
+    {
+      "path": "test/plugins/forge-tavern-host.test.js",
+      "before": null,
+      "after": "dfe51f8159b14c2f4d728ca9ab30a1c625e82db372292e3f12b43ab95ab69763"
+    },
+    {
+      "path": "test/plugins/forgeImport.test.js",
+      "before": "482972435fa8bd421703bd831172f422a74e887f406b49d39cf558180d779888",
+      "after": "7f3e5d02b819e577483277893d8804a8e6f3f83d6452361abb3f35bc78c87db7"
+    },
+    {
+      "path": "test/plugins/install.test.js",
+      "before": "88c434585ebc21e39e9401eff350c295e9bdb7e4d7789573189a2332e057942c",
+      "after": "9cf72291dce41e49e9d2af915fa2695bf90fbaf06883ea81041fc5066ef98448"
+    },
+    {
+      "path": "test/plugins/offers.test.js",
+      "before": "d39aa2eb2c4ecc3876061933edb385977d4aba48f475482bfbbd9caabf705c94",
+      "after": "4af59847f86ec6f665b9d877740b21213b1e38175cfde3802b9f9848432aefe8"
+    },
+    {
+      "path": "test/plugins/rules.test.js",
+      "before": "60d852e88298be90605867beeb288c5a8aff7aad501083dacccfeb369a7a56a5",
+      "after": "5da8403f426a97fb413cbc25c414bad566fcb9ae2cca715b3eebd19e9c111e21"
+    },
+    {
+      "path": "test/plugins/script-integration.test.js",
+      "before": "3bb58f37246a606c5dd77dc04d2946c79ac26e7899a19716659aa7570a0cf093",
+      "after": "ad7899946c8eb11dc4fdd062b8452abb66de845d31b547eaae285a56f12c477b"
+    },
+    {
+      "path": "test/plugins/surface.stable.json",
+      "before": "2a4786467ca04ca46edc1cebbf0c7ae6899f47e41da1a2b3356a532e54720250",
+      "after": "61eedae51dbf5a572fd31a2baaf82a5fdc2abe837aa6bfc94ef9cd4d0a467f80"
+    },
+    {
+      "path": "test/plugins/surface.test.js",
+      "before": "57c49c3484e38aafb280bf96b2df74aa5349b090ac8799c4039f1a0592b86859",
+      "after": "cc2ffaf6ac7539a6849838ffda700cf17eacd29cbb1880e6ce78ac7591a41b50"
+    },
+    {
+      "path": "test/plugins/tavern-host-compat.test.js",
+      "before": null,
+      "after": "a087badf3f1afaba766e239548e83d50016e3e64cd6d1126371809aec8c1e4cb"
+    },
+    {
+      "path": "test/render/assets.test.js",
+      "before": "4a385fb5d9766362b0d63c6404a596790196cf9fbf577b759ec26a923d81d83d",
+      "after": "abb75369a92daea6c203bcb12c32371f9dd2cf3d6b2b63097266c2415ad47272"
+    },
+    {
+      "path": "test/render/growth-bluepoison.browser.test.js",
+      "before": null,
+      "after": "596772ab16d70ef7e7f3c33a6942d9ace7569772ddf48d9164bc331615bda57d"
     },
     {
       "path": "test/render/spell-frame.test.js",
       "before": null,
-      "after": "8f7985033af29be37802da29f98b0e8b203cb702ec449600ae8cc8a577a34ba6"
+      "after": "ce85db52aa87a4d79351ca1fd32ed46dd521a9126c770b603d7481dc9b25473b"
+    },
+    {
+      "path": "test/render/unitview.test.js",
+      "before": "db9f5e2e06da5dc6bc2e48c35c6b9e747a985fdaa7150f4eed87079335e13353",
+      "after": "369356c92e68cddb64260aa67b919fc83f1fa43a92217f9ca0a06b14fd635d3c"
+    },
+    {
+      "path": "test/setup-game-dir.test.js",
+      "before": "f40e100fb4356894865cc2cac4db9357102ee377350f3796bc6556416b9fec8d",
+      "after": "d9dd1cd0f93bc6511e4ce43f44dd0fb9451f9031f2c8cd6adee6ce0d21f114c0"
+    },
+    {
+      "path": "test/setup-plugin-art.test.js",
+      "before": "77f165332ae6eb11917852fee8a1f86981ab9a329c811099c5bacabab92b3ffb",
+      "after": "6acd7b0de13f3334d0af9e2ca2f76bb7674dddcda44c8e5a356ddf44b5226187"
+    },
+    {
+      "path": "test/setup-plugin-fx.test.js",
+      "before": "ab34d84260e527d13194e596f27d02e75c3a4ced75ddf7a0b44bd3ded2b8f4db",
+      "after": "506972bce6c746dd22897f653b457e52a4f235b2e741e1088c0dbfdcc7cbc56f"
     },
     {
       "path": "test/spellCaster.test.js",
@@ -576,17 +1611,27 @@
     {
       "path": "test/spellCatalog.test.js",
       "before": null,
-      "after": "05df45d554a205eed051a9e2f78020248d522b5135a458b79b6517340b19a28f"
+      "after": "f08801c981f114d119806ec4191429c0d246d2432f0a84268a732aabcb86c312"
+    },
+    {
+      "path": "test/spellGeneratedStock.test.js",
+      "before": null,
+      "after": "2b5a0f4ebc75e94548689ca7fdced9465c3c1e1455d0fc2927e21183e891a366"
     },
     {
       "path": "test/spellIdentity.test.js",
       "before": null,
-      "after": "cfaa6196408653215896c1d515bf14e68aa32bf0ee23aa138468cba28638ddb5"
+      "after": "7d2cdccbf5b90db25a7e9e51c1e611aff65ad8bbf84a2e95bebe2990f8c12015"
+    },
+    {
+      "path": "test/spellMilestones.test.js",
+      "before": null,
+      "after": "836c40c671485caf854c04354b73b049eb5d4e862a82b2359e5d3386a4f119a0"
     },
     {
       "path": "test/spellRevision.test.js",
       "before": null,
-      "after": "8cbd6ea37111b720a1d5923e91aaadcb06969ca216dbc7b56c5733b19c827a5d"
+      "after": "bef6af75f3d30dbe39ae40dc9cfd3e17dfcbbed4ceb45a4b3160547adc8bdd53"
     },
     {
       "path": "test/spellShop.test.js",
@@ -596,17 +1641,127 @@
     {
       "path": "test/spellWhiteAttack.test.js",
       "before": null,
-      "after": "2fe2c3d1ea96d8a1962b51d3aed8dc89bd25a2551c2c7e2ffdd9954051ebeb49"
+      "after": "1a0510b098dabf43c6d69bffaef36880ea89e79e81c026043c62d02981f811ff"
+    },
+    {
+      "path": "test/studio/catalog.test.js",
+      "before": "0451c45b6337eeedceee4d07a21638079218b76095ba4e866e4e40af4d10a520",
+      "after": "e7919ab7fbb6a1cd99363d7d300d2621162d9ae8ff89f6f5c131cfb385e2c1d8"
+    },
+    {
+      "path": "test/studio/forge.test.js",
+      "before": "2bd22f6bf132bf262850f2444adbdacfa25871693ba1f392b19abd90d7097ce5",
+      "after": "f933180aa3f1780bce7899f6925d01a6e7db5454221ec2b91ef878fa8b43a7ea"
+    },
+    {
+      "path": "test/studio/gameplay.test.js",
+      "before": "242db3b919887327c40ba874707901231ec771faf8cd6f89606edeb033cff65a",
+      "after": "b53dc330b7582e5fd025d5ed188f41b5c7549f7df9058fd53972c46fe6f64aa3"
+    },
+    {
+      "path": "test/studio/hotreload.test.js",
+      "before": "d3892e79517de8004a964e8e125d63a66f71a4f688b912f5039c9b48f3b224de",
+      "after": "c354fc820979a464faf6b824c451201eabc96d9ca34a8576fbd32420b7e88616"
+    },
+    {
+      "path": "test/studio/presentationRework.test.js",
+      "before": "ec86a11d5dbf61ac3f9e1df743a2b916de5a51cf3a85dbb17cd5bb75d0f918eb",
+      "after": "bd3d950dfc05409b9d9e30433602697d681d080ed2f0f7a23e2da94ee7b3324f"
+    },
+    {
+      "path": "test/studio/remove.test.js",
+      "before": "92ef5fc7d7ead67d77445cd5a7e18fdf350b397261bed26b9df85f8ac53b3c3c",
+      "after": "c5ce233b4295ea8fabf793a45b251e37228d96c6a3524f679f5348109b56b21a"
+    },
+    {
+      "path": "test/studio/studio.test.js",
+      "before": "116c5fd8f81992dc6518e4c38491b10e7c32fece144ed97e6c6c2bd12245f634",
+      "after": "da4ab40aba009a2dae267527ad81ba74fcfec0510a71a1b023567636580dd7df"
     },
     {
       "path": "test/tavernBundle.test.js",
       "before": null,
-      "after": "71a28cae335f5f11269fd3c479ebbc4ae18afe480de8e2af02a96b1363d41f7b"
+      "after": "3ea85e988fdecf7ee8ca21bd86fa9b6f8a817464c0f17e28b8906455457f9609"
+    },
+    {
+      "path": "test/test-mode.test.js",
+      "before": "24debcadf482b2de6cec7c28d4ee336da6620b29da3eda4b2b62f5a32de1fc19",
+      "after": "faffa325537351b6fb06d3a3827f47c1ad5181ff0cb0c03f32f250be5e8fc65e"
+    },
+    {
+      "path": "test/ui/all-bond-layers.e2e.test.js",
+      "before": null,
+      "after": "9faf75db216815fba4fd9cfc628f793411e4e469634858feb36e659db8660500"
+    },
+    {
+      "path": "test/ui/bench-overflow.e2e.test.js",
+      "before": "e9145d78bc10245c2815a0f755417a687c399e639c55db7de13fe850c1926617",
+      "after": "7e4041565c97f1e6b07071da1b82e5e26ce7a0c545eeb6de370f2b263330d640"
     },
     {
       "path": "test/ui/bob-voice.e2e.test.js",
       "before": null,
       "after": "542b4f0f579531bada1ea57c180255ca0864ff44336678e584d19e4b786a7adc"
+    },
+    {
+      "path": "test/ui/combat-speed.e2e.test.js",
+      "before": null,
+      "after": "37f02a09f0e559116bae85d0fd209477fc3eee1b383bc9d9455795f5ee9ebfc8"
+    },
+    {
+      "path": "test/ui/combat-unit-stats.e2e.test.js",
+      "before": null,
+      "after": "eb66add351e34780e1196e8c26b12c88c8604edecac963e9acbc4889b2905915"
+    },
+    {
+      "path": "test/ui/deploy-replay.test.js",
+      "before": "0c1e302be41a55990aaec3109e1d8594a89125ece16554d9b994d6bd79e4e1e4",
+      "after": "97d8c0edaf7aa31c4c23a93672ca21127463c7ea676cf1eb920100cd18487e8e"
+    },
+    {
+      "path": "test/ui/developer-mode.e2e.test.js",
+      "before": null,
+      "after": "8b140e4e4622ae28da37cfae2db51165eb631cb0ac0fb7d54dd12816eecce5b3"
+    },
+    {
+      "path": "test/ui/feedback1-offers.test.js",
+      "before": "0d3f5041e4ec5e1c60733087f54a38c5075e9ca2b03e3273fc5db8d4e15277ca",
+      "after": "781fa661ef1017c52a58d8710f1379c4a73ca2d7f5b0a97e5a282d1a26b58a5c"
+    },
+    {
+      "path": "test/ui/forge-tavern.e2e.test.js",
+      "before": null,
+      "after": "46b0370237a2d6b384005fde1ef505b64dc2e4350d654b9602acb696dde741bb"
+    },
+    {
+      "path": "test/ui/growth-bluepoison-voice.e2e.test.js",
+      "before": null,
+      "after": "e6211e59cb7fe8e9c2c2f4d4ae77a46a0c9b04cf8e200c17c61faab15ebccb11"
+    },
+    {
+      "path": "test/ui/growth-catalog.e2e.test.js",
+      "before": null,
+      "after": "40f88df07197526c8bd76dc1d28a793eabc46b12cd2071d1df4553d22ecbd40d"
+    },
+    {
+      "path": "test/ui/growth-catalog.test.js",
+      "before": null,
+      "after": "12404f73cfd9b6f641d3c3909022ede48572434d7db7277c446f4b0861e548f8"
+    },
+    {
+      "path": "test/ui/growth-combat-metrics.e2e.test.js",
+      "before": null,
+      "after": "1ae4add70cf221bc9ae0a484fc6a9a55653205fabade5d547de9b3e9214f0ea4"
+    },
+    {
+      "path": "test/ui/growth-mode.e2e.test.js",
+      "before": null,
+      "after": "53ac25fafa57b7a3e74a9d9c33dddadc2e84862c23aaf353c3860c6ba1354f53"
+    },
+    {
+      "path": "test/ui/growth-operations.e2e.test.js",
+      "before": null,
+      "after": "b2b40e1d36c85ba132999f0f81f2e62e2727520220a023d70948f44f9c46b4f0"
     },
     {
       "path": "test/ui/hero-panel-layout.e2e.test.js",
@@ -619,6 +1774,26 @@
       "after": "fbc00e9df954f45798611cb7f01666ea33e91837cd246614b859b88c15aea048"
     },
     {
+      "path": "test/ui/hotkeys.e2e.test.js",
+      "before": "23ae1a67beacf24ebd828022241ad2a1974ca158885924c45b212aa5b3e2b8cb",
+      "after": "2c8e35c104f4ca3ef6f93876ea245fe47ee9f4986c74d1fefd882801a13317ee"
+    },
+    {
+      "path": "test/ui/issue602-deploy-fold.test.js",
+      "before": "18a92331e80cf6c32f814a20ac3517db2133ec6aef830c59fd21a09d06ec2876",
+      "after": "f7c88dc7d0308d262f1196e71e873489e8197c61a6d04f30c88d6d5a7033575d"
+    },
+    {
+      "path": "test/ui/leftovers.test.js",
+      "before": "78260678ac802a69c65849aa966810cc8f79877846f07a22b7ddc16723a69d93",
+      "after": "11da06d2c32e7bcf0bec006986d4e08e3d1151a88eea967e3ad7a5aee9535dc6"
+    },
+    {
+      "path": "test/ui/live-layer-display.e2e.test.js",
+      "before": null,
+      "after": "c094a591545d7a7b8740d06ca405496a60d8f64131d0c5b263071f13bf99935a"
+    },
+    {
       "path": "test/ui/mobile-viewport-basic.e2e.test.js",
       "before": null,
       "after": "2bafd31633067134966f30a3e00e1c7667f04d0095f8ec5ef75a9f458930b90e"
@@ -626,7 +1801,7 @@
     {
       "path": "test/ui/mobile-viewport.test.js",
       "before": null,
-      "after": "f17844098cf795cf00c9d4081c0ec6a602fa03be45673883124191b0a5b21faa"
+      "after": "9ffbc238f1b166a0f9d4e27f7e06b85de6e7ba78053fd3b77259346e9c8fdef8"
     },
     {
       "path": "test/ui/nguyen.e2e.test.js",
@@ -634,14 +1809,34 @@
       "after": "1759c408a91cc8cc9f60d7c41c6a2544ae5bc8af3ae50c7283aea0324f016e82"
     },
     {
+      "path": "test/ui/playtest6-elite.test.js",
+      "before": "4a2e5ea437bcf66d530e31792b204f44c0579d1b8c49bcaafe9dc00bd1bca484",
+      "after": "36878a75d487b0941a8ebae8e1a2bbe0c6b4d943af05e46e503eb82f4bff6e7b"
+    },
+    {
+      "path": "test/ui/plugins-client.test.js",
+      "before": "e551f5f9cc724cb9e733dae9d5cf5aac4ef6c3628ceec92d564dac66189ba2fe",
+      "after": "5b57a4cf2592a76c8bd8d910df29454dc4f96a7219010eec78f557dc3e3c46b5"
+    },
+    {
+      "path": "test/ui/quick-trade.e2e.test.js",
+      "before": null,
+      "after": "3c5f16519bf83e893bd8709d88d38267daeddc65027ef7ddae115d2966792ed1"
+    },
+    {
+      "path": "test/ui/quick-trade.test.js",
+      "before": null,
+      "after": "9c5c43e6b27b1d1730db735aa7aec1aae6776cf8da42d8ebf360c7e6c2d4e2d7"
+    },
+    {
       "path": "test/ui/shop-skill-layout.e2e.test.js",
       "before": null,
-      "after": "efc76f4e0e969c58683e0a361af28bb665a8d08027f071d172f75e07567dbce0"
+      "after": "76d09b98ab0bd5c4f7219ceb1970559c7c6b3280760d66402df7e9d3faca7b3d"
     },
     {
       "path": "test/ui/spell-art.e2e.test.js",
       "before": null,
-      "after": "4c3cbe8c553345c9990faa33120eba5fcf22aa23bb05ed3a1dabdb6af4c6bdbc"
+      "after": "1269f2baf5421c4466738a14f50ead322b936032bbf6579bb426d3138dadd1ce"
     },
     {
       "path": "test/ui/spell-caster.e2e.test.js",
@@ -651,7 +1846,7 @@
     {
       "path": "test/ui/spell-presentation.test.js",
       "before": null,
-      "after": "12b878c7645cb1341390a7535517cf05555cfa8d427aec1ae4f98603afcaffa5"
+      "after": "ff33c26f0d44cd34d3f2bc243b280ed1ecbcbf996199120ee526eadb3462da08"
     },
     {
       "path": "test/ui/spell-preview-model.test.js",
@@ -661,7 +1856,7 @@
     {
       "path": "test/ui/spell-preview.e2e.test.js",
       "before": null,
-      "after": "041af1928e0c0c1de0a5587e75af1f31f26a0ddbde2f21060016f8b185290e8a"
+      "after": "e06696fd265bb9a7d7f325673c90b43cdb4c02117d35e5f3c25527ae6aebeedd"
     },
     {
       "path": "test/ui/spell-shop.e2e.test.js",
@@ -669,14 +1864,69 @@
       "after": "3bdc9c33711aedaeecc8cf1f5831975836db89d57edd33937842f234aa278dbe"
     },
     {
+      "path": "test/ui/strategy-result-caps.e2e.test.js",
+      "before": null,
+      "after": "4849190caf38f25c3f1dd3d5548369f99337826b9039e74f9aee4dbb4a836694"
+    },
+    {
+      "path": "test/ui/tavern-031-preview.e2e.test.js",
+      "before": null,
+      "after": "216bc43764e109e234ca12026f931be8534eb4fe1225a96a3cc1443387f600a3"
+    },
+    {
       "path": "test/ui/tavern-bundle.e2e.test.js",
       "before": null,
-      "after": "85c2c1a20d0fca5d0e7f87d6e3b9a3b91d58d386f92170d07bffcf5df5ff0c57"
+      "after": "8e25df9e3bca76c5f362e0d4cce97e9ccac340a18b4f8350dd5d93ef5741fdb0"
     },
     {
       "path": "test/ui/tavern-data.test.js",
       "before": null,
       "after": "9ca6c6e1236c517252db9eaf367ed8663122a5f22c5667d88b69592507863e0d"
+    },
+    {
+      "path": "test/ui/tavern-native-031.e2e.test.js",
+      "before": null,
+      "after": "81fe2ea0bdde09090b19cdf23c7b28547ed8244694e638d59ccc8fb825c09e44"
+    },
+    {
+      "path": "test/ui/versions.test.js",
+      "before": "f061299415c87b14a14dc040b2d06499af87ee2c394a758108f1ee41849c4811",
+      "after": "35c48afd2539e35050f6a8d8a9c2d88a4c142458e4465bb80c2ab6df1d300ef9"
+    },
+    {
+      "path": "test/upstream-growth-media.test.js",
+      "before": null,
+      "after": "26578f263af2c7689eb8dd450c31a0fdce60c0ce3e2e3bbccd7c517c62fa9910"
+    },
+    {
+      "path": "test/upstream033-migration.test.js",
+      "before": null,
+      "after": "b23392b2f85a6bd57ff9884a085665eca2d0ad7bea85226b2bd8166d757fa986"
+    },
+    {
+      "path": "test/version-assets.test.js",
+      "before": "f0fa6cf75d832cb20b28aaee8507cded08fe85eba1ead196283643a1f8963d84",
+      "after": "020c73a393a0ce9d1059ac1c27db9cb9df85952f0d12c6e3950fb228842ef3fc"
+    },
+    {
+      "path": "test/windows-bundle.test.js",
+      "before": "ed703d8907b8875c0c41261e5fcb54b7314993e2fe8b0342f2700f1967d095a4",
+      "after": "a6e9731dae00cea6a82ae8b98f6d505a6c707b42282bcbda92c3459e394c0a23"
+    },
+    {
+      "path": "tools/assets/versions.mjs",
+      "before": "bd75d0348a9bff400eff2bcc86edffb4522124bee82751529d9b808d95ab3072",
+      "after": "95ffa3720d6ba94b40b7e3e7299c279ecb922d00d3caad4595b970bc21c9ffb7"
+    },
+    {
+      "path": "tools/build-growth-bluepoison.mjs",
+      "before": null,
+      "after": "fc0cb096038a18bb18cc04b9e546eea5d76868fbb2853eff111d7b9e8c3471d3"
+    },
+    {
+      "path": "tools/fetch-assets.mjs",
+      "before": "af7a5482d69b566c103d388d4ba23f3bf81e17498794fa0ef479915663cdced4",
+      "after": "06992996ef1e6b3c4e955f1d93efafb20bfdb733b4596d8cdb06c7f4226783e4"
     },
     {
       "path": "tools/fetch-spell-assets.mjs",

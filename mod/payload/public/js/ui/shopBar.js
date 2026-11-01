@@ -29,13 +29,14 @@
 
 import { useEffect, useState } from '../../vendor/hooks.module.js';
 import { html, Icon, HexBadge, TierChip, Tooltip, MicroLabel } from './components.js';
-import { Img, BondGlyph, CoinGlyph, GIcon, RichText, BandIcon } from './gameComponents.js';
+import { OperatorImage, Img, BondGlyph, CoinGlyph, GIcon, RichText, BandIcon } from './gameComponents.js';
 import { priceTone, mergeProgress, mergeTarget, shopBlockReason, chessLoadout, offerHeader, briefingBondTip, ownStandIn, standInLoadout, standInLabel, standInTip, standInForText, ownDiyRecord, diyGetter } from './gameLogic.js';
-import { chessPortraitUrl, itemIconUrl, profIconUrl, uiUrl, skillIconUrl, skillRecordIconUrl, moduleTypeIconUrl } from './assetUrls.js';
+import { itemIconUrl, profIconUrl, uiUrl, skillIconUrl, skillRecordIconUrl, moduleTypeIconUrl } from './assetUrls.js';
 import { data } from '../data.js';
 import { hotkeyLabelOf } from './settings.js';
 import { t } from '../../../shared/i18n.js';
 import { itemSpellTarget, itemEffectText } from './spells.js';
+import {growthTraitLines} from './growthTrait.js';
 
 const cx = (...p) => p.flat().filter(Boolean).join(' ');
 
@@ -101,12 +102,12 @@ export function ChessCard({ slot, idx, priv, frozen = false, reason = null, free
   const name = `${c?.name || t('干员')}${si ? t('（{note}）', { note: standInForText(c0.name) }) : ''}`;
   const card = html`<button type="button" class=${cx('scard', `scard--t${tier}`, targetable&&'is-hero-target', frozen && 'is-frozen', disabled && 'is-disabled', willMerge && 'is-merge', armed && 'is-armed', si && 'is-standin', c?.isGolden && 'is-elite', slot.purchaseBonus > 0 && 'has-growth')}
       data-shop-slot=${free ? undefined : idx} aria-keyshortcuts=${free ? undefined : hotkeyLabelOf('buy')}
-      title=${free || reason ? undefined : t('购买鼠标指向的商品 · {key}', { key: hotkeyLabelOf('buy') })}
+      title=${[free || reason ? null : t('购买鼠标指向的商品 · {key}', { key: hotkeyLabelOf('buy') }),...growthTraitLines(slot.growthTrait)].filter(Boolean).join('\n') || undefined}
       onClick=${tap} onContextMenu=${(e) => { e.preventDefault(); onDetail(slot.id, 'chess', hint); }}
       aria-label=${`${t('{name}，价格 {price}', { name, price: slot.price })}${armed ? (disabled ? t('，无法购买') : t('，再次点击确认')) : ''}`} aria-pressed=${onTap ? String(!!armed) : undefined}>
     <span class="scard__bg" aria-hidden="true"></span>
     <span class="scard__water" aria-hidden="true">${bonds[0] ? html`<${BondGlyph} bondId=${bonds[0]} />` : null}</span>
-    <${Img} src=${chessPortraitUrl(m, c)} class="scard__art" />
+    <${OperatorImage} m=${m} chess=${c} portrait ownerId=${priv?.playerId} class="scard__art" />
     <span class="scard__top">
       <${TierChip} tier=${tier} golden=${!!c?.isGolden} size="md" />
       <${PriceHex} slot=${slot} free=${free} poor=${reason === t('资金不足')} />
@@ -116,7 +117,6 @@ export function ChessCard({ slot, idx, priv, frozen = false, reason = null, free
     </span>
     ${si ? html`<span class="scard__standin" data-standin=${si.charId} data-for=${c0.chessId} title=${standInTip(si, c0.name)}>${standInLabel(si)}</span>` : null}
     ${dr ? html`<span class="scard__diy" data-diy=${dr.charId} title=${t('自选编队：{name}（只在你的商店出现）', { name: dr.name })}>${t('自选')}</span>` : null}
-    ${slot.purchaseBonus > 0 ? html`<span class="scard__growth" title=${t('购买奖励：所属盟约+{n}层', { n: slot.purchaseBonus })}>+${slot.purchaseBonus}</span>` : null}
     <span class="scard__body">
       ${c?.isGolden ? html`<span class="scard__elite">◆ ${t('精锐')}</span>` : null}
       ${slot.spellGoldenReward ? html`<span class="scard__goldreward">${t('购买获得晋升奖励')}</span>` : null}
@@ -139,7 +139,14 @@ export function ChessCard({ slot, idx, priv, frozen = false, reason = null, free
     ${frozen ? html`<span class="scard__ice" aria-hidden="true"><${Icon} name="snow" /></span>` : null}
     ${armed ? html`<${ArmedTag} reason=${reason} free=${free} />` : null}
   </button>`;
-  return reason && reason !== t('已售出') && !armed ? html`<${Tooltip} text=${reason} block=${true} class="scard-wrap">${card}<//>` : card;
+  const content = reason && reason !== t('已售出') && !armed ? html`<${Tooltip} text=${reason} block=${true} class="scard-wrap">${card}<//>` : card;
+  // Keep the purchase grant outside the clipped portrait, in the equipment/spell category header row.
+  return slot.purchaseBonus > 0 ? html`<div class="scard-entry">
+    <span class="scard__growth" title=${slot.growthPurchaseRewards
+      ? t('购买奖励：{rewards}',{rewards:slot.growthPurchaseRewards.map(x=>`${data.lookup('bonds',x.bondId)?.name || x.bondId} +${x.layers}`).join(' / ')})
+      : t('购买奖励：所属盟约+{n}层', { n: slot.purchaseBonus })}>+${slot.purchaseBonus}</span>
+    ${content}
+  </div>` : content;
 }
 
 /** The loadout's skill (icon; name + 已调配 in the tooltip) and an elite's module type, on an operator card. */
@@ -331,11 +338,15 @@ export function ShopBar({ priv, editable, collapsed, refreshBusy = false, onColl
   reward = null, rewardReminder = null, rewardBusy = false, onReward, onRewardLater, onArm = null, offBonds = null, heroTargeting = null }) {
   const shop = priv?.shop || {};
   const slots = Array.isArray(shop.slots) ? shop.slots : [];
+  // Empty slots have no kind. In 第一期 the first equipment slot opens empty at level 5; use the server's layout
+  // to keep it in the equipment column. [ASSUMED] Older saved frames / mocks infer kinds from their cards;
+  // their null slots carry no information from which to recover the old equipment position.
+  const layout = Number.isInteger(shop.layout?.chess) && Number.isInteger(shop.layout?.item) ? shop.layout : null;
+  const indexed = slots.map((s, i) => ({ s, i }));
+  const chessSlots = indexed.filter(({ s, i }) => layout ? i < layout.chess : !s || s.kind !== 'item');
+  const itemSlots = indexed.filter(({ s, i }) => layout ? i >= layout.chess && i < layout.chess + layout.item : s && s.kind === 'item');
   const spellShop = !!shop.spellShop;
-  const entries = slots.map((s, i) => ({ s, i }));
-  const chessSlots = entries.filter(({ s, i }) => spellShop ? i < shop.layout.chess : !s || s.kind !== 'item');
-  const itemSlots = entries.filter(({ s, i }) => spellShop ? i >= shop.layout.chess && i < shop.layout.chess + shop.layout.item : s && s.kind === 'item');
-  const spellSlots = spellShop ? entries.slice(shop.layout.chess + shop.layout.item) : [];
+  const spellSlots = spellShop && layout ? indexed.slice(layout.chess + layout.item) : [];
   const frozen = !!shop.frozen;
   const funds = Number(priv?.funds) || 0;
   const remaining = Math.max(0, (priv?.deployCap ?? 8) - (priv?.deployCount ?? 0));
@@ -344,6 +355,7 @@ export function ShopBar({ priv, editable, collapsed, refreshBusy = false, onColl
   const frzReason = editable ? null : shopBlockReason('freeze', { priv, editable });
   const free = Number(shop.freeRefreshes) || 0;
   const showReward = !!(reward && Array.isArray(reward.slots) && reward.slots.length);
+  const purchaseRewards = (showReward ? reward.slots : chessSlots.map(({s})=>s)).some(s=>!s?.sold && s?.purchaseBonus>0);
 
   // A completed upgrade changes the level, so its confirmation cannot carry into the next upgrade.
   const levelKey = `lv:${shop.level ?? 1}`;
@@ -367,7 +379,7 @@ export function ShopBar({ priv, editable, collapsed, refreshBusy = false, onColl
   const tapCard = (kind, idx, slot, detailKind, reason, buy) => {
     if(heroTargeting){const target=kind!=='r'&&heroTargetAt(idx);if(target)heroTargeting.onPick({...target});return;}
     const key = armKey(kind, idx, slot);
-    if (armed !== key) { setArmed(key); if (detailKind !== 'band'&&detailKind!=='heroRoute') onDetail(slot.id, detailKind, detailKind === 'chess' ? mergeHint(priv, slot.id) : null); else onDetailClose?.(); return; }
+    if (armed !== key) { setArmed(key); if (detailKind !== 'band'&&detailKind!=='heroRoute') onDetail(slot.id, detailKind, detailKind === 'chess' ? mergeHint(priv, slot.id) : null,{slot:idx,reward:kind==='r'}); else onDetailClose?.(); return; }
     if (reason) { onRefuse?.(reason); return; }
     setArmed(null);
     onDetailClose?.();
@@ -389,7 +401,7 @@ export function ShopBar({ priv, editable, collapsed, refreshBusy = false, onColl
   }
 
   const hk = { refresh: hotkeyLabelOf('refresh'), freeze: hotkeyLabelOf('freeze') }; // the player's keys (设置 → 快捷键)
-  return html`<section class=${cx('shopbar', frozen && 'is-frozen', spellShop && 'has-spells', spellShop && !chessSlots.length && !itemSlots.length && 'all-spells', !editable && 'is-locked', showReward && 'has-reward', armed && 'has-armed')} ref=${barRef} aria-label=${t('调度中心')}>
+  return html`<section class=${cx('shopbar', frozen && 'is-frozen', spellShop && 'has-spells', spellShop && !chessSlots.length && !itemSlots.length && 'all-spells', purchaseRewards && 'has-purchase-rewards', !editable && 'is-locked', showReward && 'has-reward', armed && 'has-armed')} ref=${barRef} aria-label=${t('调度中心')}>
     <div class=${cx("shopbar__tools", rewardReminder && "has-reminder")}>
       <span class="shopbar__remain">${t('剩余可放置角色：')}<b class=${cx('num', remaining === 0 && 't-orange')}>${remaining}</b></span>
       ${rewardReminder}
@@ -428,7 +440,7 @@ export function ShopBar({ priv, editable, collapsed, refreshBusy = false, onColl
             return html`<${ItemCard} key=${`i${i}:${s.id}`} slot=${s} idx=${i} frozen=${slotFrozen(s, frozen)} onBuy=${onBuy} onDetail=${onDetail} reason=${reason}
               targetable=${!!heroTargetAt(i)} armed=${armed === armKey('i', i, s)} onTap=${editable ? (idx) => tapCard('i', idx, s, 'item', reason, onBuy) : null} />`;
           })
-          : html`<${SoldCard} item=${true} />`}
+          : layout?.item === 0 ? null : html`<${EmptyCard} item=${true} />`}
       </div>` : null}
       ${!showReward && spellShop && spellSlots.length ? html`<div class="shopbar__item shopbar__spells" role="group" aria-label=${t('法术')}>
         <span class="shopbar__category">${t('法术')}</span>

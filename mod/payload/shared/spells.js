@@ -29,5 +29,18 @@ export function rewriteSpellText(rec, text, labels) {
   return out.replace(/^[\s，,、。.;；]*(?:并|且|and\s+)?\s*/u, '');
 }
 
+/** Live growth values only; update layer increments without altering costs, targets, repeat counts or assignments. */
+export function amplifiedSpellText(rec,text,bonus) {
+  if(!Number.isFinite(bonus) || !(bonus>0) || !spellTarget(rec) || typeof text!=='string')return text;
+  if(!rec.spellMod && !/^chess_item_1_04_e_[ab]$/.test(rec.id))return text;
+  const number=n=>`<@ba.vup>${Number(n)+bonus}</>`;
+  // Catalogue and Forge's Chinese native-item patches: only the number following a layer increment.
+  let out=text.replace(/((?:层数|層數)(?:额外|額外)?(?:<@[^>]+>)?[+＋])([0-9]+)(<\/>)?/g,
+    (_,prefix,n,close)=>close?`${prefix}${Number(n)+bonus}${close}`:`${prefix}${number(n)}`);
+  // Official translated layer coins retain their existing blue numeric markup.
+  if(!rec.spellMod && out===text)out=text.replace(/(<@ba\.vup>[+＋]?)([0-9]+)(<\/>)/g,(_,open,n,close)=>`${open}${Number(n)+bonus}${close}`);
+  return out;
+}
+
 /** Migrated and native Arts share a visible spell frame in an enabled match. */
 export const spellFrame = (rec, enabled) => enabled === true && (!!spellTarget(rec) || rec?.itemType === 'MAGIC');

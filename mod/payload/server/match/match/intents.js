@@ -38,19 +38,26 @@ export class MatchIntents {
       case 'g.equip': return ps.equip(msg.itemUid, msg.targetUid, msg.replaceUid ?? null);
       case 'g.art': return ps.useArt(msg.itemUid, msg.row, msg.col, msg.dir);
       case 'g.destroy': return ps.destroy(msg.uid);
+      case 'g.unequip': return ps.unequip(msg.itemUid);
       case 'g.reward': return ps.pickReward(msg.idx);
       case 'g.choice': return msg.choiceId !== undefined
         ? this.pickPersonalChoice(ps, msg.idx, msg.choiceId)
         : this.pickCard(ps, msg.idx);
+      // a plugin interaction window (PLUGIN API v2, docs/PLUGINS.md §10b): the window's own id, not a draft card —
+      // the host applies the declared primitive, a plugin never reaches the match state itself
+      case 'g.offer': return this.requestOffer(ps, msg.offerId, msg.idx, msg);
+      case 'g.offerRefresh': return this.requestOfferRefresh(ps, msg.offerId, msg.idx, msg);
       case 'g.ready': return ps.setReady(!!msg.ready);
       case 'g.emote': return this.emote(ps, msg.id);
       // playerId: the player tapped (a shared field names two) — the watch preference (item 56)
       case 'g.watch': return this.watch(ps, msg.fieldId, msg.playerId ?? null);
       case 'g.autoplay': return this.setAutoplay(ps, !!msg.on);
       case 'g.pause': return this.setPause(ps, !!msg.on);
+      case 'g.combatSpeed': return this.setCombatSpeed(ps, msg.speed);
       // the stats the board's units start their next battle with (the detail card in prep, user playtest #4 item 7)
-      case 'g.unitStats': return this.unitStats(ps, msg.seq ?? null);
+      case 'g.unitStats': return this.unitStats(ps, msg.seq ?? null, msg.unitId ?? null, msg.fieldId ?? null);
       case 'g.leave': this.onLeave(ps.playerId); return OK;
+      case 'g.test': return this.applyTestCommand(ps, msg);
       case 'b.progress': return this._onProgress(ps, msg);
       case 'b.result': return this._onResult(ps, msg);
       // the host's answer to a delegated bot layout rehearsal (DESIGN §14): a report, never an error — an unknown,
@@ -82,6 +89,7 @@ export class MatchIntents {
   /** Let the bot act for a (newly) bot-controlled seat in the current phase. */
   kickBot(ps) {
     if (!ps.botControlled || this.ended) return;
+    this.offersChanged();
     if (this.phase === PHASE.INFO_CHECK && !ps.infoReady) { ps.infoReady = true; this.markPublic(); this.maybeEndInfo(); }
     else if (this.phase === PHASE.BAND_DRAFT && this.draftTurn() === ps.playerId) this.scheduleBandBot();
     else if (this.phase === PHASE.SP_DRAFT && this.spTurn() === ps.playerId) this.scheduleSpBot();
@@ -97,10 +105,26 @@ export class MatchIntents {
    * stepped: deployment skills contribute their initial stats but their timers do not advance. No SP / skill timer is
    * sent, and the real battle gets fresh units. Pushed to the player as `m.unitStats { seq, round, units }`
    * (units: shared/protocol.js unitStatsEntry, board operators and summons by uid); cached per input (a build costs
-   * ≈ 0.3–0.7 ms). Prep phases only (ROUND_START, 机变, PREP); a battle's live stats come from the browser's own sim.
+   * ≈ 0.3–0.7 ms). Without a target: prep phases only (ROUND_START, 机变, PREP).
+   * With unitId + fieldId: server combat only, one visible unit of the requester's currently watched field,
+   * read from the running battle's cached stats without sim stepping or preview/economy hooks. Spectators and
+   * eliminated viewers can inspect the same visible field. Client combat keeps reading its local sim.
    * @param {PlayerState} ps @param {number|null} seq echoed (the client keeps the newest answer)
    */
-  unitStats(ps, seq = null) {
+  unitStats(ps, seq = null, unitId = null, fieldId = null) {
+    if (unitId != null || fieldId != null) {
+      if (!Number.isInteger(unitId) || typeof fieldId !== 'string') return fail(ERR.BAD_TARGET);
+      if (this.clientCombat || ![PHASE.COMBAT, PHASE.UNITE, PHASE.FINAL_ASSAULT, PHASE.HIDDEN_CORE].includes(this.phase)) return fail(ERR.WRONG_PHASE);
+      if (this.watchers.get(ps.playerId) !== fieldId) return fail(ERR.BAD_TARGET);
+      const battle = this.fields.find(f => f.fieldId === fieldId)?.battle;
+      if (!battle) return fail(ERR.BAD_TARGET);
+      const u = battle.unitById(unitId);
+      const visible = u && !u.hidden && ((u.alive && u.deployed) || battle.isDown(u));
+      // Read the running battle only: no preview, step, reward dispatch or recompute of match state.
+      const units = visible ? [unitStatsEntry(u, u._s || null)] : [];
+      this.sendTo(ps.playerId, {t:'m.unitStats', seq:Number.isInteger(seq) ? seq : null, round:this.round, fieldId, units});
+      return OK;
+    }
     if (!ps.alive) return fail(ERR.ELIMINATED);
     if (this.phase !== PHASE.ROUND_START && this.phase !== PHASE.SP_DRAFT && this.phase !== PHASE.PREP) return fail(ERR.WRONG_PHASE);
     const units = this._unitStatsOf(ps);
@@ -126,12 +150,18 @@ export class MatchIntents {
     const b = this.newBattle({
       seed: deriveSeed(this.seed, `preview:${this.round}:${ps.seat}`), kind: 'normal', modeId: this.modeId, round: this.round,
       stageId: this.stageId, rect: { ...GEO.NORMAL_RECT }, timeLimit: 60, players, spawns: [], routes: this.wave ? this.wave.routes : [],
-      sharedBoss: null, flags: { layerGainsEnabled: !bossRound, ...this.gd.dp }, fieldId: `n:${ps.playerId}`, recordEvents: false,
-    });
+      sharedBoss: null, flags: { layerGainsEnabled: !bossRound || this.growthMode, ...this.gd.dp }, fieldId: `n:${ps.playerId}`, recordEvents: false,
+    }, { preview: true });
     try {
       if (typeof b.start === 'function') b.start();
       for (const u of Array.isArray(b.allyUnits) ? b.allyUnits : []) {
-        if (u && Number.isInteger(u.uid) && (u.kind === 'op' || u.kind === 'token')) units.push(unitStatsEntry(u, u.s));
+        if (u && Number.isInteger(u.uid) && (u.kind === 'op' || u.kind === 'token')) {
+          const entry=unitStatsEntry(u,u.s);
+          // Starting the numerical preview can replay Blue Poison through Skadi alter. Those temporary grants are
+          // predictions in a disposable battle, not traits owned during prep (nor permanent piece metadata).
+          delete entry.growthDeathCopies;
+          units.push(entry);
+        }
       }
     } catch (e) { this.reportError('unitStats', e); }
     this._unitStatsCache.set(ps, { key, units });

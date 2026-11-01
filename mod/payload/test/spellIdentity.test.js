@@ -27,6 +27,23 @@ function offer(ps, id) {
 }
 function items(ps, id) { return [...ps.hand, ...ps.temp].filter(p => p?.kind === 'item' && p.id === id); }
 
+test('strategy spells change live effects but results and reconnect retain the opening draft choice',t=>{
+  const h=makeMatch({mode:'solo',fake:true,spellShop:true,seed:31}).start();t.after(()=>h.m.dispose());
+  h.toPrep(1,{band:'band_bldsk'});const ps=h.ps('p_0');
+  assert.equal(ps.initialBandId,'band_bldsk');
+  for(const band of ['band_amiya','band_kirara']) {
+    ps.shop.level=5;ps.funds=100;cast(ps,'身份揭晓');
+    assert.ok(ps.offers[0].spellStrategy);ps.offers[0].slots=[{kind:'band',id:band,price:0}];
+    ps.ready=true;assert.ok(ps.pickReward(0).error);assert.equal(ps.initialBandId,'band_bldsk');ps.ready=false;
+    assert.equal(ps.pickReward(0).ok,true);assert.equal(ps.bandId,band);
+    assert.equal(ps.battleInput().bandId,band);assert.equal(ps.initialBandId,'band_bldsk');
+  }
+  h.m.finish({victory:false,reason:'abandoned'});
+  assert.equal(h.m.lastResultMsg.players[0].bandId,'band_bldsk');
+  h.m._resync(ps);assert.equal(h.lastTo('p_0','m.result').players[0].bandId,'band_bldsk');
+  assert.deepEqual(h.logs.error,[]);
+});
+
 test('native strategy discovery follows all 40 maintainer spreadsheet decisions and discovers three valid choices', () => {
   const { h, ps } = setup();
   const excluded = ['歌利亚', '老鲤', '潘格尼尼', '昆图斯', '余', 'Pith', 'Touch'];

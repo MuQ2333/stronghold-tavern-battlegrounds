@@ -1256,10 +1256,10 @@ export function shadowTexture() {
   return _shadow;
 }
 
-/** Item pedestal composite (icon in a rounded frame coloured by tier). */
+/** Item pedestal composite (icon in a rounded frame coloured by tier), keyed by resolved icon URL, never item id. */
 const _items = new Map();
-export function itemTexture(key, img, color, spell = false) {
-  const k = `${key}|${img ? 1 : 0}|${color}${spell ? '|spell' : ''}`;
+export function itemTexture(url, img, color, spell = false) {
+  const k = `${url}|${img ? 1 : 0}|${color}${spell ? '|spell' : ''}`;
   let tex = _items.get(k);
   if (tex) return tex;
   const P = PIXI();

@@ -2,7 +2,7 @@
 // coins.
 // Installed on Battle.prototype by server/sim/Battle.js (a method container: never instantiated; `this` is the battle).
 
-import { layerGainRoom } from '../../../shared/constants.js';
+import { BOND_LAYER_CAP, layerGainRoom } from '../../../shared/constants.js';
 
 export class BattleEconomy {
   addDp(playerId, n) {
@@ -14,25 +14,34 @@ export class BattleEconomy {
 
   /**
    * Record an IN_BATTLE layer gain (no-op when gains are disabled). Returns the layers added: at most the room left
-   * under BOND_LAYER_CAP (999, shared/constants.js) on the live copy — the client's AddBondCount `min(L + n, 999)`; the
+   * under the mode cap on the live copy (native 999, growth uncapped); the
    * `layerGain` hook (魔王's +1 …) runs first, then the clamp; a bond already at the cap gains 0 (no hook, no event).
    * Without a live copy of the bond (a partial PlayerBattleInput) the battle's own gains count; the match's settle
    * clamps the persistent count the same way.
    */
   addLayers(playerId, bondId, n, reason = '', opts = {}) {
-    if (!this.flags.layerGainsEnabled || !(n > 0) || !Number.isFinite(n) || playerId == null) return 0;
+    const temporary=opts.temporary===true;
+    if ((!this.flags.layerGainsEnabled && !temporary) || !(n > 0) || !Number.isFinite(n) || playerId == null) return 0;
     const pp = this._pp(playerId);
     if (!pp) return 0;
     const ps = this.getPlayer(playerId);
     const effective = ps && ps.bonds[bondId] ? (ps.bonds[bondId].layers ?? 0) : (pp.layerGains[bondId] ?? 0);
     const live = effective - (ps?.input?.spellTemporaryLayers?.[bondId] || 0);
-    if (!(layerGainRoom(live, Infinity) > 0)) return 0;
+    if (!(layerGainRoom(live, Infinity, this.flags.growthMode) > 0)) return 0;
     const source = opts.source ?? null;
-    const ctx = { playerId, bondId, n, reason, source, tile: Array.isArray(opts.tile) ? opts.tile : this._sourceTile(source) };
+    const ctx = { playerId, bondId, n, reason, source, tile: Array.isArray(opts.tile) ? opts.tile : this._sourceTile(source), ...(temporary?{temporary:true}:{}) };
     if (this._hooks.layerGain) { this.emit('layerGain', ctx); if (!(ctx.n > 0) || !Number.isFinite(ctx.n)) return 0; }
-    const add = layerGainRoom(live, ctx.n);
+    const add = layerGainRoom(live, ctx.n, this.flags.growthMode);
+    // Temporary automatic spells must not move the permanent threshold for later real gains.
+    const permanent=live-(ps?.growthUnretainedLayers?.[bondId] || 0);
+    const overflow=Math.max(0,permanent+add-BOND_LAYER_CAP)-Math.max(0,permanent-BOND_LAYER_CAP);
+    if(this.flags.growthMode && bondId==='skillfulShip' && overflow>0)this.emit('growthLayerOverflow',{playerId,bondId,n:overflow,temporary,growthPermanent:opts.growthPermanent===true});
     if (!(add > 0)) return 0;
-    pp.layerGains[bondId] = (pp.layerGains[bondId] ?? 0) + add;
+    if (this.flags.growthMode && ps && temporary && !opts.growthPermanent) {
+      ps.growthUnretainedLayers ||= {};
+      ps.growthUnretainedLayers[bondId]=(ps.growthUnretainedLayers[bondId] || 0)+add;
+    }
+    if (!temporary) pp.layerGains[bondId] = (pp.layerGains[bondId] ?? 0) + add;
     if (ps && ps.bonds[bondId]) ps.bonds[bondId].layers = (ps.bonds[bondId].layers ?? 0) + add;
     this._ev(['layer', playerId, bondId, add]);
     return add;

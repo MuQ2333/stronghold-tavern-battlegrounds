@@ -1,4 +1,5 @@
-import { SPELL_CATALOG } from '../../shared/spellCatalog.js';
+import {growthBossHp} from '../../shared/growthEnemyCurve.js';
+import { SPELL_CATALOG, customSpell } from '../../shared/spellCatalog.js';
 // server/match/gamedata.js — typed, defaulted view of data/*.json for the match engine.
 //
 // Every lookup is an own-property lookup (ids come from client intents) that never throws and returns null for
@@ -109,7 +110,7 @@ export class GameData {
     const chess = this.raw.chess && typeof this.raw.chess === 'object' ? this.raw.chess : {};
     this._chess = chess;
     this._items = this.raw.items && typeof this.raw.items === 'object' ? this.raw.items : {};
-    if (spellShop) this._items = { ...this._items, ...SPELL_CATALOG };
+    if (spellShop) this._items = { ...this._items, ...SPELL_CATALOG, mod_sharing_care: customSpell('mod_sharing_care',!!this.raw.growthPreview) };
     // Fixed operator gifts are unlimited outputs, but every produced normal/advanced item still occupies 1/2 copies
     // (card-pool experiment BV1eLXXBqEgF, maintainer-confirmed 2026-10-11). Random subset gifts are not exempt.
     this._fixedGiftItems = new Set(Object.values(this.raw.garrisons || {})
@@ -169,7 +170,10 @@ export class GameData {
     let base = boss && boss.bloodPoint && Number.isFinite(boss.bloodPoint[diff]) ? boss.bloodPoint[diff] : null;
     if (base == null && boss && boss.bloodPoint) base = Object.values(boss.bloodPoint).find((v) => Number.isFinite(v)) ?? null;
     if (base == null) base = 500000;
-    return Math.max(1, Math.round(base * this.bossPoolShare(aliveCount)));
+    const original=Math.max(1, Math.round(base * this.bossPoolShare(aliveCount)));
+    return this.raw.growthPreview===1 && boss
+      ? growthBossHp(this.modeId,original)
+      : original;
   }
 
   /**

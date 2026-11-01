@@ -1,3 +1,5 @@
+import {copyGrowthTraitDescription} from '../../../shared/growthTraitDescriptions.js';
+import {growthRichText} from '../../../shared/growthRichText.js';
 import {HandLockHint} from './lockedCards.js';
 import { itemSpellTarget, itemEffectText, spellRoundBlocked } from './spells.js';
 // Detail panel (click / right-click a piece, shop card, bond member, battle unit or previewed enemy):
@@ -36,17 +38,20 @@ import { itemSpellTarget, itemEffectText, spellRoundBlocked } from './spells.js'
 // The stats block (chessStatsBlock), the 特性 text (traitText) and the talent list (chessTalents) are exported: the 干员调配
 // screen's 局内数值 section draws the same ones for the chosen skill / module, without a live entry (GitHub issue #64).
 
+import { BondTimers } from './bondTimers.js';
 import { useEffect } from '../../vendor/hooks.module.js';
 import { html, Icon, TierChip, MicroLabel, Button, confirmDialog, useTicker } from './components.js';
-import { Img, RichText, UnitThumb, BondGlyph, GIcon, diyToken } from './gameComponents.js';
+import { OperatorImage, Img, RichText, UnitThumb, BondGlyph, GIcon, diyToken } from './gameComponents.js';
 import { attackInterval, rangeGridBox, fmtNum, tileKey, chessLoadout, nextThreshold, bondTier, briefingBondTip, pieceBondIds, grantedBonds, morphPairings, ownStandIn, standInOf, standInLoadout, standInLabel, standInTip, standInForText, ownDiyRecord, ownDiyPick, diyRecordFor, pickGetter, unitPick, unitCultivation } from './gameLogic.js';
-import { chessPortraitUrl, skillIconUrl, skillRecordIconUrl, profIconUrl, subProfIconUrl, itemIconUrl, enemyIconUrl, tokenAvatarUrl, factionIconUrl, uiUrl, moduleTypeIconUrl } from './assetUrls.js';
+import { skillIconUrl, skillRecordIconUrl, profIconUrl, subProfIconUrl, itemIconUrl, enemyIconUrl, tokenAvatarUrl, factionIconUrl, uiUrl, moduleTypeIconUrl } from './assetUrls.js';
 import { abilityRows } from './abilityLines.js';
 import { data } from '../data.js';
 import { attackRangeGrid } from '../../../shared/loadoutRecord.js';
 import { SKILL_SUMMON_START_DEPLOY } from '../../../shared/constants.js';
 import { moduleBadge, fullTraitText } from './loadoutModel.js';
 import { t, tc, N_ } from '../../../shared/i18n.js';
+import {growthTraitLines} from './growthTrait.js';
+import { morphSlotPolicy } from '../../../shared/plugins/rules.js';
 import { audio } from '../audio.js';
 import { tokenVariantFor } from './gameLogic/loadout.js';
 
@@ -187,10 +192,10 @@ const isOffIn = (off, bondId) => !!(off && typeof off.has === 'function' && off.
  * and the items that pair with it; a bond the mode never activates (`off`, gameLogic modeOffBonds) struck through with
  * 本局禁用. `carried` (the wearer's items — the card shows the item on an operator): the pairing it wears is highlighted
  * (生效中; 已搭配 when that bond is off), and a wearer without one reads 暂未生效.
- * @param {{ off?: Set<string>|null, carried?: Array<string|{id:string}>|null }} props
+ * @param {{ off?: Set<string>|null, carried?: Array<string|{id:string}>|null, mode?: 'official'|'plus' }} props
  */
-export function MorphPairings({ off = null, carried = null }) {
-  const rows = morphPairings(data.list('items'), data.list('bonds'), { off, carried });
+export function MorphPairings({ off = null, carried = null, mode = 'official' }) {
+  const rows = morphPairings(data.list('items'), data.list('bonds'), { off, carried, mode });
   if (!rows.length) return null;
   const wearer = Array.isArray(carried);
   return html`<div class=${cx('dmorph', wearer && 'is-wearer')}>
@@ -210,15 +215,15 @@ export function MorphPairings({ off = null, carried = null }) {
 /**
  * A bond item's own line (items.json `giveBondId`): "与变形同构体一同装备时，携带者视为【X】成员" — 本局禁用 when the mode never
  * activates X; on a wearer that also carries a 变形同构体 (`carried`) it is in effect (生效中).
- * @param {{ item: any, off?: Set<string>|null, carried?: Array<string|{id:string}>|null }} props
+ * @param {{ item: any, off?: Set<string>|null, carried?: Array<string|{id:string}>|null, mode?: 'official'|'plus' }} props
  */
-export function MorphGrantLine({ item, off = null, carried = null }) {
+export function MorphGrantLine({ item, off = null, carried = null, mode = 'official' }) {
   const bond = item && !item.canGiveBond && typeof item.giveBondId === 'string' ? data.lookup('bonds', item.giveBondId) : null;
   if (!bond) return null;
   const morph = data.list('items').find((r) => r && r.canGiveBond);
   if (!morph) return null;
   const isOff = isOffIn(off, item.giveBondId);
-  const worn = grantedBonds(carried, (id) => data.lookup('items', id)).includes(item.giveBondId);
+  const worn = grantedBonds(carried, (id) => data.lookup('items', id), mode).includes(item.giveBondId);
   return html`<p class=${cx('dhint', 'dhint--morph', worn && 'is-worn', isOff && 'is-off')} data-bond=${item.giveBondId}>
     <${Icon} name="info" /><span>${t('与{morph}一同装备时，携带者视为【{bond}】成员', { morph: morph.name, bond: bond.name })}${isOff ? html`<span class="dmorph__tag is-off">${t('本局禁用')}</span>` : null}${worn
       ? html`<span class="dmorph__tag is-on">${isOff ? t('已搭配') : t('生效中')}</span>` : null}</span>
@@ -226,12 +231,14 @@ export function MorphGrantLine({ item, off = null, carried = null }) {
 }
 
 /** An equipped item of the card: icon, name, effect — and for 变形同构体 / a bond item its pairing (`carried`: the wearer's items). */
-function ItemRow({ itemId, carried = null, off = null }) {
+function ItemRow({ itemId, carried = null, off = null, mode = 'official', onUnequip = null, uid = null }) {
   const it = data.lookup('items', itemId);
+  const free = mode === 'plus' && !!it?.canGiveBond;
   return html`<div class="ditem">
     <${UnitThumb} kind="item" id=${itemId} size="sm" />
-    <div class="ditem__text"><b>${it?.name || itemId}</b><${RichText} text=${it?.descRaw || it?.desc || ''} class="ditem__desc" />
-      ${it?.canGiveBond ? html`<${MorphPairings} off=${off} carried=${carried || []} />` : it?.giveBondId ? html`<${MorphGrantLine} item=${it} off=${off} carried=${carried} />` : null}</div>
+    <div class="ditem__text"><b>${it?.name || itemId}</b>${free ? html`<span class="dtag" data-testid="morph-free">${t('不占装备格')}</span>` : null}<${RichText} text=${it?.descRaw || it?.desc || ''} class="ditem__desc" />
+      ${it?.canGiveBond ? html`<${MorphPairings} off=${off} carried=${carried || []} mode=${mode} />` : it?.giveBondId ? html`<${MorphGrantLine} item=${it} off=${off} carried=${carried} mode=${mode} />` : null}
+      ${onUnequip && Number.isInteger(uid) ? html`<${Button} variant="secondary" size="sm" data-testid="unequip" onClick=${() => onUnequip(uid)}>${t('卸下')}<//>` : null}</div>
   </div>`;
 }
 
@@ -318,16 +325,20 @@ export function garrisonTypeIconKey(garrison) {
 }
 
 /** The operator's own effect (特质, garrisons.json): trigger chip + description, compact. */
-export function GarrisonBlock({ garrison, m }) {
-  return html`<section class="dgarrison" aria-label=${t('特质')} data-garrison=${garrison.garrisonId || ''}>
+export function GarrisonBlock({ garrison, m, growth = null, label = t('特质') }) {
+  return html`<section class="dgarrison" aria-label=${label} data-garrison=${garrison.garrisonId || ''}>
     <div class="dgarrison__head">
-      <span class="dgarrison__k">${t('特质')}</span>
+      <span class="dgarrison__k">${label}</span>
       <span class="dgarrison__type">
         <${Img} src=${uiUrl(m, `garrisonTypeIcon/${garrisonTypeIconKey(garrison)}`)} class="dgarrison__icon" />
         ${garrison.eventTypeDesc || ''}
       </span>
     </div>
     <${RichText} as="p" text=${garrison.descRaw || garrison.desc} class="dgarrison__text" />
+    ${garrison.growthNotes ? html`<details class="dgarrison__notes"><summary>${t('补充说明')}</summary>
+      <${RichText} as="p" text=${garrison.growthNotes} class="dgarrison__text" />
+    </details>` : null}
+    ${growthTraitLines(growth).map((text,i)=>html`<p key=${i} class="dgarrison__text" data-growth-current><${RichText} text=${growthRichText(text)} /></p>`)}
   </section>`;
 }
 
@@ -386,7 +397,7 @@ function skillTextNote(sk) {
   return note ? html`<p class="dhint dhint--rule" data-skill-note=${sk.skillId}><${Icon} name="info" />${t(note)}</p>` : null;
 }
 
-export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bonds, offBonds = null, loadout, onBond, live = null, hint = null, unitItems = null, standIn = null, diy = null, cultOpts = null }) {
+export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bonds, offBonds = null, loadout, onBond, live = null, hint = null, unitItems = null, standIn = null, diy = null, cultOpts = null, morphMode = 'official', onUnequip = null, growthInfo = null, ownerId, skin = null }) {
   const m = data.get('assets');
   const hp = hpOf(live, snapHp);
   // 0.2.0 自选编队: `chess` is then the composed 自选 record (the operator, the slot's tier / price); its skill and module are
@@ -409,20 +420,23 @@ export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bond
   // a chosen skill the manifest has no icon for (only the default skills' icons are fetched): its slot letter
   const skIcon = sk && lo && !lo.defaultSkill ? skillRecordIconUrl(m, sk, { empty: false }) : skillIconUrl(m, body);
   const skSlot = sk && Number.isInteger(sk.index) ? `S${sk.index + 1}` : null;
-  const garrison = Array.isArray(c.garrisonIds) && c.garrisonIds[0] ? data.lookup('garrisons', c.garrisonIds[0]) : null;
+  const nativeTrait = (c.garrisonIds ?? []).map(id => data.lookup('garrisons', id)).find(g => g && !g.operatorTrait);
+  const customTraits = Object.values(data.get('garrisons') ?? {}).filter(g => g.operatorTrait?.charId === body.charId && g.operatorTrait.elite === golden);
+  const garrisons = [...(nativeTrait ? [nativeTrait] : []), ...customTraits];
   const items = Array.isArray(piece?.items) ? piece.items : [];
   // the bonds the unit counts for: its own + a 变形同构体 pairing's (its piece's items; without one: `unitItems` — a
   // teammate's unit's UnitInfo items, a bond popup 同构 row's wearer's)
   const carried = piece ? items : (Array.isArray(unitItems) ? unitItems : []);
   const getItem = (id) => data.lookup('items', id);
-  const bondIds = pieceBondIds(c, carried, getItem);
+  const bondIds = pieceBondIds(c, carried, getItem, morphMode);
+  const slotPolicy = morphSlotPolicy(morphMode === 'plus' ? 'plus' : 'official', (it) => !!getItem(typeof it === 'string' ? it : it?.id)?.canGiveBond);
   const grantedIds = bondIds.filter((b) => !(Array.isArray(c.bonds) && c.bonds.includes(b)));
-  const sell = c.sellPrice ?? 1;
+  const sell = piece?.sellPrice ?? c.sellPrice ?? 1;
   const blocks = {};
   blocks.head = html`
     <div key="head" class="dhead">
       <div class=${cx('dhead__art', golden && 'is-golden', `dhead__art--t${c.tier}`)}>
-        <${Img} src=${chessPortraitUrl(m, body)} fallback=${html`<${UnitThumb} kind="chess" id=${c.chessId} size="lg" rec=${si} />`} />
+        <${OperatorImage} m=${m} chess=${body} portrait ownerId=${ownerId} skin=${skin} fallback=${html`<${UnitThumb} kind="chess" id=${c.chessId} size="lg" rec=${body} ownerId=${ownerId} skin=${skin} />`} />
       </div>
       <div class="dhead__info">
         <div class="dhead__chips">
@@ -446,11 +460,27 @@ export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bond
         <${BondChips} bondIds=${bondIds} bonds=${bonds} off=${offBonds} onBond=${onBond} granted=${grantedIds} />
       </div>
     </div>`;
-  blocks.garrison = html`<div key="garrison">
-    ${garrison ? html`<${GarrisonBlock} garrison=${garrison} m=${m} />` : null}
-    ${piece?.spellEcho ? html`<${GarrisonBlock} garrison=${{ eventType: 'SERVER_PREP_FIN', desc: t('〈休整期结束时〉使自身已激活的所属盟约各增加 {layers} 层。', { layers: piece.spellEcho }) }} m=${m} />` : null}
-    ${piece?.spellShield ? html`<p class="dhint">${t('智慧球：每场普通战斗开始时获得1层护盾。')}</p>` : null}
-  </div>`;
+  const garrisonBlocks = [
+    ...garrisons.flatMap(g => {
+      const garrison = live?.growthReviveDisabled && g.garrisonId?.startsWith('growth_')
+        ? {...g,desc:copyGrowthTraitDescription(g.desc),descRaw:copyGrowthTraitDescription(g.descRaw||g.desc),growthNotes:''} : g;
+      return garrison.descRaw || garrison.desc
+        ? [html`<${GarrisonBlock} key=${garrisons.length === 1 ? 'garrison' : garrison.garrisonId} garrison=${garrison} m=${m} growth=${garrison.garrisonId?.startsWith('growth_')?(live?.growthTrait || piece?.growthTrait || growthInfo):null} />`] : [];
+    }),
+    ...(live?.growthGrantedTraits || piece?.growthGrantedTraits || []).flatMap(x=>{
+      const g=data.lookup('garrisons',x.garrisonId);
+      return g?[html`<${GarrisonBlock} key=${x.garrisonId} garrison=${g} m=${m} growth=${{value:x.value,repeat:x.count}} />`]:[];
+    }),
+    ...['normal','elite'].flatMap(grade=>{
+      const count=live?.src==='battle' ? live.growthDeathCopies?.[grade] || 0 : 0;if(!count)return [];
+      const rec=data.list('chess').find(c=>c.growthTrait?.handler==='deathSpread' && !!c.isGolden===(grade==='elite'));
+      const g=rec?data.lookup('garrisons',rec.garrisonIds[0]):null;
+      return g?[html`<${GarrisonBlock} key=${'spread-'+grade} garrison=${g} m=${m} label=${t('传播特质（被击倒后消耗）')} growth=${{gains:[{bondId:'egirShip',layers:count*(grade==='elite'?8:4)}],repeat:count}} />`]:[];
+    }),
+    piece?.spellEcho ? html`<${GarrisonBlock} key="spell-echo" garrison=${{ eventType: 'SERVER_PREP_FIN', desc: t('〈休整期结束时〉使自身已激活的所属盟约各增加 {layers} 层。', { layers: piece.spellEcho }) }} m=${m} />` : null,
+    piece?.spellShield ? html`<p key="spell-shield" class="dhint">${t('智慧球：每场普通战斗开始时获得1层护盾。')}</p>` : null,
+  ].filter(Boolean);
+  blocks.garrison = garrisonBlocks.length > 1 ? garrisonBlocks : garrisonBlocks[0] || null;
   blocks.trait = body.trait?.desc ? html`<p key="trait" class="dtrait"><${Icon} name="info" /><${RichText} text=${traitText(body, golden, lo)} /></p>` : null;
   // (`fr` is the body the unit fights with — a stand-in's record for a 补位 chess; `chess` is only the range's fallback)
   blocks.stats = chessStatsBlock({ rec: fr, chess: c, live });
@@ -475,12 +505,12 @@ export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bond
       </div>
     <//>` : null;
   // (a 变形同构体 / bond item row shows its pairing against what this operator carries: ItemRow `carried`)
-  blocks.equip = piece?.kind === 'chess' ? html`<${Section} key="equip" title=${t('装备')} micro=${`EQUIP ${items.length}/2`} class="dsec--equip">
-      ${items.length ? items.map((it) => html`<${ItemRow} key=${it.uid} itemId=${it.id} carried=${items} off=${offBonds} />`) : html`<p class="t-dim dempty">${t('拖拽装备至该干员以配发（最多 2 件）')}</p>`}
+  blocks.equip = piece?.kind === 'chess' ? html`<${Section} key="equip" title=${t('装备')} micro=${`EQUIP ${slotPolicy.slotsUsed(items)}/${slotPolicy.slotCap(2)}`} class="dsec--equip">
+      ${items.length ? items.map((it) => html`<${ItemRow} key=${it.uid} itemId=${it.id} carried=${items} off=${offBonds} mode=${morphMode} uid=${it.uid} onUnequip=${onUnequip} />`) : html`<p class="t-dim dempty">${t('拖拽装备至该干员以配发（最多 2 件）')}</p>`}
     <//>`
     // no own piece (a teammate's unit, a bond popup's 变形同构体 row): what it carries, read-only
-    : !piece && carried.length ? html`<${Section} key="equip" title=${t('装备')} micro=${`EQUIP ${carried.length}/2`} class="dsec--equip">
-      ${carried.map((id, i) => html`<${ItemRow} key=${`${i}:${id}`} itemId=${id} carried=${carried} off=${offBonds} />`)}
+    : !piece && carried.length ? html`<${Section} key="equip" title=${t('装备')} micro=${`EQUIP ${slotPolicy.slotsUsed(carried)}/${slotPolicy.slotCap(2)}`} class="dsec--equip">
+      ${carried.map((id, i) => html`<${ItemRow} key=${`${i}:${id}`} itemId=${id} carried=${carried} off=${offBonds} mode=${morphMode} />`)}
     <//>` : null;
   const talents = chessTalents(fr);
   blocks.talents = talents.length ? html`<${Section} key="talents" title=${t('天赋')} micro="TALENT" class="dsec--talent">
@@ -503,7 +533,7 @@ export function ChessDetail({ chess, piece, unit, snapHp, editable, onSell, bond
  * 变形同构体 lists its pairings (its 天赋栏: MorphPairings, `offBonds` marks 本局禁用); a bond item says which bond it gives
  * a 变形同构体 wearer (MorphGrantLine). (An equipped item is shown on its wearer's card: ChessDetail's 装备 rows.)
  */
-export function ItemDetail({ item, piece, editable, onDestroy, offBonds = null, onCastSpell = null }) {
+export function ItemDetail({ item, piece, editable, onDestroy, offBonds = null, morphMode = 'official', unequipAllowed = false, onCastSpell = null }) {
   const spell = itemSpellTarget(item);
   const roundBlocked = spellRoundBlocked(item);
   const m = data.get('assets');
@@ -518,12 +548,13 @@ export function ItemDetail({ item, piece, editable, onDestroy, offBonds = null, 
       </div>
     </div>
     <${Section} title=${t('效果')} micro="EFFECT"><${RichText} as="p" text=${itemEffectText(item)} class="dtext" /><//>
-    ${item.canGiveBond ? html`<${Section} title=${t('天赋')} micro="TALENT" class="dsec--morph"><${MorphPairings} off=${offBonds} /><//>` : null}
-    ${!item.canGiveBond && item.giveBondId ? html`<${MorphGrantLine} item=${item} off=${offBonds} />` : null}
+    ${item.canGiveBond ? html`<${Section} title=${t('天赋')} micro="TALENT" class="dsec--morph"><${MorphPairings} off=${offBonds} mode=${morphMode} /><//>` : null}
+    ${item.canGiveBond && morphMode === 'plus' ? html`<p class="dhint" data-testid="morph-free"><${Icon} name="info" />${t('不占装备格')}</p>` : null}
+    ${!item.canGiveBond && item.giveBondId ? html`<${MorphGrantLine} item=${item} off=${offBonds} mode=${morphMode} />` : null}
     ${item.note ? html`<p class="dhint dhint--rule"><${Icon} name="info" />${item.note}</p>` : null}
     ${spell ? html`<p class="dhint">${spell === 'tile' ? t('请将法术拖拽至空闲地面格') : spell === 'global' ? t('点击施放，或拖拽至战场施放；不需要干员目标，使用后消耗') : t('拖拽至干员施放；不占装备位，使用后消耗')}</p>` : item.itemType === 'MAGIC'
       ? html`<p class="dhint"><${Icon} name="info" />${t('将其拖拽至战场上的格子使用')}</p>`
-      : html`<p class="dhint"><${Icon} name="info" />${t('拖拽至干员身上进行配发（每名干员最多 2 件，配发后无法取下）')}${item.mergeable ? t('；2 件相同装备自动合成进阶装备') : ''}</p>`}
+      : html`<p class="dhint"><${Icon} name="info" />${unequipAllowed ? t('拖拽至干员身上进行配发（每名干员最多 2 件）') : t('拖拽至干员身上进行配发（每名干员最多 2 件，配发后无法取下）')}${item.mergeable ? t('；2 件相同装备自动合成进阶装备') : ''}</p>`}
     ${item.shopExcluded ? html`<p class="dhint dhint--source"><${Icon} name="info" />${t('调度中心不出售 · 获取途径：{source}', { source: item.shopExcludedBy || t('效果获得') })}</p>` : null}
     ${roundBlocked ? html`<p class="dhint">${t('本回合已施放此法术，下回合可再次施放')}</p>` : null}
     ${piece && spell === 'global' && onCastSpell ? html`<div class="dactions"><${Button} disabled=${roundBlocked} onClick=${() => onCastSpell(piece.uid)}>${t('施放法术')}<//></div>` : null}
@@ -765,6 +796,8 @@ export function resolveDetail(target, pieces, { priv = null, backups = data.get(
     const rec = c ? ownDiyRecord(c, priv, dd) : null;
     return rec ? { chess: rec, diy: ownDiyPick(priv, c) } : null;
   };
+  const appearance = { ownerId: target.kind === 'unit' ? target.unit?.ownerId ?? null
+    : target.owner ?? (target.foreign ? null : priv?.playerId), skin: target.unit?.skin || null };
   if (target.kind === 'piece') {
     const e = pieces?.get(target.uid);
     if (!e) return null;
@@ -773,10 +806,12 @@ export function resolveDetail(target, pieces, { priv = null, backups = data.get(
     if (p.kind === 'token') { const t = data.lookup('tokens', p.id) || diyToken(p.id); return t ? { type: 'token', token: t, piece: p, ownerId: tokenOwnerId(p, pieces) } : null; }
     const c = data.lookup('chess', p.id);
     const d = ownDiy(c);
-    if (d) return { type: 'chess', chess: d.chess, piece: p, standIn: null, diy: d.diy };
-    return c ? { type: 'chess', chess: c, piece: p, standIn: ownSi(c) } : null;
+    if (d) return { type: 'chess', ...appearance, chess: d.chess, piece: p, standIn: null, diy: d.diy };
+    return c ? { type: 'chess', ...appearance, chess: c, piece: p, standIn: ownSi(c) } : null;
   }
   if (target.kind === 'chess') {
+    const selected=target.shopCard?.reward?priv?.shop?.rewardOffer?.slots?.[target.shopCard.slot]:priv?.shop?.slots?.[target.shopCard?.slot];
+    const growthInfo=selected?.id===target.id?selected.growthTrait:null;
     // a bond popup's 变形同构体 row hands the wearer's item ids on (bondStrip onMember): the card shows the pair and the chip
     const c = data.lookup('chess', target.id);
     const items = Array.isArray(target.items) ? target.items.filter((x) => typeof x === 'string') : [];
@@ -792,9 +827,9 @@ export function resolveDetail(target, pieces, { priv = null, backups = data.get(
     // 0.2.2: a teammate's member card reads its unit's 潜能 / 练度 when the row hands it on (`target.cultivation`), else
     // the defaults (never the viewer's own settings)
     const cv = foreign ? (target.cultivation !== undefined ? { cultivation: target.cultivation } : { ops: null }) : null;
-    if (d) return { type: 'chess', chess: d.chess, hint: target.hint || null, standIn: null, diy: d.diy, ...(items.length ? { unitItems: items } : {}), ...(cv ? { cultOpts: cv } : {}), ...tap };
+    if (d) return { type: 'chess', ...appearance, chess: d.chess, hint: target.hint || null, standIn: null, diy: d.diy, ...(items.length ? { unitItems: items } : {}), ...(cv ? { cultOpts: cv } : {}), ...tap };
     const si = !c ? null : foreign ? (typeof target.standInFor === 'string' && target.standInFor ? standInOf(c, backups) : null) : ownSi(c);
-    return c ? { type: 'chess', chess: c, hint: target.hint || null, standIn: si, ...(items.length ? { unitItems: items } : {}), ...(cv ? { cultOpts: cv } : {}), ...tap } : null;
+    return c ? { type: 'chess', ...appearance, chess: c, hint: target.hint || null, standIn: si, growthInfo, ...(items.length ? { unitItems: items } : {}), ...(cv ? { cultOpts: cv } : {}), ...tap } : null;
   }
   if (target.kind === 'item') { const it = data.lookup('items', target.id); return it ? { type: 'item', item: it } : null; }
   if (target.kind === 'enemy') { const en = data.lookup('enemies', target.id); return en ? { type: 'enemy', enemy: en, count: target.count } : null; }
@@ -818,8 +853,8 @@ export function resolveDetail(target, pieces, { priv = null, backups = data.get(
     // 0.2.2: another player's unit says its 潜能 / 练度 itself (UnitInfo potential / cultivate); an own piece's unit follows
     // m.private.ops (the panel's `cultOpts`)
     const cv = own?.piece ? null : { cultOpts: { cultivation: unitCultivation(u) } };
-    if (dr) return { type: 'chess', chess: dr, piece: own?.piece || null, unitId: u.id, unitItems: Array.isArray(u.items) ? u.items : null, standIn: null, diy: pick, ...cv };
-    if (c) return { type: 'chess', chess: c, piece: own?.piece || null, unitId: u.id, unitItems: Array.isArray(u.items) ? u.items : null, standIn: si, ...cv };
+    if (dr) return { type: 'chess', ...appearance, chess: dr, piece: own?.piece || null, unitId: u.id, unitItems: Array.isArray(u.items) ? u.items : null, standIn: null, diy: pick, ...cv };
+    if (c) return { type: 'chess', ...appearance, chess: c, piece: own?.piece || null, unitId: u.id, unitItems: Array.isArray(u.items) ? u.items : null, standIn: si, ...cv };
     const t = data.lookup('tokens', u.defId) || diyToken(u.defId);
     if (t) return { type: 'token', token: t, unitId: u.id, ownerId: tokenOwnerId(own?.piece, pieces) };
     const en = data.lookup('enemies', u.defId);
@@ -851,20 +886,21 @@ export function selectVoiceKey(detail) {
  *   resolved as another player's carries its own, `detail.cultOpts`)
  *   live: the unit's live stats (unitStatsEntry + src 'battle' | 'prep') — an object, or a getter the panel re-reads 4×
  *   a second (the battle's own sim, battle/runner.js unitStats); null ⇒ the record's numbers
+ *   bondTimers: optional getter of the selected unit’s snapshot readouts (#746), sampled with live stats.
  *   voice: whether the panel may speak — 选中干员 (audio.voice 'select') when it opens on an operator the player tapped:
  *   a piece on the field or in the hand, a shop / reward card, a bond member. The game screen passes true in every phase
  *   (the owner's request of 2026-10-08 「添加一下干员点击上去的语气一样的语音」 lifted 2026-10-03's 「整备阶段不需要干员语音」
  *   for this line only; [ASSUMED] the official prep tap says 选中干员 like the battle's FOCUS_CHAR)
  */
-export function DetailPanel({ detail, editable, snapHp, onClose, onSell, onDestroy, onCastSpell = null, bonds = [], offBonds = null, loadout = null, ops = null, onBond = null, side = 'left', shopOpen = false, live = null, voice = false }) {
+export function DetailPanel({ detail, editable, snapHp, onClose, onSell, onDestroy, onCastSpell = null, bonds = [], offBonds = null, loadout = null, ops = null, onBond = null, side = 'left', shopOpen = false, live = null, bondTimers = null, voice = false, morphMode = 'official', onUnequip = null, unequipAllowed = false }) {
   const getter = typeof live === 'function' ? live : null;
-  useTicker(detail && getter ? 250 : 0);
+  useTicker(detail && (getter || bondTimers) ? 250 : 0);
   // 选中干员 voice (audio.voice 'select'): once per opened operator — the panel stays mounted while the target changes,
   // so the key carries what identifies it (its chess record, its piece / battle unit id, the card tap: selectVoiceKey)
   const selectKey = voice && detail?.type === 'chess' ? selectVoiceKey(detail) : null;
   // 0.2.0 补位: a chess fielded as its stand-in is spoken for by the stand-in (the operator on the field, whose model, name
   // and battle lines the card and audio.js show), never by the operator it replaces; a 自选 record is already the pick's
-  const selectChar = voice && detail?.type === 'chess' ? detail.standIn?.charId || detail.chess?.charId || null : null;
+  const selectChar = voice && detail?.type === 'chess' ? detail.standIn?.assets?.voice || detail.standIn?.charId || detail.chess?.assets?.voice || detail.chess?.charId || null : null;
   useEffect(() => {
     if (selectKey && selectChar) audio.voice(selectChar, 'select');
   }, [selectKey, selectChar]);
@@ -874,7 +910,7 @@ export function DetailPanel({ detail, editable, snapHp, onClose, onSell, onDestr
   const sellIt = async (piece, chess) => {
     const golden = piece.golden || chess?.isGolden;
     if (golden) {
-      const ok = await confirmDialog({ title: t('出售精锐干员'), text: t('确定要出售精锐干员「{name}」吗？出售后获得 {price} 资金。', { name: chess?.name || '', price: chess?.sellPrice ?? 1 }), okText: t('出售'), danger: true });
+      const ok = await confirmDialog({ title: t('出售精锐干员'), text: t('确定要出售精锐干员「{name}」吗？出售后获得 {price} 资金。', { name: chess?.name || '', price: piece.sellPrice ?? chess?.sellPrice ?? 1 }), okText: t('出售'), danger: true });
       if (!ok) return;
     }
     onSell(piece);
@@ -887,11 +923,12 @@ export function DetailPanel({ detail, editable, snapHp, onClose, onSell, onDestr
       data-side=${side === 'right' ? 'right' : 'left'}>
     <button type="button" class="dpanel__close" aria-label=${t('关闭')} onClick=${onClose}><${Icon} name="close" /></button>
     <div class="dpanel__scroll">
+      ${bondTimers ? html`<${BondTimers} rows=${bondTimers()} />` : null}
       <${HandLockHint} lock=${detail.piece?.handLock} />
-      ${detail.type === 'chess' ? html`<${ChessDetail} chess=${detail.chess} piece=${detail.piece} snapHp=${snapHp} editable=${editable&&!detail.piece?.handLock} onSell=${sellIt}
-        bonds=${bonds} offBonds=${offBonds} loadout=${loadout} onBond=${onBond} live=${liveNow} hint=${detail.hint || null} unitItems=${detail.unitItems || null}
-        standIn=${detail.standIn || null} diy=${detail.diy || null} cultOpts=${detail.cultOpts || { ops }} />` : null}
-      ${detail.type === 'item' ? html`<${ItemDetail} item=${detail.item} piece=${detail.piece} editable=${editable&&!detail.piece?.handLock} onDestroy=${destroyIt} offBonds=${offBonds} onCastSpell=${onCastSpell} />` : null}
+      ${detail.type === 'chess' ? html`<${ChessDetail} chess=${detail.chess} ownerId=${detail.ownerId} skin=${detail.skin} piece=${detail.piece} snapHp=${snapHp} editable=${editable&&!detail.piece?.handLock} onSell=${sellIt}
+        bonds=${bonds} offBonds=${offBonds} loadout=${loadout} onBond=${onBond} live=${liveNow} growthInfo=${detail.growthInfo || null} hint=${detail.hint || null} unitItems=${detail.unitItems || null}
+        standIn=${detail.standIn || null} diy=${detail.diy || null} cultOpts=${detail.cultOpts || { ops }} morphMode=${morphMode} onUnequip=${onUnequip} />` : null}
+      ${detail.type === 'item' ? html`<${ItemDetail} item=${detail.item} piece=${detail.piece} editable=${editable&&!detail.piece?.handLock} onDestroy=${destroyIt} offBonds=${offBonds} morphMode=${morphMode} unequipAllowed=${unequipAllowed} onCastSpell=${onCastSpell} />` : null}
       ${detail.type === 'enemy' ? html`<${EnemyDetail} enemy=${detail.enemy} snapHp=${snapHp} count=${detail.count} live=${liveNow} />` : null}
       ${detail.type === 'token' ? html`<${TokenDetail} token=${detail.token} piece=${detail.piece} ownerId=${detail.ownerId ?? null} snapHp=${snapHp} live=${liveNow} />` : null}
       ${detail.type === 'terrain' ? html`<${TerrainDetail} terrain=${detail.terrain} />` : null}

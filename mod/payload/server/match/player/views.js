@@ -9,10 +9,15 @@ import { boardOrder, pieceDir } from '../board.js';
 import { bondList, offBondCounts } from '../bondsMeta.js';
 import { bountyText, bountyCard } from '../choices.js';
 import {handLockOf} from '../../../shared/lockedCards.js';
+import {growthPurchaseView, growthSellPrice, growthTraitView} from '../growthTraits.js';
+import {growthGrantedTraitView} from '../../../shared/growthMode.js';
+import {growthSpellStrength,spellPartsAmount,spellLayerParts} from '../growthSpells.js';
 
 export class PlayerViews {
   pieceView(p, rc = null) {
     const rec = p.kind === 'item' ? this.gd.item(p.id) : p.kind === 'token' ? this.gd.token(p.id) : this.gd.chess(p.id);
+    // 皮肤 (docs/SKINS.md): skinFor resolves the effective body, including stand-ins and 自选 picks, on every surface.
+    const skinId = p.kind === 'chess' ? this.skinFor(rec) : null;
     const v = {
       uid: p.uid,
       kind: p.kind,
@@ -22,11 +27,17 @@ export class PlayerViews {
       items: p.kind === 'chess' ? (p.items || []).map((it) => ({ uid: it.uid, id: it.id })) : [],
       count: p.kind === 'token' ? (p.count || 1) : 1,
       ownerUid: p.kind === 'token' ? p.ownerUid ?? null : null,
+      // 皮肤: the prep board / hand / temp views carry it too, so a piece shows its appearance before it is deployed and
+      // the deploy wheel's preview matches the model that will actually fight
+      ...(skinId ? { skin: skinId } : {}),
     };
     if (p.meta?.spellLockUntil > this.m.round) v.spellLocked = true;
     if (p.meta?.spellTaunt != null) v.spellTaunt = p.meta.spellTaunt;
-    if (p.meta?.spellEcho) v.spellEcho = p.meta.spellEcho;
+    if (p.meta?.spellEcho) v.spellEcho = this.m.growthMode?spellPartsAmount(this,spellLayerParts(p.meta.spellEcho,2)):p.meta.spellEcho;
     if (p.meta?.spellShield) v.spellShield = true;
+    if (this.m.growthMode && p.kind === 'chess' && rec?.growthTrait?.handler === 'leakSale') v.sellPrice = growthSellPrice(this,p);
+    const growth=p.kind==='chess'?growthTraitView(this,p):null;if(growth)v.growthTrait=growth;
+    if(this.m.growthMode && p.meta?.growthDeployGrants)v.growthGrantedTraits=growthGrantedTraitView(p.meta.growthDeployGrants);
     if (rc) { v.row = rc[0]; v.col = rc[1]; v.dir = pieceDir(p); }
     if(handLockOf(p))v.handLock={...handLockOf(p)};
     return v;
@@ -57,7 +68,22 @@ export class PlayerViews {
   }
 
   privateView() {
-    const slots = this.shop.slots.map((s) => (s ? { kind: s.kind, id: s.id, price: this.priceOf(s), basePrice: s.basePrice, sold: !!s.sold, frozen: !!s.frozen, ...(this.m.spellShop ? { purchaseBonus: this.spellPurchaseBonus(s), spellShield: !!s.spellShield, spellGoldenReward: !!s.spellGoldenReward, currency: this.gd.item(s.id)?.currency || 'funds' } : {}) } : null));
+    const slots = this.shop.slots.map((s) => {
+      if (!s) return null;
+      const v={kind:s.kind,id:s.id,price:this.priceOf(s),basePrice:s.basePrice,sold:!!s.sold,frozen:!!s.frozen,
+        ...(this.m.spellShop?{purchaseBonus:this.spellPurchaseBonus(s),spellShield:!!s.spellShield,spellGoldenReward:!!s.spellGoldenReward,currency:this.gd.item(s.id)?.currency||'funds'}:{})};
+      if (this.m.growthMode && s.kind==='chess') {
+        const growth=growthTraitView(this,s);if(growth)v.growthTrait=growth;
+        const rewards=growthPurchaseView(this,s), spell=this.spellPurchaseBonus(s);
+        if (spell) for (const id of this.gd.chess(s.id).bonds) {
+          const existing=rewards.find(x=>x.bondId===id);
+          if (existing) existing.layers+=spell; else rewards.push({bondId:id,layers:spell});
+        }
+        v.growthPurchaseRewards=rewards;
+        v.purchaseBonus=Math.max(0,...rewards.map(x=>x.layers));
+      }
+      return v;
+    });
     const offer = this.offers[0] || null;
     const free = heroFreeRefresh(this) || this.shop.freeRefreshes > 0;
     const board = [];
@@ -68,10 +94,12 @@ export class PlayerViews {
     return {
       t: 'm.private',
       playerId: this.playerId,
+      ...(Number.isInteger(this.aiTakeoverRound) ? { aiTakeoverRound: this.aiTakeoverRound } : {}),
       seat: this.seat,
       alive: this.alive,
       lp: this.lp,
       funds: this.funds,
+      ...(this.m.growthMode?{growthSpellBonus:growthSpellStrength(this)}:{}),
       bandId: heroIdentityBand(this),
       ...(heroView(this) ? { heroPower: heroView(this) } : {}),
       ...(lockedCards.length ? {lockedCards} : {}),
@@ -90,11 +118,12 @@ export class PlayerViews {
         refreshPrice: free ? 0 : heroRefreshPrice(this),
         freeRefreshes: this.shop.freeRefreshes + (heroFreeRefresh(this) ? this.heroState.freeRefresh : 0),
         frozen: this.shop.frozen,
+        layout: { ...(this.shop.layout || this.gd.shopSlots(this.shop.level)) },
         slots,
         ...(this.m.spellShop ? { spellShop: true, spellUsed: Object.entries(this.spellState?.usedRound || {}).filter(([, round]) => round === this.m.round).map(([id]) => id), layout: { ...this.shop.layout } } : {}),
         // `source` 'merge' = the promotion reward (晋升奖励); any other offer (a strategy, an item, a 特质) carries the
         // `label` the bar shows instead; `queued` = offers waiting behind it (player report #6 after 0.1.0)
-        rewardOffer: offer ? { tier: offer.tier, source: offer.source === 'merge' ? 'merge' : 'special', label: offer.label || null, queued: this.offers.length - 1, slots: offer.slots.map((s) => ({ kind: s.kind === 'band' ? 'band' : s.kind === 'item' ? 'item' : 'chess', id: s.id, price: s.price, sold: !!s.sold, ...(offer.spellChoice ? { spellChoice: true } : {}), ...(offer.spellStrategy ? { spellBandChoice: true, unavailable: !this.spellStrategyPool().includes(s.id) } : {}) })) } : null,
+        rewardOffer: offer ? { tier: offer.tier, source: offer.source === 'merge' ? 'merge' : 'special', label: offer.label || null, queued: this.offers.length - 1, slots: offer.slots.map((s) => ({ kind: s.kind === 'band' ? 'band' : s.kind === 'item' ? 'item' : 'chess', id: s.id, price: s.price, sold: !!s.sold, ...(this.m.growthMode && s.kind==='chess'?{growthTrait:growthTraitView(this,s)}:{}), ...(offer.spellChoice ? { spellChoice: true } : {}), ...(offer.spellStrategy ? { spellBandChoice: true, unavailable: !this.spellStrategyPool().includes(s.id) } : {}) })) } : null,
       },
       ...(this.m.spellShop ? { spellSupports: (this.spellState?.supports || []).filter(x => x.round === this.m.round).map(x => ({ ...x })), armor: this.spellState?.armor || 0 } : {}),
       hand: this.hand.map((p) => (p ? this.pieceView(p) : null)),

@@ -1,15 +1,17 @@
+import { liveLayerHud } from '../ui/liveLayerHud.js';
 import {HeroPower} from '../ui/heroPower.js';
 import {heroDiscoveryOffer} from '../ui/heroDiscovery.js';
 import {BobShopkeeper} from '../ui/bobShopkeeper.js';
+import { AiTakeoverPanel } from '../ui/aiTakeover.js';
 // Game screen — every in-match screen, dispatched by m.public.phase (DESIGN §10):
 //   INFO_CHECK → Briefing (screens/briefing.js), BAND_DRAFT → Band draft (screens/bandDraft.js),
-//   RESULT / m.result → Result (screens/result.js), everything else → MatchScreen below.
+//   RESULT / m.result → the settlement flow (screens/settle.js), everything else → MatchScreen below.
 //
 // MatchScreen = full-screen field view (render engine per DESIGN §9, DOM fallback when it can't load)
 // with the DOM HUD layered on top: top bar, bond strip + popup, team panel (click = g.watch), effects,
 // shop bar (prep), merge-reward and 机变 overlays, detail panel, enemy / match-info drawer, combat HUD
 // (DP, "作战结束，等待队友完成作战" + teammates' progress, observing pill, 联防 / 最终攻势 ‹ › camera halves),
-// phase banners, the round's result box at SETTLE (官方「作战结束」 + 「全员无伤！」 / 「生命值减少 −N」 and the BATTLEOVER sound;
+// phase banners — the round plate at 回合开始 and the 联防 plate (ui/matchPopups.js) —, the round's result box at SETTLE (官方「作战结束」 + 「全员无伤！」 / 「生命值减少 −N」 and the BATTLEOVER sound;
 // GitHub #235, PR #112), ticker, emote wheel + bubbles,
 // settings, exit flow. Drag & drop from the view: pieceDrop on a board tile (also the piece's own tile) opens the
 // direction wheel (ui/facingWheel.js, research 09 §1.2) and its release sends g.move {uid, to, dir} (g.art {…, dir}
@@ -17,11 +19,15 @@ import {BobShopkeeper} from '../ui/bobShopkeeper.js';
 // released over an operator's sprite equips that operator even when the tile under the pointer is the one behind
 // it; a refused drop toasts the reason (gameLogic dropFailureReason / canPlace). Tapping an own piece selects it:
 // its underframe (ui/underframe.js: 撤退 / 出售 +N / 销毁), its rotated range tiles and its detail card; right-click /
-// long-press opens the detail card only. There is no drag-to-sell. The own board is drawn and checked with the
+// long-press opens the detail card only. An explicit quick-trade region accepts sale/destruction drops; other outside drops cancel. The own board is drawn and checked with the
 // player's stage overrides (terrain 机变 cards: gameLogic stageOverrides / effectiveStage); in a boss round's prep the
 // legality reads the player's half of the boss field (gameLogic deployFieldOf, user playtest #5 item 7).
 // Shortcuts: R refresh, F freeze, D level-up, Space ready, Esc closes the topmost popup.
 // The UI never mutates match state locally; it re-renders from m.public / m.private / m.field pushes.
+// Official versions (DESIGN §35.23): a match of another version waits (正在载入模拟数据…) until the page shows that
+// version's checked data (content.js — a spectator joining a running match, a reload or a resume would otherwise draw
+// the frames with the lobby's data, whose chess ids name other operators); the settlement screen shows the room's
+// version vote (ui/versionVote.js), so a doctor still reading the result can vote.
 // Client-side combat (DESIGN §14, m.public.combatMode 'client'): battles are simulated in this browser by
 // battle/runner.js, which publishes the battle's field meta into store.match.field and feeds the view the same b.snap /
 // b.ev frames the server used to stream. Observing follows research 09 §3.1 (battle/observe.js): no looking elsewhere
@@ -40,8 +46,11 @@ import {BobShopkeeper} from '../ui/bobShopkeeper.js';
 // gameLogic prepCameraFor / foldCamera — never over the pen, a teammate's board or a battle; deferred while a piece is
 // dragged or its direction is chosen). A deploy is the other way round (GitHub #602, PR #646 by @Euqorab): picking up a
 // piece on the own prep board, and a legal drop's direction wheel, fold the shop bar for as long as they last and zoom
-// to that framing at once (gameLogic deployFoldsShop); the player's own fold state comes back after. The fold flights
-// take FOLD_CAMERA_MS (render/app/tune.js), not the generic camera flight.
+// to that framing at once (gameLogic deployFoldsShop) while 设置「部署时收起商店」 is on (the default). Off, the pickup
+// changes neither the shop's fold nor the camera. Turning it off mid-drag gives both back on that frame
+// (gameLogic deployZoomStep / prepDeployCamera). Opening 敌方情报 while the piece is still held does not spend
+// that frame: the zoom stays owed until the pen closes (deployZoomRemember). [ASSUMED] The player's own fold
+// state comes back after. The fold flights take FOLD_CAMERA_MS (render/app/tune.js), not the generic camera flight.
 // Equipment dropped on an operator whose two slots are used opens the equip-replace dialog (ui/equipReplace.js): the
 // player picks the equipped item to destroy → g.equip {itemUid, targetUid, replaceUid}; 取消 sends nothing. 销毁 is only
 // offered for loose items (equipped ones are locked, ui/facing.js itemDestroyable).
@@ -78,6 +87,7 @@ import {BobShopkeeper} from '../ui/bobShopkeeper.js';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from '../../vendor/hooks.module.js';
 import { PHASE, GEO } from '../../../shared/constants.js';
+import { ruleOption } from '../../../shared/plugins/rules.js';
 import { html, Spinner, PhaseBanner, ResultDialog, Icon, Button, confirmDialog, closeAllDialogs, useTicker } from '../ui/components.js';
 import { useGameData, GIcon } from '../ui/gameComponents.js';
 import { useFieldView } from '../ui/fieldHost.js';
@@ -85,9 +95,13 @@ import { TopBar, liveLp, ownLeaks, uniteRemaining, tempInfo, tempReadyReason } f
 import { BondStrip, BondPopup } from '../ui/bondStrip.js';
 import { TeamPanel } from '../ui/teamPanel.js';
 import { ShopBar } from '../ui/shopBar.js';
+import { selectedBondTimers } from '../ui/bondTimers.js';
 import { DetailPanel, resolveDetail } from '../ui/detailPanel.js';
 import { RewardOverlay } from '../ui/rewardOverlay.js';
-import { ChoiceOverlay } from '../ui/choiceOverlay.js';
+import { FinalAssaultPlate, HiddenCorePlate, EndPlate, preloadBossPlateArt, bossPlateArtReady, finalPlateRows, endPlateOf } from '../ui/bossPlates.js';
+import { DownedPlate, downedDue, preloadDownedArt, downedArtReady } from '../ui/downedPlate.js';
+import { OfferOverlay, offerBlocksPrep } from '../ui/offerOverlay.js';
+import { ChoiceOverlay, spMarks } from '../ui/choiceOverlay.js';
 import { EnemyDrawer } from '../ui/enemyDrawer.js';
 import { Ticker } from '../ui/ticker.js';
 import { EmoteWheel } from '../ui/emotes.js';
@@ -96,9 +110,11 @@ import { CombatHud } from '../ui/combatHud.js';
 import { CombatMetricsPanel } from '../ui/combatMetrics.js';
 import { SettingsModal, settingsStore, useSettings } from '../ui/settings.js';
 import { ExitModal, AwayOverlay, awayStore } from '../ui/matchChrome.js';
+import { RoundPopup, PhasePopup, phasePopupOf, roundsToBoss, preloadPopupArt } from '../ui/matchPopups.js';
 import { openGuide } from '../ui/guide.js';
 import { actions, onRefreshBusy } from '../ui/gameActions.js';
 import { FacingWheel, holdPiece, setPieceDir, syncPieceDirs, showRange, useTileScreen } from '../ui/facingWheel.js';
+import {QuickTradeZone,quickTradeInfo,quickTradeHit} from '../ui/quickTrade.js';
 import { Underframe, underframeRect, TempRowNotice } from '../ui/underframe.js';
 import { StandInTags } from './game/standInTags.js';
 import { needsFacing, facingIntent, previewGrid, pieceDir, underframeActions, retreatSlot, itemDestroyable } from '../ui/facing.js';
@@ -109,16 +125,18 @@ import { FOLD_CAMERA_MS } from '../render/app/tune.js';
 import {
   phaseMode, phaseBanner, isCombatPhase, showDeadPill, isBossPhase, placementContext, canPlace, boardTargets, dropIntent,
   battleOverSfx, uniteResultBox, battleResultBox,
-  snapHud, activeBubbles, shortcutFor, shortcutBlocked, prepShortcutsSuspended, closesOnFieldPress, phaseTotalSeconds, homeFieldId, ownFieldId, normalizeSp, normalizePersonalChoice, sortedPlayers,
+  activeBubbles, shortcutFor, shortcutBlocked, prepShortcutsSuspended, closesOnFieldPress, phaseTotalSeconds, homeFieldId, ownFieldId, normalizeSp, normalizePersonalChoice, sortedPlayers,
   terrainInfo, deviceInfo, deviceTipAt, noteDeviceUnits, deviceUnitsForEntry,
   countdownState, shopBlockReason, stageOverrides, effectiveStage, watchTarget, dropFailureReason,
-  previewEnemyKey, prepCamera, prepCameraFor, foldCamera, deployFoldsShop, deployFieldOf, fieldTile, panelSide, panelSlots, bondPopupPlace, unitLoadout, deployedRecord,
-  mergeTarget, modeOffBonds, readyFundsPrompt, readyShopFold, ownerBandId, ownDiyRecord, ownStandIn, roundStartReplay,
+  previewEnemyKey, prepCamera, prepCameraFor, deployFoldsShop, deployZoomStep, deployZoomRemember, prepDeployCamera, deployFieldOf, fieldTile, panelSide, panelSlots, bondPopupPlace, unitLoadout, deployedRecord,
+  mergeTarget, modeOffBonds, readyFundsPrompt, readyShopFold, ownerBandId, ownDiyRecord, ownStandIn, roundStartReplay, heldDraftPub,
 } from '../ui/gameLogic.js';
 import { toast } from '../ui/toasts.js';
+import { LoadoutButton } from './loadout.js';
 import { BriefingScreen } from './briefing.js';
 import { BandDraftScreen } from './bandDraft.js';
-import { ResultScreen } from './result.js';
+import { ResultScreen } from './settle.js';
+import { ProtocolBoot, preloadBootArt, bootArtReady, BOOT_LEAVE_MS } from '../ui/protocolBoot.js';
 import { net } from '../net.js';
 import { store, useStore, shallowEqual, serverNow, isSpectating } from '../store.js';
 import { battleRunner } from '../battle/runner.js';
@@ -127,13 +145,18 @@ import { isClientCombat, observeTarget, teammateProgress, cameraLayers, layerCam
 import { screenStrip, playerBonds, playerLayer, detailBondOwner, toggleBond, popupView } from '../ui/watchBonds.js';
 import { data, getMode } from '../data.js';
 import { audio, resultSpeaker, resultVoiceSlot } from '../audio.js';
-import { useDocClass, FullscreenButton } from '../ui/device.js';
+import { useDocClass, FullscreenButton, reducedMotion } from '../ui/device.js';
+import { TurnPopup, preloadTurnPopupArt, turnPopupArtReady, TURN_CUE_WAIT_MS, TURN_CUE_PLATE_WAIT_MS } from '../ui/turnPopup.js';
 // MatchEnded, PausedOverlay, the highlight styles and keepEarly live in ./game/*.js.
 import { HUD_HZ_MS, MERGE_HL, SEL_RANGE, cx } from './game/marks.js';
 import { keepEarly, audioEarly } from './game/early.js';
 import { MatchEnded, PausedOverlay } from './game/overlays.js';
 import { inspectRange } from './game/range.js';
 import { t, tParts } from '../../../shared/i18n.js';
+import { contentSet } from '../content.js';
+import { DEFAULT_VERSION, shownVersion } from '../versions.js';
+import { VersionVote } from '../ui/versionVote.js';
+import { TestConsole } from '../ui/testConsole.js';
 
 // 作战统计 is opt-in (settings `combatMetrics`, default off). The runner does not import the settings store;
 // this screen pushes the switch. Outside a browser battleRunner is null, so this is a no-op.
@@ -142,6 +165,20 @@ if (battleRunner) {
   applyCombatMetrics(settingsStore.get());
   settingsStore.subscribe(applyCombatMetrics);
 }
+
+/**
+ * The pre-game's end inside the official BATTLE_CHECK (activity_table autoChessData.enterStepList: BATTLE_CHECK, 协议启动,
+ * time 3 → data/config.json timers.battleCheck 3; the maintainer's decision of 2026-10-21): once the draft is over the
+ * draft screen stays DRAFT_HOLD_MS on 已选定策略 / 策略选择完成 · 正在进入模拟…, then 协议启动！ shows at least
+ * BOOT_MIN_MS — together the 3 s the server spends in BATTLE_CHECK, so 协议启动！ starts to leave as 回合开始 begins and
+ * the round-1 plate plays inside 回合开始's 2 s. BOOT_MIN_MS is its own animation (ui/protocolBoot.js, css/screens/
+ * protocol-boot.css: 正在连接… is in by 2.1 s) and a beat to read it. [ASSUMED] the split (PR #643 holds 1.6 s on the
+ * draft and 3 s on 协议启动！, read off the footage, where the event's client presumably also loads the battle behind 协议启动！ —
+ * 7:43–7:51 — which this client does not need; that overran the 3 s by ~2 s). The overrun left: 协议启动！'s 350 ms fade
+ * (BOOT_LEAVE_MS) runs over the start of 回合开始, while the round-1 plate comes in under it.
+ */
+export const DRAFT_HOLD_MS = 700;
+export const BOOT_MIN_MS = 2300;
 
 /** Router for the in-match screens. */
 export function GameScreen() {
@@ -153,22 +190,50 @@ export function GameScreen() {
   const away = useStore((s) => s.away, Object.is, awayStore);
   const autoplay = useStore((s) => !!(Array.isArray(s.match.public?.players) && s.match.public.players.find((p) => p && p.playerId === s.me.playerId)?.autoplay));
   const gd = useGameData();
-  if (!pub || !gd.ready) {
+  // another official version: its checked data on the page first (see the header)
+  const version = useStore((s) => { const v = shownVersion(s); return v !== DEFAULT_VERSION ? v : null; });
+  const versionState = useStore((c) => (c.kind === 'version' && c.version === version ? c.status : 'loading'), Object.is, contentSet);
+  const versionReady = !version || versionState === 'ready';
+  const voteRoom = useStore((s) => (s.room?.versionVote && !s.room.inMatch ? s.room : null));
+  // 协议启动！'s official sprites (ui/protocolBoot.js), fetched while the briefing and the band draft run
+  useEffect(() => { if (gd.ready) preloadBootArt(); }, [gd.ready]);
+  // 已选定策略 (PR #643, the event's draft end, video 7:36–7:44): once the draft is over the screen stays DRAFT_HOLD_MS on
+  // 策略选择完成 · 正在进入模拟… with the pick, from the last draft snapshot (m.public.draft is gone after BAND_DRAFT),
+  // then 协议启动！ — both inside BATTLE_CHECK's official 3 s (see DRAFT_HOLD_MS). Decided while rendering, so the match
+  // screen mounts once; none with reduced motion or into a result.
+  const liveMode = pub ? phaseMode(pub.phase) : null;
+  const lastDraft = useRef(null);
+  const hold = useRef(null);                             // { until, pub } while the draft screen is held
+  const [, endHold] = useState(0);
+  if (liveMode === 'draft' && pub?.draft) { lastDraft.current = pub; hold.current = null; }
+  else if (lastDraft.current && pub) {
+    if (liveMode !== 'result' && !reducedMotion()) hold.current = { until: Date.now() + DRAFT_HOLD_MS, pub: heldDraftPub(lastDraft.current, pub) };
+    lastDraft.current = null;
+  }
+  const held = hold.current && hold.current.until > Date.now() && liveMode !== 'result' ? hold.current.pub : null;
+  useEffect(() => {
+    if (!held) return undefined;
+    const id = setTimeout(() => { hold.current = null; endHold((n) => n + 1); }, Math.max(0, hold.current.until - Date.now()));
+    return () => clearTimeout(id);
+  }, [held]);
+  if (!pub || !gd.ready || !versionReady) {
     return html`<div class="screen gload">
       <${Spinner} size="lg" label=${pub ? 'LOADING DATA' : 'ENTERING SIMULATION'} />
-      <p class="t-lo">${pub ? t('正在载入模拟数据…') : t('正在进入模拟…')}</p>
+      <p class="t-lo">${versionState === 'failed' && version ? t('版本数据未能通过校验，请刷新页面重试') : pub ? t('正在载入模拟数据…') : t('正在进入模拟…')}</p>
     </div>`;
   }
   const mode = phaseMode(pub.phase);
   let body;
   if (hasResult || mode === 'result') body = html`<${ResultScreen} />`;
   else if (mode === 'briefing') body = html`<${BriefingScreen} />`;
-  else if (mode === 'draft') body = html`<${BandDraftScreen} />`;
+  else if (mode === 'draft' || held) body = html`<${BandDraftScreen} held=${held} />`;
   else body = html`<${MatchScreen} />`;
   return html`${body}
     ${!bobSpectator&&!ended?html`<${BobShopkeeper} pub=${pub} priv=${bobPrivate} />`:null}
+    ${voteRoom && (hasResult || mode === 'result') ? html`<${VersionVote} room=${voteRoom} class="vervote--float" />` : null}
     ${(away || autoplay) && !hasResult && mode !== 'result' && !ended ? html`<${AwayOverlay} />` : null}
-    ${ended && !hasResult && mode !== 'result' ? html`<${MatchEnded} />` : null}`;
+    ${ended && !hasResult && mode !== 'result' ? html`<${MatchEnded} />` : null}
+    ${!hasResult && mode !== 'result' ? html`<${TestConsole} />` : null}`;
 }
 
 // ---- match screen ----------------------------------------------------------------------------------------
@@ -178,6 +243,7 @@ const inBattleCard = (d) => d?.kind === 'unit' || (d?.kind === 'device' && d.dev
 
 function MatchScreen() {
   useDocClass('sp-in-match');
+  useEffect(() => { preloadPopupArt(); }, []);
   const pub = useStore((s) => s.match.public);
   const priv = useStore((s) => s.match.private);
   const field = useStore((s) => s.match.field);
@@ -186,7 +252,8 @@ function MatchScreen() {
   const emotes = useStore((s) => s.emotes);
   const roomSolo = useStore((s) => s.room?.mode === 'solo');
   const spectator = useStore((s) => isSpectating(s.room, s.me.playerId));
-  const metricsSetting = useSettings().combatMetrics === true;
+  const playerSettings = useSettings();
+  const metricsSetting = playerSettings.combatMetrics === true;
   // gameplay plugins (DESIGN §32.6): the HUD corner's MOD mark — re-rendered only when the room's content changes
   const modRoom = useStore((s) => (s.room?.content?.vanilla === false ? s.room : null), (a, b) => (a?.content ?? null) === (b?.content ?? null));
   // the room's spectator seats for the top bar's 观战席 capsule (ui/hud.js SpectatorPill; GitHub #120): room.state keeps coming
@@ -217,11 +284,10 @@ function MatchScreen() {
   const [refreshBusy, setRefreshBusy] = useState(false);
   useEffect(() => onRefreshBusy(setRefreshBusy), []);
   const [rewardMin, setRewardMin] = useState(false);
-  // 作战统计 (battle/metrics.js): a client-only local damage/healing panel — never uploaded to the server.
-  // Off unless the setting is on. A gameplay-plugin room (modRoom: content.vanilla === false) is simulated in a
-  // Worker, which has no damaged/heal data, so the button stays hidden. The hud.right ui-slot is not this gate.
+  // Growth uses server-owned metrics (including Forge), with a visible entry for manual balance testing.
+  // Native local metrics remain opt-in and unavailable for Worker-only plugin battles.
   const [metricsOpen, setMetricsOpen] = useState(false);
-  const showMetrics = metricsSetting && !modRoom && !spectator;
+  const showMetrics = (pub?.growthMode || (metricsSetting && !modRoom)) && !spectator;
   useEffect(() => { if (!showMetrics) setMetricsOpen(false); }, [showMetrics]);
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -229,13 +295,21 @@ function MatchScreen() {
   const [drag, setDrag] = useState(null);                // { uid, kind, id } while dragging a piece
   const [facing, setFacing] = useState(null);            // direction step: { uid, piece, row, col, grid, name }
   const [sel, setSel] = useState(null);                  // tapped own piece: { uid }
-  const [selBusy, setSelBusy] = useState(false);
-  const pieceActionBusy = useRef(false);
+  const [pendingPieces, setPendingPieces] = useState(() => new Set());
+  const selBusy = !!sel && pendingPieces.has(sel.uid);
+  const pieceActionBusy = useRef(new Set());
   const buyPending = useRef(new Set());
+  const salePending = useRef(new Set());
+  const quickTradeRef = useRef(null);
   const [holdSeq, setHoldSeq] = useState(0);             // bumped when a held piece is released (re-apply the prep state)
   const [hud, setHud] = useState(null);
-  const [banner, setBanner] = useState(null);
+  const [banner, setBanner] = useState(null);            // a phase's banner (PhaseBanner) or plate (ui/matchPopups.js PhasePopup: `plate`)
+  const [roundPop, setRoundPop] = useState(null);        // the round-start plate (RoundPopup)
+  // 协议启动！ (ui/protocolBoot.js): { key, at } while it shows — from the first frame when the screen opens in BATTLE_CHECK
+  // (after the held draft screen), so the board never shows before it
+  const [boot, setBoot] = useState(() => (pub?.phase === PHASE.BATTLE_CHECK && bootArtReady() ? { key: `${pub.phase}:${pub.round}`, at: Date.now() } : null));
   const [resultBox, setResultBox] = useState(null);      // the round's result box (ResultDialog), shown at SETTLE
+  const [bossPlate, setBossPlate] = useState(null);      // ui/bossPlates.js: { kind: 'final'|'core'|'end', … , key }
   const [readyBusy, setReadyBusy] = useState(false);
   const [spBusy, setSpBusy] = useState(null);
   const [personalBusy, setPersonalBusy] = useState(null); // { choiceId, idx }: an older request cannot clear a newer pick
@@ -264,6 +338,17 @@ function MatchScreen() {
   const meP = players.find((p) => p.playerId === myId) || null;
   // a spectator seat watches like an eliminated player (it has no m.private and no row in m.public)
   const alive = spectator ? false : priv ? priv.alive !== false : meP?.alive !== false;
+  // 协议已失效 (ui/downedPlate.js): once, when the player's own `alive` — as read from real data, never a reload's empty
+  // first view — turns false while a teammate is still in; 继续观战 closes it, 离开模拟 opens the exit dialog
+  const [downed, setDowned] = useState(false);
+  const wasAlive = useRef(undefined);
+  useEffect(() => { preloadDownedArt(); }, []);
+  useEffect(() => {
+    if (!spectator && !priv && !meP) return;
+    const was = wasAlive.current;
+    wasAlive.current = alive;
+    if (downedArtReady() && downedDue({ was, alive, spectator, pub, myId })) setDowned(true);
+  }, [alive, !!(priv || meP)]);
   const home = homeFieldId(pub, myId);
   const watchingOther = !!watching && watching !== home && watching !== ownFieldId(myId);
   // watching a teammate's prep board: the 本局信息 drawer shows THEIR 策略 in place of one's own (user playtest #2 item 2)
@@ -272,7 +357,12 @@ function MatchScreen() {
   const scoutBandOwner = scoutPid ? (players.find((p) => p.playerId === scoutPid)?.name || null) : null;
   const personalChoice = !spectator && alive ? normalizePersonalChoice(pub, priv, myId) : null;
   const hasPersonalChoice = !!personalChoice;
-  const editable = phase === PHASE.PREP && !!priv && alive && !priv.ready && !watchingOther && !hasPersonalChoice;
+  const roomRules = useStore((s) => s.room?.content?.rules ?? null);
+  const morphMode = ruleOption(roomRules, 'morphPairing');
+  const unequipAllow = ruleOption(roomRules, 'unequip') === 'allow';
+  const prepLoadoutOpen = ruleOption(roomRules, 'prepLoadout') === 'prep';
+  const hasOffers = !!pub?.offers?.length;
+  const editable = !offerBlocksPrep(pub?.offers) && phase === PHASE.PREP && !!priv && alive && !priv.ready && !watchingOther && !hasPersonalChoice;
   const showShop = !!priv && alive && (phase === PHASE.PREP || phase === PHASE.SP_DRAFT || phase === PHASE.ROUND_START) && !watchingOther;
   const layersDisabled = phase === PHASE.UNITE || isBossPhase(phase);
   const sp = phase === PHASE.SP_DRAFT ? normalizeSp(pub?.sp, players) : null;
@@ -331,11 +421,13 @@ function MatchScreen() {
   // player does not own is its stand-in (0.2.0 补位 — the owner's recall of the official mode, 2026-10-06); rules keep
   // ownChess (the composed record carries the chess's identity anyway)
   const ownShown = (id) => { const c = ownChess(id); return ownStandIn(c, live.current.priv, data.get('backups')) || c; };
+  // `data.locale()`: getChess reads the localized record. Without it a language switch mid-match keeps this context,
+  // and anything that memoizes on it keeps the previous language's placement (GitHub #676).
   const placeCtx = useMemo(() => placementContext({
     priv, stage: gd.stage(pub?.stageId), editable, field: deployField,
     getChess: (id) => { const c = gd.chess(id); return ownDiyRecord(c, priv, { chess: data.get('chess'), backups: data.get('backups') }) || c; },
-    getToken: gd.token, getItem: gd.item, getEffect: gd.effect, backups: gd.backups,
-  }), [priv, pub?.stageId, editable, gd.ready, deployField]);
+    getToken: gd.token, getItem: gd.item, getEffect: gd.effect, backups: gd.backups, morphMode,
+  }), [priv, pub?.stageId, editable, gd.ready, deployField, data.locale(), morphMode]);
   const heroPickingNow=heroPicking&&editable&&!pen&&!facing&&!drag&&['cookie','maiev'].includes(priv?.heroPower?.id)&&!priv.heroPower.disabled;
   live.current = { pub, priv, field, view, editable, heroPicking:heroPickingNow, heroRoutes, hasPersonalChoice, placeCtx, watching, watchWho, watchingOther, home, myId, alive, spectator, detail, drawer, bondOpen, emoteOpen, settingsOpen, exitOpen, drag, facing, sel, selBusy, pen, collapsedNow: collapsed, localDone: false, canPause: false, paused };
 
@@ -348,6 +440,9 @@ function MatchScreen() {
   const prepCamKey = `${prepCam.kind}:${prepCam.opts.side}`;
   const prepCamSeen = useRef(prepCamKey);                // the prep camera last requested
   const camRef = useRef({ kind: 'prep', opts: { rect: { ...GEO.NORMAL_RECT }, side: 'L' } });
+  // the previous frame applied the deploy zoom, so turning 设置「部署时收起商店」 off mid-drag can give it back.
+  // It stays set when that release returns null only because the enemy pen is open (deployZoomRemember). [ASSUMED]
+  const deployZoomedRef = useRef(false);
   const penRef = useRef({ on: false, collapsed: false });
   // shopFolded (the own prep board's folded-shop camera state) is derived with the prep-view flags below (showPrep).
   // 准备就绪 folds the shop bar, cancelling it unfolds the bar again (GitHub #138; gameLogic readyShopFold): the board is set,
@@ -414,6 +509,7 @@ function MatchScreen() {
   const lastFieldRef = useRef(null);
   const viewModeRef = useRef(null);
   const snapUnitsRef = useRef(new Map());
+  const bondTimerSnapRef = useRef(null);
   // the shown battle's device units (crates / “双眼皮” turrets: UnitInfo by id) — the meta's `units` plus the 'spawn' events,
   // for the tap on a device (gameLogic.deviceTipAt); the renderer's pick skips devices, a tap on one lands in tileClick
   const deviceUnitsRef = useRef(new Map());
@@ -436,8 +532,11 @@ function MatchScreen() {
   // direction wheel a legal drop opens — the official client folds the shop and zooms to the shop-collapsed prep
   // camera (the same framing as 收起, left_prepare_camera_param), then gives the player's own shop state back. It is
   // derived from the interaction state only: `collapsed` (the 收起/展开 state) is never set by it.
+  // 设置「部署时收起商店」 (default on). Off: a pickup changes neither the shop fold nor the camera.
+  // Explicit false disables it. Equipment drag keeps the current framing even when unit deployment folds it.
   const deployFold = deployFoldsShop({
     ownPrep: !!view && viewModeRef.current === 'prep' && showPrep, editable, pen, drag: !!drag, facing: !!facing,
+    enabled: playerSettings.prepDeployFold !== false && !(drag?.kind === 'item' && gd.item(drag.id)?.itemType === 'EQUIP'),
   });
   // the shop bar is shown folded (收起; the pen folds it for itself: the player's own state is the one it returns to) —
   // the own prep board then takes the official shop-collapsed camera (public issue #5, gameLogic prepCameraFor);
@@ -475,6 +574,10 @@ function MatchScreen() {
   const enteredFieldRef = useRef(null);
   const enteredViewRef = useRef(null);
   const pressSel = useRef(null);                         // the selected piece when the current field press began
+  useEffect(() => {
+    if (showPrep) audio.stopPoolSounds();
+    return () => audio.stopPoolSounds(); // battle exit or game-screen unmount, including while the renderer loads
+  }, [showPrep]);
   useEffect(() => {
     // Read before a view change clears the refs. A later refresh of this same field (g.watch / reshow replaces the
     // field object) must still know which battle the device units already noted belong to.
@@ -522,6 +625,7 @@ function MatchScreen() {
     reentryRef.current = null;
     viewModeRef.current = 'battle';
     snapUnitsRef.current = new Map();
+    bondTimerSnapRef.current = null;
     const early = evBufRef.current.get(field.fieldId);
     evBufRef.current.delete(field.fieldId);
     // Crates and turrets are absent from a start-of-battle meta and arrive once, as spawn events. Re-entering the
@@ -571,14 +675,23 @@ function MatchScreen() {
       });
     }
     if (earlySnap) {
+      bondTimerSnapRef.current = earlySnap;
       view.pushSnapshot(earlySnap);
       if (Array.isArray(earlySnap.units)) {
         snapUnitsRef.current = new Map(earlySnap.units.filter(Array.isArray).map((t) => [t[0], t]));
       }
-      hudRef.current = snapHud(earlySnap);
+      hudRef.current = liveLayerHud(null, earlySnap);
       setHud(hudRef.current);
     }
   }, [view, showPrep, priv, editable, heroPickingNow, field, combat, mode, watchingOther, watching, holdSeq]);
+
+  // A finished field has a cosmetic tail; a paused/stalled field retains its combat pose.
+  useEffect(() => {
+    if (!view || showPrep || !field?.fieldId || field.prep) return;
+    const pf = pub?.fields?.find((f) => f.fieldId === field.fieldId);
+    const done = field.local ? battleState?.fieldId === field.fieldId && battleState.done : pf?.live === false;
+    if (done || field.live === false) view.finishBattle?.();
+  }, [view, showPrep, field, battleState?.fieldId, battleState?.done, pub?.fields]);
 
   // the round start (PR #416 by @Cromemadnd; the maintainer's confirmation from official play, 2026-10-13): the own board's
   // pieces replay their Start clip and landing sound one after another in deployment order — once per round, in 回合开始, on
@@ -600,9 +713,14 @@ function MatchScreen() {
     const flush = () => { pending = null; last = performance.now(); setHud(hudRef.current); };
     const onFieldMeta = (msg) => {
       if (!msg || typeof msg.fieldId !== 'string') return;
+      hudRef.current = null;
+      setHud(null);
       evBufRef.current.set(msg.fieldId, []);
       snapBufRef.current.delete(msg.fieldId);
-      if (msg.fieldId === lastFieldRef.current) reentryRef.current = msg.fieldId;
+      if (msg.fieldId === lastFieldRef.current) {
+        reentryRef.current = msg.fieldId;
+        bondTimerSnapRef.current = null;
+      }
     };
     // the field the view shows now (null while a re-entry of it is pending: its frames are buffered)
     const shownId = () => (reentryRef.current && reentryRef.current === lastFieldRef.current ? null : lastFieldRef.current);
@@ -613,13 +731,14 @@ function MatchScreen() {
         if (typeof snap.fieldId === 'string') snapBufRef.current.set(snap.fieldId, snap);
         return;
       }
+      bondTimerSnapRef.current = snap;
       view?.pushSnapshot(snap);
       if (Array.isArray(snap.units)) {
         const mp = new Map();
         for (const t of snap.units) if (Array.isArray(t)) mp.set(t[0], t);
         snapUnitsRef.current = mp;
       }
-      hudRef.current = snapHud(snap);
+      hudRef.current = liveLayerHud(hudRef.current, snap);
       const dt = performance.now() - last;
       if (dt >= HUD_HZ_MS) flush();
       else if (!pending) pending = setTimeout(flush, HUD_HZ_MS - dt);
@@ -654,7 +773,7 @@ function MatchScreen() {
         // teammate used to make THEIR operator say the viewer's line (review on #73). unitsEnd names chess ids: the
         // record the own piece shows gives the operator whose voice bank speaks — a 补位 piece's stand-in (its own
         // voice, like its 选中 line) and a filled 自选 slot's operator (ownShown), else the chess record's charId
-        const charId = resultSpeaker(mine, Math.random, (id) => ownShown(id)?.charId ?? null);
+        const charId = resultSpeaker(mine, Math.random, (id) => ownShown(id)?.assets?.voice ?? ownShown(id)?.charId ?? null);
         if (!charId) return;
         audio.voice(charId, resultVoiceSlot({
           perfect: !!(mine?.perfect),
@@ -697,20 +816,23 @@ function MatchScreen() {
   // deferred while a piece is dragged or its direction is chosen (the drop target and the wheel sit on tiles of the
   // camera in use) and this effect runs again when that ends (gameLogic foldCamera). Picking reads the camera of
   // every frame (render/pick.js). A deploy interaction is the opposite (public issue #602, gameLogic
-  // deployFoldsShop): it zooms to the shop-collapsed camera as soon as the piece is picked up, for the drag and the
-  // wheel's whole duration, and the fold / unfold choice below restores the player's own shop state when it ends.
+  // deployFoldsShop) while 设置「部署时收起商店」 is on: it zooms to the shop-collapsed camera as soon as the piece is
+  // picked up, for the drag and the wheel's whole duration, and restores the player's own shop state when it ends.
+  // Turning the setting off mid-drag releases that zoom on this one frame even while the piece is still held
+  // (deployZoomedRef); later frames of the same drag do not, so a hand-made 收起 still waits. Opening 敌方情报
+  // during the held drag makes that release frame return null; the zoom stays owed until the pen closes
+  // (deployZoomRemember). [ASSUMED] no official source settles that order.
   useEffect(() => {
-    if (deployFold) {
-      const want = prepCameraFor(pub, myId, true);
-      const cur = camRef.current;
-      // the fold zoom flies with the short FOLD_CAMERA_MS, not a generic camera flight (render/app/tune.js)
-      if (cur.kind !== want.kind || cur.opts?.shop !== false) setCam(want.kind, { ...want.opts, ms: FOLD_CAMERA_MS });
-      return;
-    }
-    const next = foldCamera({
-      pub, myId, folded: shopFolded, ownPrep: !!view && viewModeRef.current === 'prep' && showPrep,
+    const step = deployZoomStep(deployZoomedRef.current, deployFold);
+    const next = prepDeployCamera({
+      pub, myId, deployFold, releaseDeploy: step.release, folded: shopFolded,
+      ownPrep: !!view && viewModeRef.current === 'prep' && showPrep,
       pen, busy: !!drag || !!facing, current: camRef.current,
     });
+    // a null release because the pen is open stays owed; a null only because the camera already
+    // matches the player's fold spends it. [ASSUMED]
+    deployZoomedRef.current = deployZoomRemember(step, { next, pen });
+    // the fold zoom and the restore fly with the short FOLD_CAMERA_MS, not a generic camera flight
     if (next) setCam(next.kind, { ...next.opts, ms: FOLD_CAMERA_MS });
   }, [view, deployFold, shopFolded, showPrep, pen, !!drag, !!facing, prepCamKey]);
 
@@ -740,11 +862,13 @@ function MatchScreen() {
   }, [view, watchWho, field, phase]);
 
   // graceful degradation: without WebGL / the render engine the DOM view takes over — say so once per match
+  const fallbackNotified = useRef(false);
   useEffect(() => {
-    if (viewKind !== 'fallback') return;
+    if (viewKind !== 'fallback' || fallbackNotified.current) return;
     let asked = null;
     try { asked = new URLSearchParams(globalThis.location?.search || '').get('render'); } catch { asked = null; }
     if (asked === 'fallback' || globalThis.__SP_RENDER__ === 'fallback') return;
+    fallbackNotified.current = true;
     toast(t('渲染器暂时未能加载，已切换为简化视图（功能不受影响，可刷新重试）'), 'info', { ttl: 5000 });
   }, [viewKind]);
 
@@ -757,7 +881,20 @@ function MatchScreen() {
     prevPhase.current = phase;
     if (prev === phase) return;
     const b = phaseBanner(phase, pub, { alive, spectator });
-    if (b) setBanner({ ...b, key: phaseKey });
+    // BATTLE_CHECK: the official 协议启动！ screen once its sprites are in (ui/protocolBoot.js); 最终攻势 / 隐秘核心已解锁
+    // open with the official plates once their art is in (ui/bossPlates.js); else 回合开始 has the round plate
+    // (回合 NN · 获得 +N; 观战中 under it for a watcher, from the banner), 联防 a plate with the banner's words
+    // (ui/matchPopups.js); the other phases keep the banner. The screen and the plates replace a banner still on screen
+    // from a phase shorter than it (everyone ready at once; the dev mock opening at PREP)
+    const plate = phasePopupOf(phase, b);
+    if (phase === PHASE.BATTLE_CHECK && bootArtReady()) { setBanner(null); setBoot((b) => (b && b.key === phaseKey ? b : { key: phaseKey, at: Date.now() })); }
+    else if (phase === PHASE.FINAL_ASSAULT && bossPlateArtReady()) { setBanner(null); setBossPlate({ kind: 'final', ...finalPlateRows(pub), key: phaseKey }); }
+    else if (phase === PHASE.HIDDEN_CORE && bossPlateArtReady()) { setBanner(null); setBossPlate({ kind: 'core', key: phaseKey }); }
+    else if (phase === PHASE.ROUND_START && b && pub?.round > 0) {
+      setBanner(null);
+      setRoundPop({ round: pub.round, left: roundsToBoss(pub), sub: b.sub, watching: spectator || !alive, key: phaseKey });
+    } else if (plate) setBanner({ ...plate, plate: true, key: phaseKey });
+    else if (b) setBanner({ ...b, key: phaseKey });
     if (phase === PHASE.ROUND_START) audio.sfx('roundStart');
     else if (phase === PHASE.PREP) audio.sfx('rest', { volume: 0.7 });
     else if (phase === PHASE.COMBAT) audio.sfx('battleStart');
@@ -796,6 +933,73 @@ function MatchScreen() {
     if (phase !== PHASE.PREP) setRewardMin(false);
     setSpBusy(null);
   }, [phaseKey]);
+  // 协议启动！ fades once BATTLE_CHECK is over (ProtocolBoot `leaving`) — not before BOOT_MIN_MS, so its animation plays
+  // whole after the held draft screen (normally both end together, see DRAFT_HOLD_MS) — then goes; the round plate
+  // comes in as it starts to leave, with the HUD's entry (hudIn, below) — over a top bar already coming in —, inside
+  // 回合开始's 2 s
+  const bootDone = !!boot && phase !== PHASE.BATTLE_CHECK;
+  const [bootLeaving, setBootLeaving] = useState(false);
+  useEffect(() => {
+    if (!bootDone) return undefined;
+    let out = 0;
+    const id = setTimeout(() => {
+      setBootLeaving(true);
+      out = setTimeout(() => { setBoot(null); setBootLeaving(false); }, BOOT_LEAVE_MS);
+    }, Math.max(0, (boot.at || 0) + BOOT_MIN_MS - Date.now()));
+    return () => { clearTimeout(id); clearTimeout(out); };
+  }, [bootDone]);
+  // 进场 (PR #827; the maintainer's decision of 2026-10-21): the HUD waits hidden only while 协议启动！ is on screen and
+  // comes in as soon as it starts to leave (ProtocolBoot `leaving`), so the first round's 回合开始 kettles and plate play
+  // over a visible top bar — the event's top bar is up from the end of 协议启动 (video 7:51) through the round-1 kettles
+  // (7:55–7:58) and plate (7:57–8:01). It waits for 协议启动！ alone, never for the plate. A plugin window over
+  // BATTLE_CHECK hides 协议启动！ (`boot && !hasOffers` below), so the HUD is not held behind that veil either. Without
+  // the art pack (no `boot`) or with reduced motion the HUD is simply there. [ASSUMED] the entry motion itself — its
+  // order and its ~1.2 s (css/screens/game.css 进场) — read off the footage by the PR's author, and starting it as the
+  // fade starts rather than when it ends. The HUD comes in once per 协议启动！ (`hudCame`, its boot.key): when a plugin
+  // window over BATTLE_CHECK closes, 协议启动！ shows again for its fade, and the HUD that came in behind the window
+  // stays (l2 review nit: it used to hide and play the whole entry a second time).
+  const bootShown = !!boot && !hasOffers && !bootLeaving;
+  const hudCame = useRef(null);
+  const [hudIn, setHudIn] = useState(() => (bootShown && !reducedMotion() ? 'wait' : null)); // null | 'wait' | 'enter'
+  useEffect(() => {
+    if (bootShown) { if (!reducedMotion() && hudCame.current !== boot.key) setHudIn('wait'); return; }
+    if (boot) hudCame.current = boot.key;
+    setHudIn((s) => (s === 'wait' ? 'enter' : s));
+  }, [bootShown]);
+  useEffect(() => {
+    if (hudIn !== 'enter') return undefined;
+    const id = setTimeout(() => setHudIn(null), 1200);
+    return () => clearTimeout(id);
+  }, [hudIn]);
+
+  // what the round start paid (the round plate's 获得 +N): the funds this round's ROUND_START shows against the funds the
+  // phase before it opened with — nothing is bought in SETTLE / BATTLE_CHECK, so that is the balance before the income,
+  // whichever of m.public (the phase) and m.private (the funds) arrives first. null until both are known (a reload).
+  const fundsRef = useRef({ key: null, open: null, base: null, round: null, now: null });
+  {
+    const f = fundsRef.current;
+    const v = Number.isFinite(priv?.funds) ? priv.funds : null;
+    if (f.key !== phaseKey) {
+      if (phase === PHASE.ROUND_START) { f.round = pub?.round ?? null; f.base = f.open; f.now = null; }
+      f.key = phaseKey;
+      f.open = v;
+    }
+    if (phase === PHASE.ROUND_START && v != null) f.now = v;
+  }
+  const roundGain = (() => {
+    const f = fundsRef.current;
+    return roundPop && f.round === roundPop.round && f.base != null && f.now != null ? Math.max(0, f.now - f.base) : null;
+  })();
+
+  // the run's end in the server's last pause before RESULT (ui/bossPlates.js endPlateOf: the hidden round over, the team
+  // fallen in the 最终攻势 or eliminated at a settlement — 模拟中断 then takes the result box's place); never delays RESULT
+  useEffect(() => { preloadBossPlateArt(); }, []);
+  const endKind = bossPlateArtReady() ? endPlateOf(phase, pub) : null;
+  useEffect(() => {
+    if (!endKind) return;
+    setResultBox(null);
+    setBossPlate({ kind: 'end', end: endKind, key: `end:${phaseKey}` });
+  }, [endKind, phaseKey]);
 
   useEffect(() => {
     setPersonalBusy((b) => b?.choiceId === personalChoice?.id ? b : null);
@@ -830,9 +1034,31 @@ function MatchScreen() {
     if ((busyPrep || myPick) && cd.remain > 0) audio.sfx('timer', { volume: 0.6 });
   });
 
-  // your turn cue in the 机变 draft
-  const spMine = !!sp && !solo && sp.turnPid === myId && !sp.pickOf.has(myId);
-  useEffect(() => { if (spMine) audio.sfx('yourTurn'); }, [spMine]);
+  // your turn cue in the 机变 draft, and the official 轮到你选 disc over the cards (ui/turnPopup.js) once its art is in —
+  // a shared draft's turn, and a solo draft as it opens (the maintainer's decision of 2026-10-22, decision 7 extended: as
+  // the strategy draft's 请选择策略 band, screens/bandDraft.js). The cue comes due with the turn and plays once no phase
+  // banner or plate is on screen (the 机变阶段 banner that opens the draft hid the disc's words: §35.18's leftover); a pick
+  // (or the turn moving on) before then drops it. The wait runs per overlay (overlayKey): the round plate still up from
+  // ROUND_START holds the banner back (the server's ROUND_START is 2 s, the plate 1.98 s: a plate mounted late, or a slow
+  // phone, has the turn come under it), so the plate gets at most TURN_CUE_PLATE_WAIT_MS, then the banner as it mounts
+  // its own TURN_CUE_WAIT_MS — never timed from the turn alone. [ASSUMED] the order and the bounds
+  const spMine = !!sp && (solo || sp.turnPid === myId) && !sp.pickOf.has(myId);
+  const [turnPop, setTurnPop] = useState(0);
+  const [turnDue, setTurnDue] = useState(0);             // > 0: the cue is waiting to play (re-counted per turn)
+  useEffect(() => { preloadTurnPopupArt(); }, []);
+  useEffect(() => { if (spMine) setTurnDue((n) => n + 1); else setTurnDue(0); }, [spMine]);
+  const overlayKey = hasOffers ? '' : roundPop ? `r:${roundPop.key}` : banner ? `b:${banner.key}` : '';
+  useEffect(() => {
+    if (!turnDue) return undefined;
+    const play = () => {
+      setTurnDue(0);
+      audio.sfx('yourTurn');
+      if (turnPopupArtReady() && !reducedMotion()) setTurnPop((n) => n + 1);
+    };
+    if (!overlayKey) { play(); return undefined; }
+    const id = setTimeout(play, overlayKey.startsWith('r:') ? TURN_CUE_PLATE_WAIT_MS : TURN_CUE_WAIT_MS);
+    return () => clearTimeout(id);
+  }, [turnDue, overlayKey]);
 
   // promotion (merge reward offered) and bond activation cues; a special refresh's offer (凯瑟琳 定向投放 …) plays the
   // shop's refresh sound instead of the promotion cue
@@ -916,20 +1142,21 @@ function MatchScreen() {
   // the prep ended (timer) while the question was open: drop it — the funds are gone either way
   useEffect(() => { if (phase !== PHASE.PREP && askingReady.current) closeAllDialogs(); }, [phase]);
 
-  /** 出售 (operators, underframe +N) / 销毁 (items and Arts, confirmed: they cannot be sold). */
+  /** Sell operators / immediately destroy loose items and Arts. Duplicate requests for one piece are ignored. */
   const sellPiece = useCallback(async (piece) => {
-    if (!piece) return false;
+    if (!piece || salePending.current.has(piece.uid)) return false;
     const closeIt = () => { setDetail((d) => (d?.kind === 'piece' && d.uid === piece.uid ? null : d)); setSel((x) => (x && x.uid === piece.uid ? null : x)); };
-    if (piece.kind === 'item') {
-      // an equipped item is locked (the server refuses g.destroy): replacing it is the equip-replace dialog's job
-      if (!itemDestroyable(live.current.placeCtx, piece.uid)) { toast(t('已配发的装备无法销毁'), 'warn'); audio.sfx('error', { volume: 0.5 }); return false; }
-      const it = data.lookup('items', piece.id);
-      const ok = await confirmDialog({ title: t('销毁道具'), text: t('道具无法出售。确定要销毁「{name}」吗？', { name: it?.name || t('道具') }), okText: t('销毁'), danger: true });
-      if (ok && await actions.destroy(piece.uid)) { closeIt(); return true; }
+    salePending.current.add(piece.uid);
+    try {
+      if (piece.kind === 'item') {
+        // An equipped item stays locked; replacing it is the equip-replace selector's job.
+        if (!itemDestroyable(live.current.placeCtx, piece.uid)) { toast(t('已配发的装备无法销毁'), 'warn'); audio.sfx('error', { volume: 0.5 }); return false; }
+        if (await actions.destroy(piece.uid)) { closeIt(); return true; }
+        return false;
+      }
+      if (await actions.sell(piece.uid)) { closeIt(); return true; }
       return false;
-    }
-    if (await actions.sell(piece.uid)) { closeIt(); return true; }
-    return false;
+    } finally { salePending.current.delete(piece.uid); }
   }, []);
 
   // The watched field only changes once the server accepted g.watch: a refused target (an eliminated teammate, the
@@ -1019,7 +1246,7 @@ function MatchScreen() {
     let moveOff = null;
     // the drop target is the tile under the pointer (render/drag.js; an item dropped on a unit's tile equips that unit —
     // user playtest #4 item 1); `tile` = the last target tile (tileHover), `released` = the pointer went up (not a cancel)
-    const ptr = { released: false, tile: null };
+    const ptr = { released: false, tile: null, point: null };
     const lookups = { getChess: ownChess, getToken: gd.token, getItem: gd.item, chessRecord: (rec) => deployedRecord(rec, live.current.priv, ownChess, gd.backups) };
     const runIntent = async (intent) => {
       const L = live.current;
@@ -1028,17 +1255,17 @@ function MatchScreen() {
         const request = replaceRequest(L.placeCtx, intent, ownShown, gd.item);
         if (request) {
           const uid = await openReplaceRef.current(request);
-          if (!Number.isInteger(uid)) { audio.sfx('back', { volume: 0.5 }); return; }
+          if (!Number.isInteger(uid)) { audio.sfx('back', { volume: 0.5 }); return false; }
           const r = replaceIntent(intent, uid);
-          await actions.equip(r.fields.itemUid, r.fields.targetUid, r.fields.replaceUid);
-          return;
+          return actions.equip(r.fields.itemUid, r.fields.targetUid, r.fields.replaceUid);
         }
       }
       const f = intent.fields;
-      if (intent.t === 'g.move') await actions.move(f.uid, f.to);
-      else if (intent.t === 'g.equip') await actions.equip(f.itemUid, f.targetUid);
-      else if (intent.t === 'g.castSpell') await actions.castSpell(f.itemUid, f.targetUid, f.row == null ? null : { row: f.row, col: f.col });
-      else if (intent.t === 'g.art') await actions.art(f.itemUid, f.row, f.col);
+      if (intent.t === 'g.move') return actions.move(f.uid, f.to);
+      if (intent.t === 'g.equip') return actions.equip(f.itemUid, f.targetUid);
+      if (intent.t === 'g.castSpell') return actions.castSpell(f.itemUid, f.targetUid, f.row == null ? null : { row: f.row, col: f.col });
+      if (intent.t === 'g.art') return actions.art(f.itemUid, f.row, f.col);
+      return false;
     };
     const refuse = (reason) => {
       audio.sfx('error', { volume: 0.5 });
@@ -1071,29 +1298,44 @@ function MatchScreen() {
         const { legal } = boardTargets(L.placeCtx, entry.piece.uid);
         view.highlightTiles(null, null);
         view.highlightTiles(legal, 'legal');
-        ptr.released = false; ptr.tile = null;
+        ptr.released = false; ptr.tile = null; ptr.point = null;
         // capture phase: marked before the drag controller (canvas listener) ends the drag
-        const onUp = () => { ptr.released = true; };
+        const onUp = (e) => { ptr.released = true; ptr.point = {x:e.clientX,y:e.clientY}; };
+        const onMove = (e) => {
+          const zone=quickTradeRef.current;
+          if(zone)zone.classList.toggle('is-over',quickTradeHit(zone.getBoundingClientRect(),{x:e.clientX,y:e.clientY}));
+        };
         window.addEventListener('pointerup', onUp, { passive: true, capture: true });
-        moveOff = () => window.removeEventListener('pointerup', onUp, { capture: true });
+        window.addEventListener('pointermove', onMove, { passive: true, capture: true });
+        moveOff = () => {
+          window.removeEventListener('pointerup', onUp, { capture: true });
+          window.removeEventListener('pointermove', onMove, { capture: true });
+        };
       }),
       view.on('tileHover', (t) => { ptr.tile = t && typeof t === 'object' ? t : null; }),
       view.on('pieceDrop', async (e) => {
+        const inTrade=ptr.released && quickTradeHit(quickTradeRef.current?.getBoundingClientRect(),ptr.point);
         endDrag();
         const L = live.current;
         if (!e || !L.editable || L.heroPicking) return;
         const entry = L.placeCtx?.pieces.get(e.uid);
         if (!entry) return;
+        if (inTrade) {
+          if(quickTradeInfo(L.placeCtx,e.uid))await sellPiece(entry.piece);
+          else audio.sfx('error', { volume: 0.5 });
+          return;
+        }
         const t = e.target || {};
-        if (t.area === 'outside') return; // no drag-to-sell (research 09 §5): the piece goes back
+        if (t.area === 'outside') return; // Outside the explicit quick-trade zone: cancel.
         const res = canPlace(L.placeCtx, e.uid, t);
         if (needsFacing(L.placeCtx, e.uid, t, res)) { openFacing(entry, t); return; }
         const intent = dropIntent(L.placeCtx, e.uid, t);
         if (!intent) {
           if (res.code && res.code !== 'ALREADY') refuse(res.reason);
+          releaseHold(e.uid);
           return;
         }
-        await runIntent(intent);
+        if(!await runIntent(intent))releaseHold(e.uid);
       }),
       view.on('pieceDragEnd', (e) => {
         // a cancelled drag (no pieceDrop) must not leave the highlights behind; a release on a tile that takes nothing
@@ -1219,9 +1461,51 @@ function MatchScreen() {
     return () => host.removeEventListener('pointerdown', onDown, true);
   }, []);
 
+  // Close the bond popup on an outside press. Bond-strip discs and detail-card chips open/toggle
+  // it themselves, so leave those interactions to openBond.
+  useEffect(() => {
+    const screen = hudElRef.current?.parentElement;
+    if (!screen) return undefined;
+    const onDown = (e) => {
+      if (!live.current.bondOpen || e.target?.closest?.('.bpop, .bslot, .dbond')) return;
+      setBondOpen(null);
+    };
+    screen.addEventListener('pointerdown', onDown, true);
+    return () => screen.removeEventListener('pointerdown', onDown, true);
+  }, []);
+
+  // Detail cards can also be opened from the shop, reward, or bond popup, so field-only
+  // dismissal misses those cards when the next press lands elsewhere in the HUD.
+  useEffect(() => {
+    const screen = hudElRef.current?.parentElement;
+    if (!screen) return undefined;
+    const onDown = (e) => {
+      if (!live.current.detail || e.target?.closest?.('.dpanel, .bpop, .bslot, .dbond')) return;
+      if (e.target?.closest?.('.gm__field') && !closesOnFieldPress(live.current.detail)) return;
+      setDetail(null);
+    };
+    screen.addEventListener('pointerdown', onDown, true);
+    return () => screen.removeEventListener('pointerdown', onDown, true);
+  }, []);
+
+  // The underframe belongs to the selected field piece. Keep it while using its actions, detail
+  // card or bond popup: clearing selection on pointerdown can move the card before the click.
+  // Field presses handle selection separately; other HUD content still dismisses it (#792).
+  useEffect(() => {
+    const screen = hudElRef.current?.parentElement;
+    if (!screen) return undefined;
+    const onDown = (e) => {
+      if (!live.current.sel || e.target?.closest?.('.uframe, .gm__field, .dpanel, .bpop')) return;
+      setSel(null);
+    };
+    screen.addEventListener('pointerdown', onDown, true);
+    return () => screen.removeEventListener('pointerdown', onDown, true);
+  }, []);
+
   // ---- direction step (research 09 §1.2) and the selected piece's underframe ------------------------------------
   const heldRef = useRef(new Map());                     // uid → { row, col, t } committed placements awaiting m.private
-  const releaseHold = useCallback((uid) => {
+  const releaseHold = useCallback((uid, expected = null) => {
+    if(expected && heldRef.current.get(uid)!==expected)return;
     heldRef.current.delete(uid);
     holdPiece(view, uid, null);
     setHoldSeq((n) => n + 1);                           // re-apply the prep state: the piece settles where the server says
@@ -1245,17 +1529,19 @@ function MatchScreen() {
     if (!f) return;
     setFacing(null);
     const intent = facingIntent(f.piece, { row: f.row, col: f.col }, dir);
-    heldRef.current.set(f.uid, { row: f.row, col: f.col, t: Date.now() });
+    const hold={ row: f.row, col: f.col };
+    heldRef.current.set(f.uid, hold);
     const ok = intent.t === 'g.art'
       ? await actions.art(intent.fields.itemUid, intent.fields.row, intent.fields.col, intent.fields.dir)
       : await actions.move(intent.fields.uid, intent.fields.to, intent.fields.dir);
     if (!ok) {
+      if(heldRef.current.get(f.uid)!==hold)return;
       if (f.piece.kind !== 'item') setPieceDir(view, f.uid, pieceDir(f.piece));
-      releaseHold(f.uid);
+      releaseHold(f.uid,hold);
       return;
     }
     // accepted: the piece stays on the tile until m.private shows it there (or a short grace passes)
-    setTimeout(() => { if (heldRef.current.has(f.uid)) releaseHold(f.uid); }, 1500);
+    setTimeout(() => releaseHold(f.uid,hold), 1500);
   }, [view, releaseHold]);
   // m.private caught up with a committed placement → stop holding it; a summon stack of several copies (凯瑟琳's 2
   // devices, user playtest #6) stays in the hand and one copy — another piece — lands on the tile: release it too
@@ -1285,28 +1571,28 @@ function MatchScreen() {
   const mergeGeo = useTileScreen(view, mergeAt ? mergeAt.row : null, mergeAt ? mergeAt.col : null);
   const retreatPiece = useCallback(async (uid) => {
     const L = live.current;
-    if (pieceActionBusy.current || !underframeActions(L.placeCtx, uid)?.retreat) return;
+    if (pieceActionBusy.current.has(uid) || !underframeActions(L.placeCtx, uid)?.retreat) return;
     const to = uid != null ? retreatSlot(L.placeCtx, uid) : null;
     if (!to) { toast(t('整备区已满'), 'warn'); audio.sfx('error', { volume: 0.5 }); return; }
-    pieceActionBusy.current = true;
-    setSelBusy(true);
+    pieceActionBusy.current.add(uid);
+    setPendingPieces(new Set(pieceActionBusy.current));
     try {
       if (await actions.move(uid, to)) {
         setSel((s) => s?.uid === uid ? null : s);
         setDetail((d) => (d?.kind === 'piece' && d.uid === uid ? null : d));
       }
     } finally {
-      pieceActionBusy.current = false;
-      setSelBusy(false);
+      pieceActionBusy.current.delete(uid);
+      setPendingPieces(new Set(pieceActionBusy.current));
     }
   }, []);
   const sellOwnPiece = useCallback(async (uid) => {
     const e = live.current.placeCtx.pieces.get(uid);
-    if (!e || pieceActionBusy.current) return;
-    pieceActionBusy.current = true;
-    setSelBusy(true);
+    if (!e || pieceActionBusy.current.has(uid)) return;
+    pieceActionBusy.current.add(uid);
+    setPendingPieces(new Set(pieceActionBusy.current));
     try { await sellPiece(e.piece); }
-    finally { pieceActionBusy.current = false; setSelBusy(false); }
+    finally { pieceActionBusy.current.delete(uid); setPendingPieces(new Set(pieceActionBusy.current)); }
   }, []);
   const retreatSel = useCallback(() => retreatPiece(live.current.sel?.uid), [retreatPiece]);
   const sellSel = useCallback(() => sellOwnPiece(live.current.sel?.uid), [sellOwnPiece]);
@@ -1333,15 +1619,17 @@ function MatchScreen() {
   }, [hud, detail]);
 
   // ---- live stats of the detail card (user playtest #4 item 7) ------------------------------------------------------
-  // battle: the local sim's unit (battle/runner.js unitStats — a getter the panel re-reads 4× a second; any unit of the
-  // battle on screen: own, a teammate's, an enemy). Prep: an own board unit's stats at the start of its next battle,
+  // battle: the local sim's getter, or one selected unit queried from the watched server field, 4× a second while
+  // the detail is open (own, teammate, enemy or summon). Prep: an own board unit's stats at the start of its next battle,
   // asked from the server (g.unitStats → m.unitStats; only the newest request's answer counts) whenever m.private or the
   // phase changes while such a card is open — the last answer stays on show until the next one lands
-  const [unitStats, setUnitStats] = useState(null);      // m.unitStats: { seq, round, units: Map<uid, entry> }
+  const [unitStats, setUnitStats] = useState(null);      // prep: Map<uid, entry>; streamed battle: Map<id, entry>
   const statsSeqRef = useRef(0);
   useEffect(() => net.on('m.unitStats', (msg) => {
     if (!msg || msg.seq !== statsSeqRef.current || !Array.isArray(msg.units)) return;
-    setUnitStats({ seq: msg.seq, round: msg.round, units: new Map(msg.units.filter((u) => u && Number.isInteger(u.uid)).map((u) => [u.uid, u])) });
+    const key = msg.fieldId ? 'id' : 'uid';
+    setUnitStats({ seq: msg.seq, round: msg.round, fieldId: msg.fieldId ?? null,
+      units: new Map(msg.units.filter((u) => u && Number.isInteger(u[key])).map((u) => [u[key], u])) });
   }), []);
   const prepStatsUid = (phase === PHASE.PREP || phase === PHASE.SP_DRAFT || phase === PHASE.ROUND_START) && showPrep && alive
     && !!resolved?.piece && (resolved.type === 'chess' || resolved.type === 'token') && placeCtx.pieces.get(resolved.piece.uid)?.area === 'board'
@@ -1354,10 +1642,38 @@ function MatchScreen() {
     }, 120);
     return () => clearTimeout(t);
   }, [prepStatsUid, priv, phase]);
+  const streamStatsId = !showPrep && pub?.combatMode === 'server'
+    && [PHASE.COMBAT, PHASE.UNITE, PHASE.FINAL_ASSAULT, PHASE.HIDDEN_CORE].includes(phase)
+    ? resolved?.unitId ?? (Number.isInteger(resolved?.piece?.uid)
+      ? field?.units?.find(u => u.uid === resolved.piece.uid && u.ownerId === myId)?.id ?? null : null) : null;
+  const streamStatsField = streamStatsId != null ? field?.fieldId ?? null : null;
+  useEffect(() => {
+    if (streamStatsId == null || !streamStatsField) return undefined;
+    let stopped = false, pending = false;
+    const ask = () => {
+      if (stopped || pending || document.hidden) return;
+      pending = true;
+      statsSeqRef.current = (statsSeqRef.current % 1e9) + 1;
+      const seq = statsSeqRef.current;
+      Promise.resolve().then(() => !stopped && net.request('g.unitStats', {seq, unitId:streamStatsId, fieldId:streamStatsField}))
+        .catch(() => {}).finally(() => { pending = false; });
+    };
+    ask();
+    const timer = paused ? null : setInterval(ask, 250);
+    return () => {
+      stopped = true;
+      if (timer != null) clearInterval(timer);
+      statsSeqRef.current = (statsSeqRef.current % 1e9) + 1;
+    };
+  }, [streamStatsId, streamStatsField, pub?.round, phase, paused]);
   const liveStats = (() => {
     if (prepStatsUid != null) {
-      const e = unitStats && unitStats.round === pub?.round ? unitStats.units.get(prepStatsUid) : null;
+      const e = unitStats && !unitStats.fieldId && unitStats.round === pub?.round ? unitStats.units.get(prepStatsUid) : null;
       return e ? { ...e, src: 'prep' } : null;
+    }
+    if (streamStatsId != null && streamStatsField) {
+      const e = unitStats?.round === pub?.round && unitStats.fieldId === streamStatsField ? unitStats.units.get(streamStatsId) : null;
+      return e ? {...e, src:'battle'} : null;
     }
     // a battle unit's card, or an own board piece's card left open into the battle (its unit found by uid)
     const id = resolved?.unitId;
@@ -1371,10 +1687,16 @@ function MatchScreen() {
     };
   })();
 
+  // One snapshot path for local/Worker/server fields, spectators and reconnects; no wall-clock countdown.
+  const bondTimers = playerSettings.bondTimers && !showPrep && !field?.prep && field?.fieldId ? () => {
+    const id = resolved?.unitId ?? (Number.isInteger(resolved?.piece?.uid)
+      ? field.units?.find(u => u.uid === resolved.piece.uid && u.ownerId === myId)?.id : null);
+    return selectedBondTimers(bondTimerSnapRef.current, field.fieldId, id);
+  } : null;
+
   // ---- keyboard ---------------------------------------------------------------------------------------------
   useEffect(() => {
-    // Remember only pointer coordinates. Hit-test again on keydown so moved/removed pieces, overlays,
-    // camera changes and an old click selection cannot redirect a destructive action.
+    // Q/X prefer the current selection; with none, hit-test the pointer again on keydown.
     let pointer = null;
     const trackPointer = (e) => {
       pointer = e.pointerType === 'touch' ? null : { x: e.clientX, y: e.clientY, buttons: e.buttons };
@@ -1384,6 +1706,7 @@ function MatchScreen() {
     const onKey = async (e) => {
       const act = shortcutFor(e, settingsStore.get().keys); // the player's key map (Settings > Shortcuts)
       const L = live.current;
+      if (document.querySelector('.offerov[role="dialog"]')) return; // Only the visible dialog owns keyboard input.
       // dialogs / the guide own the keyboard; behind the 本局信息 / 敌方情报 drawer only Esc (closing it) acts
       if (shortcutBlocked(act, { modal: !!document.querySelector('.modal, .guide'), drawer: !!L.drawer })) return;
       // Spectating, eliminated, watching another board, or AI 托管: prep shortcuts do nothing. Esc still closes,
@@ -1451,13 +1774,13 @@ function MatchScreen() {
         return;
       }
       if (act === 'retreat' || act === 'sell') {
-        if (!L.showPrep || L.drag || L.facing || L.selBusy || L.pen || !pointer || pointer.buttons) return;
-        const uid = L.view?.pieceAtClientPoint(pointer.x, pointer.y);
-        const hovered = Number.isInteger(uid) ? L.placeCtx.pieces.get(uid) : null;
-        if (hovered?.piece.kind !== 'chess') return;
+        if (!L.showPrep || L.drag || L.facing || L.selBusy || L.pen || pointer?.buttons) return;
+        const uid = L.sel ? L.sel.uid : pointer ? L.view?.pieceAtClientPoint(pointer.x, pointer.y) : null;
+        const target = Number.isInteger(uid) ? L.placeCtx.pieces.get(uid) : null;
+        if (!target || !['chess','item'].includes(target.piece.kind)) return;
         const available = underframeActions(L.placeCtx, uid);
         if (act === 'retreat' && available?.retreat) await retreatPiece(uid);
-        else if (act === 'sell' && available?.sell != null) await sellOwnPiece(uid);
+        else if (act === 'sell' && (available?.sell != null || available?.destroy)) await sellOwnPiece(uid);
         return;
       }
       const reason = shopBlockReason(act, { priv: L.priv, editable: L.editable });
@@ -1500,13 +1823,15 @@ function MatchScreen() {
   // yours when you fight there, else the teammate picked with 前往查看 / the field's first player); in battle with the
   // live layers of the battle on screen (the runner's bondLayers)
   const settleMode = mode === 'settle';
+  const displayedLayers = cc && battleState?.fieldId === field?.fieldId && battleState?.bondLayers
+    ? battleState.bondLayers : (hud?.fieldId === field?.fieldId ? hud?.bondLayers : null);
   const strip = screenStrip({
     pub, priv, myId, combat, settle: settleMode, watchingOther, watching, home,
     battleFieldId: cc ? (battleState?.fieldId || null) : (combat || settleMode ? lastFieldRef.current : null),
-    field, layers, layer, who: watchWho, bondLayers: battleState?.bondLayers || null,
+    field, layers, layer, who: watchWho, bondLayers: displayedLayers,
   });
   const stripFid = strip.fieldId;
-  const liveLayers = (combat || settleMode) && battleState?.bondLayers ? battleState.bondLayers : null;
+  const liveLayers = combat || settleMode ? displayedLayers : null;
   // the observing pill names the player whose bonds the strip shows (the same teammate as the strip's "👁 name" tag)
   const observingName = cc && combat && watchedFid ? (!strip.self && stripFid === watchedFid ? strip.name : (players.find((p) => p.fieldId === watchedFid || ownFieldId(p.playerId) === watchedFid)?.name || t('队友'))) : null;
   const watchedP = watchingOther ? (players.find((p) => p.playerId !== myId && (watching === ownFieldId(p.playerId) || (watching === p.fieldId && String(watching).startsWith('n:')))) || null) : null;
@@ -1604,8 +1929,11 @@ function MatchScreen() {
   const nativeOffer=priv?.shop?.rewardOffer||null;
   const heroOffer=heroDiscoveryOffer(priv?.heroPower,gd.chess,nativeOffer?1+(nativeOffer.queued||0):0,heroRoutes);
   const currentOffer=phase===PHASE.PREP?(heroOffer||nativeOffer):null;
+  const tradePiece=drag && placeCtx.pieces.get(drag.uid)?.piece;
+  const tradeInfo=tradePiece?quickTradeInfo(placeCtx,tradePiece.uid):null;
+  const tradeName=tradePiece?(tradePiece.kind==='item'?gd.item(tradePiece.id)?.name:tradePiece.kind==='chess'?ownShown(tradePiece.id)?.name:gd.token(tradePiece.id)?.name):'';
 
-  return html`<div class=${cx('screen', 'gm', `gm--${mode}`, heroPickingNow&&'is-hero-targeting', drag && 'is-dragging', barCollapsed && 'is-collapsed', (sp || hasPersonalChoice) && 'has-sp', pen && 'is-pen', readyWhy && 'has-readywhy')}
+  return html`<div class=${cx('screen', 'gm', `gm--${mode}`, heroPickingNow && 'is-hero-targeting', drag && 'is-dragging', barCollapsed && 'is-collapsed', (sp || hasPersonalChoice || offerBlocksPrep(pub?.offers)) && 'has-sp', sp && 'has-spdraft', pen && 'is-pen', readyWhy && 'has-readywhy')}
       data-camera=${pen ? 'pen' : camKind}>
     <div class="gm__field" ref=${hostRef} onContextMenu=${(e) => e.preventDefault()}></div>
     ${viewKind === 'loading' ? html`<div class="gm__loading"><${Spinner} label="LOADING FIELD" /></div>` : null}
@@ -1614,14 +1942,17 @@ function MatchScreen() {
       ready=${phase === PHASE.PREP && !!priv?.ready} />` : null}
     ${showPrep && view && viewKind !== 'loading' && priv && !pen ? html`<${StandInTags} view=${view} priv=${priv} getChess=${gd.chess} backups=${gd.backups} diyData=${{ chess: data.get('chess'), backups: data.get('backups') }} />` : null}
 
-    <div class="gm__hud" ref=${hudElRef}>
+    <div class=${cx('gm__hud', hudIn && `is-${hudIn}`)} ref=${hudElRef}>
+      ${drag && editable && !heroPickingNow ? html`<${QuickTradeZone} info=${tradeInfo} name=${tradeName} zoneRef=${quickTradeRef} mirror=${deployField==='bossR'} />`:null}
       <${TopBar} pub=${pub} priv=${priv} conn=${conn} hud=${hud} total=${total} drawer=${drawer}
+        onCombatSpeed=${actions.combatSpeed}
         onExit=${() => setExitOpen(true)} onDrawer=${(t) => setDrawer((d) => (d ? null : t))} onReady=${toggleReady}
         readyBusy=${readyBusy} readyCount=${readyCount} playerCount=${solo ? 1 : aliveCount}
         pen=${pen} penAvail=${penAvail} onPen=${togglePen} config=${gd.config} frozenAt=${frozenAt}
         pause=${canPause || paused ? { show: canPause, paused, busy: pauseBusy, onToggle: () => togglePause(!paused) } : null}
         live=${liveLpNow} spectator=${spectator}
-        spectators=${specFacts.list} myId=${myId} isHost=${specFacts.isHost} onRemoveSpectator=${removeSpectator} room=${modRoom} />
+        spectators=${specFacts.list} myId=${myId} isHost=${specFacts.isHost} onRemoveSpectator=${removeSpectator} room=${modRoom}
+        held=${hudIn === 'wait'} />
 
       <div class="gm__bonds">
         <button type="button" class="bonds-toggle" aria-expanded=${!bondsCollapsed} aria-controls="match-bond-strip"
@@ -1641,6 +1972,7 @@ function MatchScreen() {
       </div>
 
       <${TeamPanel} pub=${pub} myId=${myId} watching=${watchingNow} bubbles=${bubbles} onWatch=${watchPlayer} cap=${gd.config?.lpCapPerRound ?? 10} uniteLocal=${uniteLocal}
+        spMarks=${sp ? spMarks(sp, { solo }) : null}
         self=${Number.isFinite(priv?.lp) ? { lp: priv.lp, pending: liveLpNow.pending, unite: liveLpNow.unite, left: liveLpNow.left } : null}
         observe=${cc ? { canObserve: (p) => observeTarget(p, pub, myId, { observing: watchingOther, ownDone: localDone }), observing: watchingOther, onBack: backHome } : null} />
 
@@ -1656,7 +1988,7 @@ function MatchScreen() {
       ${showShop ? html`<${ShopBar} priv=${priv} editable=${editable} collapsed=${barCollapsed} refreshBusy=${refreshBusy} onCollapse=${setCollapsed}
         barRef=${barRef} offBonds=${offBonds} heroTargeting=${heroPickingNow?{targets:priv.heroPower.targets,onPick:setHeroPicked}:null}
         onBuy=${buy} onLevel=${() => actions.levelUp()} onRefresh=${() => actions.refresh()} onFreeze=${() => actions.freeze()}
-        onDetail=${(id, kind, hint) => setDetail({ kind: kind === 'item' ? 'item' : 'chess', id, hint: hint || null, tap: ++cardTap.current })}
+        onDetail=${(id, kind, hint, shopCard) => setDetail({ kind: kind === 'item' ? 'item' : 'chess', id, hint: hint || null, shopCard, tap: ++cardTap.current })}
         onDetailClose=${() => setDetail((d) => (d?.kind === 'chess' || d?.kind === 'item' ? null : d))}
         onRefuse=${(reason) => { toast(reason, 'warn'); audio.sfx('error', { volume: 0.5 }); }}
         rewardReminder=${currentOffer && (rewardMin || barCollapsed) ? html`<${RewardOverlay} priv=${priv} offer=${currentOffer} minimized=${true}
@@ -1681,7 +2013,8 @@ function MatchScreen() {
       <div class="ui-slot gm__ui-slot" data-ui-slot="hud.right" aria-label=${t('界面插件')} dangerouslySetInnerHTML=${{ __html: '' }}></div>
 
       <div class="gm__corner">
-        ${showMetrics && metricsOpen ? html`<${CombatMetricsPanel} myId=${myId} onClose=${() => setMetricsOpen(false)} />` : null}
+        <${AiTakeoverPanel} />
+        ${showMetrics && metricsOpen ? html`<${CombatMetricsPanel} myId=${myId} streaming=${!!pub?.growthMode} onClose=${() => setMetricsOpen(false)} />` : null}
         ${spectator ? null : html`<${EmoteWheel} open=${emoteOpen} onToggle=${setEmoteOpen} onSend=${(id) => actions.emote(id)} disabled=${conn.status !== 'online'} />`}
         ${showMetrics ? html`<button type="button" class="gm__gear gm__metrics" aria-label=${t('作战统计')} title=${t('作战统计')} aria-expanded=${metricsOpen}
           aria-controls="combat-metrics-panel" onKeyDown=${(e) => { if (e.key === ' ') e.stopPropagation(); }} onClick=${() => {
@@ -1691,6 +2024,8 @@ function MatchScreen() {
             setSel(null);
             setBondOpen(null);
           }}><${Icon} name="signal" /></button>` : null}
+        ${prepLoadoutOpen && phase === PHASE.PREP && priv && !priv.ready && !spectator
+          ? html`<${LoadoutButton} from="prep" size="sm" />` : null}
         <button type="button" class="gm__gear" aria-label=${t('设置')} title=${t('设置')} onClick=${() => setSettingsOpen(true)}><${GIcon} name="gear" /></button>
         <button type="button" class="gm__gear gm__guide" aria-label=${t('玩法说明')} title=${t('玩法说明')} onClick=${() => openGuide(0)}><${Icon} name="book" /></button>
         <${FullscreenButton} class="gm__gear gm__fs" />
@@ -1700,13 +2035,15 @@ function MatchScreen() {
         bandId=${scoutBandId} bandOwner=${scoutBandOwner}
         onEnemy=${(k, n) => setDetail({ kind: 'enemy', id: k, count: n })} onChess=${(id) => setDetail({ kind: 'chess', id, foreign: true })} />` : null}
 
-      ${bondPop ? html`<${BondPopup} bondId=${bondPop.bondId} entry=${bondPop.entry} priv=${bondPop.priv} banned=${pub?.bannedChess || []} owner=${bondPop.name}
-        off=${offBonds.has(bondPop.bondId)}
+      ${bondPop ? html`<${BondPopup} bondId=${bondPop.bondId} entry=${bondPop.entry} priv=${bondPop.priv} banned=${pub?.bannedChess || []} owner=${bondPop.name} ownerId=${bondPop.ownerId}
+        off=${offBonds.has(bondPop.bondId)} morphMode=${morphMode}
         place=${bpPlace} over=${!!resolved && bpPlace === dSide}
         onClose=${() => setBondOpen(null)} onMember=${(id, items, standInFor, diy) => setDetail({ kind: 'chess', id, owner: bondPop.ownerId, items: items || null, standInFor: standInFor || null, diy: diy || null })} />` : null}
 
       ${resolved ? html`<${DetailPanel} detail=${resolved} snapHp=${snapHp} onClose=${() => { setDetail(null); setSel(null); }}
-        bonds=${detailBonds} offBonds=${offBonds} loadout=${detailLoadout} ops=${priv?.ops ?? null} side=${dSide} shopOpen=${shopOpen} live=${liveStats} voice=${true}
+        bonds=${detailBonds} offBonds=${offBonds} loadout=${detailLoadout} ops=${priv?.ops ?? null} side=${dSide} shopOpen=${shopOpen} live=${liveStats} bondTimers=${bondTimers} voice=${true}
+        morphMode=${morphMode} unequipAllowed=${unequipAllow}
+        onUnequip=${editable && unequipAllow ? (itemUid) => actions.unequip(itemUid) : null}
         onBond=${(id) => openBond(id, detailOwner, 'detail')} onCastSpell=${editable ? itemUid => actions.castSpell(itemUid) : null} />` : null}
 
       ${selEntry && editable && !facing && !drag && showPrep ? html`<${Underframe} key=${sel.uid} view=${view} uid=${sel.uid}
@@ -1715,6 +2052,7 @@ function MatchScreen() {
         onRetreat=${retreatSel} onSell=${sellSel} onDestroy=${sellSel} />` : null}
     </div>
 
+    ${hasOffers && !sp && !personalChoice ? html`<${OfferOverlay} pub=${pub} myId=${myId} readOnly=${spectator || !alive} onAction=${actions.offer} />` : null}
     ${sp ? html`<${ChoiceOverlay} pub=${pub} sp=${sp} myId=${myId} solo=${solo} busyIdx=${spBusy} total=${total}
       onPick=${async (i) => { setSpBusy(i); await actions.choice(i); setSpBusy(null); }} />` : null}
     ${personalChoice ? html`<${ChoiceOverlay} key=${personalChoice.id} pub=${pub} sp=${personalChoice} myId=${myId} solo=${solo} personal=${true}
@@ -1725,12 +2063,24 @@ function MatchScreen() {
         await actions.choice(i, choiceId);
         setPersonalBusy((b) => b?.choiceId === choiceId ? null : b);
       }} />` : null}
+    ${!hasOffers && turnPop ? html`<${TurnPopup} key=${turnPop} onDone=${() => setTurnPop(0)} />` : null}
 
-    ${banner ? html`<${PhaseBanner} key=${banner.key} mode="overlay" title=${banner.title} sub=${banner.sub} micro=${banner.micro}
+    ${boot && !hasOffers ? html`<${ProtocolBoot} key=${boot.key} players=${players} myId=${myId} leaving=${bootLeaving} />` : null}
+    ${roundPop && !hasOffers && (!boot || bootLeaving) && hudIn !== 'wait' ? html`<${RoundPopup} key=${roundPop.key} round=${roundPop.round} gain=${roundGain} left=${roundPop.left} sub=${roundPop.sub}
+      watching=${roundPop.watching} onDone=${() => setRoundPop(null)} />` : null}
+    ${!hasOffers && banner?.plate && !roundPop ? html`<${PhasePopup} key=${banner.key} tone=${banner.tone} faces=${banner.faces} title=${banner.title} sub=${banner.sub}
+      chev=${banner.chev} duration=${banner.duration} onDone=${() => setBanner(null)} />` : null}
+    ${!hasOffers && banner && !banner.plate && !roundPop ? html`<${PhaseBanner} key=${banner.key} mode="overlay" title=${banner.title} sub=${banner.sub} micro=${banner.micro}
       tone=${banner.tone} duration=${banner.duration || 1500} onDone=${() => setBanner(null)} />` : null}
 
     ${resultBox ? html`<${ResultDialog} key=${resultBox.key} title=${resultBox.title} sub=${resultBox.sub} micro=${resultBox.micro}
       tone=${resultBox.tone} duration=${resultBox.duration} onDone=${() => setResultBox(null)} />` : null}
+
+    ${bossPlate?.kind === 'final' ? html`<${FinalAssaultPlate} key=${bossPlate.key} rows=${bossPlate.rows} total=${bossPlate.total} bossId=${pub?.bossId}
+      myId=${myId} onDone=${() => setBossPlate(null)} />`
+      : bossPlate?.kind === 'core' ? html`<${HiddenCorePlate} key=${bossPlate.key} bossId=${pub?.hiddenBossId} onDone=${() => setBossPlate(null)} />`
+      : bossPlate?.kind === 'end' ? html`<${EndPlate} key=${bossPlate.key} kind=${bossPlate.end} bossId=${pub?.bossId} hiddenBossId=${pub?.hiddenBossId}
+        onDone=${() => setBossPlate(null)} />` : null}
 
     ${facing && view ? html`<${FacingWheel} key=${`${facing.uid}:${facing.row},${facing.col}`} view=${view} row=${facing.row} col=${facing.col}
       grid=${facing.grid} name=${facing.name} onPreview=${previewFacing} onCommit=${commitFacing} onCancel=${cancelFacing} />` : null}
@@ -1741,6 +2091,7 @@ function MatchScreen() {
       onConfirm=${(uid) => closeReplace(uid)} onCancel=${() => closeReplace(null)} />` : null}
 
     <${SettingsModal} open=${settingsOpen} onClose=${() => setSettingsOpen(false)} />
+    <${DownedPlate} open=${downed} onWatch=${() => setDowned(false)} onLeave=${() => { setDowned(false); setExitOpen(true); }} />
     <${ExitModal} open=${exitOpen} onClose=${() => setExitOpen(false)} solo=${solo} />
   </div>`;
 }

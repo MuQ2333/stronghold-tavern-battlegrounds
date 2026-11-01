@@ -3,8 +3,9 @@
 // an ELIMINATED player in every phase — the field of the player it follows in each battle (b.start watch: the one it last
 // watched, else the first), any field on g.watch, the 联防 spec, that player's boss field, a prep board on g.watch
 // 'n:<pid>' or of the player it follows — and the settlement; it never receives an m.private
-// (shop, hand, funds …), an m.toast or m.unitStats, is never a field's player or authority, and every intent but g.watch
-// is refused (SPECTATOR). The platform half (seats, cap, host removal, reconnect): test/lobby.test.js; over sockets with
+// (shop, hand, funds …), an m.toast or prep m.unitStats, is never a field's player or authority, and every intent but
+// g.watch / a targeted read of visible server-combat stats is refused (SPECTATOR). The platform half (seats, cap,
+// host removal, reconnect): test/lobby.test.js; over sockets with
 // the real Match: test/match/lobby-integration.test.js.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

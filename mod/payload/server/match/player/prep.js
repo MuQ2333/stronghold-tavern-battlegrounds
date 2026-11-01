@@ -7,6 +7,8 @@
 import { ERR, PHASE } from '../../../shared/constants.js';
 import { freeSlot } from '../board.js';
 import { OK, fail } from './common.js';
+import {growthSelfDamage} from '../growthKazdel.js';
+import { isMutationCell } from '../../sim/content/support/index.js';
 
 export class PlayerPrep {
   _gate({ allowWhenReady = false } = {}) {
@@ -47,13 +49,25 @@ export class PlayerPrep {
     slot.sold = true;
     this.offers.shift();
     if (price > 0) this.spend(price);
-    if (slot.kind === 'item') this.acquireItem(slot.id, { source: 'reward', displayed: true });
-    else this.acquireChess(slot.id, { source: 'reward', spellLockUntil: offer.spellLock ? this.m.round + 1 : null });
+    if (slot.kind === 'item') {
+      const gained = this.acquireItem(slot.id, { source: 'reward', displayed: true });
+      // #677: maintainer decision 2026-10-17 (official play memory): one Cathy cell per player/match.
+      // [ASSUMED] Only a successful pick from this source counts; Quintus's grant is independent.
+      if (gained && offer.source === 'band:band_cathy' && isMutationCell(slot.id, this.gd.raw)) {
+        this.counters['band:cathy:cellTaken'] = 1;
+        // [ASSUMED] Remove the cell from queued Cathy offers too, retaining their other choices without rerolling.
+        for (const pending of this.offers) if (pending.source === 'band:band_cathy') {
+          pending.slots = pending.slots.filter((s) => s.id !== slot.id);
+        }
+        this.offers = this.offers.filter((pending) => pending.slots.length);
+      }
+    } else this.acquireChess(slot.id, { source: 'reward', fromPool: !slot.heroGenerated, spellLockUntil: offer.spellLock ? this.m.round + 1 : null });
+    if(offer.growthSelfDamage && slot.kind==='chess')growthSelfDamage(this,this.gd.chess(slot.id).tier);
     if (offer.spellShare) {
       const mates = this.spellMates();
       for (const other of offer.slots.filter((_, i) => i !== idx)) {
         const mate = this.spellSample(mates)[0];
-        if (mate) mate.spellData().pending.push({ type: 'gift', id: other.id, due: this.m.round + 1 });
+        if (mate) mate.spellData().pending.push({ type: 'gift', id: other.id, due: this.m.round + 1, ...(other.heroGenerated ? {heroGenerated:true} : {}) });
       }
     }
     this._afterSpend(price, 'reward');

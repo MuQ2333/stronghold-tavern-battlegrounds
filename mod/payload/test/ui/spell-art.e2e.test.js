@@ -66,13 +66,21 @@ test('WebGL hand uses the catalog art URL and retains the spell frame', {
     await new Promise(resolve => setTimeout(resolve, 1000));
     await page.waitForSelector('.shopbar__spells .scard');
     assert.equal(await page.$$eval('.shopbar__cards .scard__growth', rows => rows.length), 5);
-    assert.ok(await page.$$eval('.shopbar__cards .scard__growth', rows => rows.every(r => r.textContent.includes('+1层'))));
+    assert.ok(await page.$$eval('.shopbar__cards .scard__growth', rows => rows.every(r => r.textContent === '+1')));
     assert.equal(await page.$$eval('.shopbar__cards .is-elite .scard__goldreward', rows => rows.length), 1);
-    assert.ok(await page.$$eval('.shopbar__cards .has-growth', cards => cards.every(card => {
-      const badge = card.querySelector('.scard__growth').getBoundingClientRect();
-      const art = card.querySelector('.scard__art').getBoundingClientRect();
-      return badge.bottom <= art.top + 1;
-    })), 'purchase bonus header sits above portraits');
+    const checkPurchaseHeaders = async () => assert.ok(await page.$$eval('.shopbar__cards .scard-entry', entries => entries.every(entry => {
+      const badge = entry.querySelector('.scard__growth').getBoundingClientRect();
+      const card = entry.querySelector('.scard').getBoundingClientRect();
+      const art = entry.querySelector('.scard__art').getBoundingClientRect();
+      const label = document.querySelector('.shopbar__spells .shopbar__category').getBoundingClientRect();
+      const scroll = entry.closest('.shopbar__cards').getBoundingClientRect();
+      const left = Math.max(badge.left,scroll.left,0), right = Math.min(badge.right,scroll.right,innerWidth);
+      if (left >= right) return true;
+      const x = (left+right)/2;
+      return badge.bottom <= card.top && Math.abs(badge.top-label.top)<2 && art.height>=card.height-3
+        && document.elementFromPoint(x,badge.top+badge.height/2)?.classList.contains('scard__growth');
+    })), 'purchase headers align with categories, remain visible and leave portraits at full height');
+    await checkPurchaseHeaders();
     const checkVisible = async () => assert.ok(await page.$eval('.shopbar__spells .scard', card => {
       const r = card.getBoundingClientRect(), funds = document.querySelector('.funds').getBoundingClientRect();
       const label = document.querySelector('.shopbar__spells .shopbar__category'), lr = label.getBoundingClientRect();
@@ -85,6 +93,9 @@ test('WebGL hand uses the catalog art URL and retains the spell frame', {
     await page.setViewport({ width: 844, height: 390 });
     await new Promise(resolve => setTimeout(resolve, 500));
     await checkVisible();
+    await checkPurchaseHeaders();
+    await page.$eval('.shopbar__cards',el=>{el.scrollLeft=el.scrollWidth;});
+    await checkPurchaseHeaders();
     await page.screenshot({ path: '.cache/spell-shop/webgl-narrow.png' });
     await page.setViewport({ width: 1600, height: 900 });
     await page.evaluate(() => globalThis.__MOCK__.mutate(S => {

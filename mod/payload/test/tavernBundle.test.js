@@ -23,7 +23,7 @@ test('all eight module switch combinations preserve independent gameplay and ava
    assert.equal(typeof bob,'boolean');h.m.dispose();
   }
  }
- assert.deepEqual(normalizeTavernMods(),{spells:true,heroes:true});
+ assert.deepEqual(normalizeTavernMods(),{spells:true,heroes:true,growth:false});
  assert.equal(validTavernMods({spells:true,heroes:true,bob:false}),false);
 });
 
@@ -33,17 +33,22 @@ test('room switches default on, synchronize from the host, clear readiness and l
   const connect=async name=>{const c=await TestClient.connect(`ws://127.0.0.1:${server.port}/ws`);clients.push(c);const w=await c.hello(name);c.id=w.playerId;return c;};
   const a=await connect('Host'),b=await connect('Guest');
   assert.equal((await a.request({t:'room.create',mode:'coop',difficulty:'FUNNY'})).t,'ok');
-  const initial=await a.waitFor('room.state');assert.deepEqual(initial.tavernMods,{spells:true,heroes:true});
+  const initial=await a.waitFor('room.state');assert.deepEqual(initial.tavernMods,{spells:true,heroes:true,growth:false});
   assert.equal((await b.request({t:'room.join',code:initial.code})).t,'ok');
   assert.equal((await b.request({t:'room.ready',ready:true})).t,'ok');
-  const message={t:'room.setTavernMods',mods:{spells:false,heroes:true}};
+  const message={t:'room.setTavernMods',mods:{spells:false,heroes:true,growth:true}};
   assert.equal((await b.request(message)).code,'NOT_HOST');
   assert.equal((await a.request(message)).t,'ok');
-  const state=await b.waitFor('room.state',s=>s.tavernMods?.spells===false);
+  const state=await b.waitFor('room.state',s=>s.tavernMods?.growth===true);
+  assert.deepEqual(state.tavernMods,{spells:true,heroes:true,growth:true},'enabling tavern turns on both switches');
   assert.equal(state.seats.find(s=>s?.playerId===b.id).ready,false);
+  assert.equal((await a.request(message)).t,'ok');
+  const independent=await b.waitFor('room.state',s=>s.tavernMods?.growth===true&&s.tavernMods?.spells===false);
+  assert.deepEqual(independent.tavernMods,{spells:false,heroes:true,growth:true},'the other switches remain individually adjustable');
   assert.equal((await b.request({t:'room.ready',ready:true})).t,'ok');
   assert.equal((await a.request({t:'room.start'})).t,'ok');
   const room=server.lobby.getRoom(initial.code);assert.equal(room.match.spellShop,false);assert.equal(room.match.heroMod,true);
+  assert.equal(room.match.growthMode,true);
   assert.equal((await a.request(message)).code,'ROOM_STARTED');
   room.match.dispose();
  }finally{for(const c of clients)await c.terminate();await server.close();}

@@ -1,13 +1,15 @@
 // Host support for independently loaded hero strategy records. All state belongs to one player/match.
-import { heroPowerId, heroAvailable } from '../../shared/heroPowers.js';
+import { heroPowerId, heroAvailable, heroPowerCost, PASSIVE_HERO_IDS } from '../../shared/heroPowers.js';
 import { spellShopEnabled, spellTarget } from '../../shared/spells.js';
+import { msg, dn } from '../../shared/i18n.js';
 import { ERR } from '../../shared/constants.js';
 import { pieceBonds } from './bondsMeta.js';
 import {lockHandCard,unlockHandCards,handLockedCards} from './lockedCards.js';
 import {isHandLocked} from '../../shared/lockedCards.js';
 import { spellBandPool } from '../../shared/spellBands.js';
+import {growthRewardAllowed} from './growthRewardPolicy.js';
 
-const passive = new Set(['gallywix','sindragosa','millhouse','mukla','flurgl','nozdormu','omu','guff','tamsin','voone','hoggarr','thelan','yogg','faelin','nguyen']);
+const passive = new Set(PASSIVE_HERO_IDS);
 const ok = { ok: true };
 const fail = (error = ERR.BAD_TARGET) => ({ error });
 export const powerOf = ps => ps?.m?.heroMod && heroAvailable(ps.gd.band(ps.bandId), spellShopEnabled(ps.m.spellShop)) ? heroPowerId(ps.gd.band(ps.bandId)) : null;
@@ -16,6 +18,7 @@ const state = ps => ps.heroState ||= initial();
 const choose = (ps, list) => list.length ? list[Math.floor(ps.m.rngMeta() * list.length)] : null;
 const sample = (ps, list, count=3) => {
   const a = [...new Set(list)], out=[];
+  // loop-cap: each iteration removes one entry from the finite unique candidate array.
   while (a.length && out.length<count) out.push(a.splice(Math.floor(ps.m.rngMeta()*a.length),1)[0]);
   return out;
 };
@@ -45,12 +48,19 @@ function autoSpell(ps) {
         for(const [key,kind] of ps.deployMap()) { const [row,col]=key.split(',').map(Number); if(kind==='melee'&&!ps.board.has(key)){result=ps.castSpell(item.uid,null,{row,col},true);if(result.ok)break;} }
       } else result=ps.castSpell(item.uid,target?.uid??null,null,true);
       } finally {delete ps._automaticSpellItem;}
-      if(result?.ok)return;
+      if(result?.ok) {
+        ps.heroState.lastSpell = { id: rec.id, round: ps.m.round,
+          ...(target?.id ? { targetId: target.id } : {}) };
+        ps.dirty();
+        ps.m.toast(ps, 'info', msg('尤格-萨隆施放了{name}', { name: dn(rec.name || rec.id) }));
+        return;
+      }
     }
   }
 }
 function candidates(ps, {tier, maxTier=ps.shop.level, bonds, stock=true}={}) {
   return ps.gd.visibleChess.filter(id => {
+    if(!growthRewardAllowed(ps,id))return false;
     const c=ps.gd.chess(id), pool=ps.poolOf(id);
     return c && !c.isGolden && !c.isDiy && pool.has(id) && (!stock || pool.left(id)>0)
       && (tier == null ? c.tier<=maxTier : c.tier===tier)
@@ -82,10 +92,11 @@ export function heroFreeRefresh(ps) { return powerOf(ps)==='nozdormu' && (ps.her
 export function heroFirstRoundBlocked(ps) { return powerOf(ps)==='faelin' && ps.m.round===1; }
 
 /** Identity stays Nguyen while battle / meta hooks use the selected strategy's ordinary bandId. */
-export function heroIdentityBand(ps) { return ps.nguyenState ? 'band_hs_nguyen' : ps.bandId; }
+const nguyenBand = ps => ps.gd.bandIds().find(id => heroPowerId(ps.gd.band(id)) === 'nguyen') ?? 'band_hs_nguyen';
+export function heroIdentityBand(ps) { return ps.nguyenState ? nguyenBand(ps) : ps.bandId; }
 export function strategyPool(ps, temporary = false) {
   return spellBandPool(ps.gd, { round:ps.m.round, level:ps.shop.level, current:ps.bandId, heroes:!!ps.m.heroMod, temporary,
-    taken:[...(ps.nguyenState?['band_hs_nguyen']:[]),...ps.m.order.filter(p=>p!==ps&&p.alive).flatMap(p=>[p.bandId,heroIdentityBand(p)])] });
+    taken:[...(ps.nguyenState?[nguyenBand(ps)]:[]),...ps.m.order.filter(p=>p!==ps&&p.alive).flatMap(p=>[p.bandId,heroIdentityBand(p)])] });
 }
 
 /** Clear unearned progress only. Already gained funds, layers, cards and physical card locks remain owned. */
@@ -103,6 +114,7 @@ export function replaceHeroStrategy(ps, bandId, { temporary = false, startRound 
     const layout=ps.shop.layout, old=ps.shop.slots, target=heroSlots(ps,ps.gd.shopSlots(ps.shop.level).chess);
     if(layout && !ps.shop.spellOverride) {
       const units=old.slice(0,layout.chess).slice(0,target);
+      // loop-cap: validated shop operator-slot count; each iteration adds one slot.
       while(units.length<target)units.push(null);
       ps.shop.slots=[...units,...old.slice(layout.chess)];ps.shop.layout={...layout,chess:target};
     }
@@ -127,7 +139,7 @@ export function beginHeroRound(ps) {
   const previous=ps.bandId;
   ps.nguyenState.previous=previous;
   ps.nguyenState.choices=[];
-  replaceHeroStrategy(ps,'band_hs_nguyen',{temporary:true});
+  replaceHeroStrategy(ps,nguyenBand(ps),{temporary:true});
 }
 
 function nguyenOffer(ps) {
@@ -154,8 +166,8 @@ export function heroDescription(ps) {
   if(id==='zephrys')desc=desc.replace(/还剩\d+个愿望/,`还剩${Math.max(0,3-s.uses)}个愿望`);
   if(id==='guff')desc=desc.replace(/还剩\d+阶/,`还剩${20-s.progress}阶`);
   if(id==='cookie')desc=desc.replace(/还剩\d+名/,`还剩${3-s.pot.length}名`);
-  if(id==='voone')desc=desc.replace(/还剩\d+回合！/,ps.m.round>0&&ps.m.round%3===0?'就是这回合！':`还剩${3-((Math.max(1,ps.m.round)-1)%3)}回合！`);
-  if(id==='thelan')desc=desc.replace(/还剩\d+张！/,s.progress===2?'就是这张！':`还剩${2-s.progress}张！`);
+  if(id==='voone')desc=desc.replace(/还剩\d+回合！/,ps.m.round>0&&ps.m.round%3===0?'就是这回合！':`还剩${3-((Math.max(1,ps.m.round)-1)%3)}回合！`); // i18n-ignore: dynamic game-data description, following the hero catalog source language.
+  if(id==='thelan')desc=desc.replace(/还剩\d+张！/,s.progress===2?'就是这张！':`还剩${2-s.progress}张！`); // i18n-ignore: dynamic game-data description, following the hero catalog source language.
   if(id==='voone'&&spellShopEnabled(ps.m.spellShop))desc=desc.replace('干员或装备','干员、装备或法术');
   if(id==='galewing'&&s.flight)desc=desc.split('\n').map((line,index)=>index===s.flight?line.replace(/还剩\d+回合/,`还剩${Math.max(0,s.nextRound-ps.m.round)}回合`):line).join('\n');
   return desc;
@@ -221,6 +233,7 @@ export function heroEvent(ps,hook,ev) {
     if(id==='hoggarr' && ev.kind==='chess' && ps.gd.chess(ev.slot.id)?.bonds?.some(b=>['visiShip','miraShip','investShip'].includes(b))) ps.addFunds(1);
     if(id==='guff') {
       s.progress+=(ev.kind==='chess'?ps.gd.chess(ev.slot.id):ps.gd.item(ev.slot.id))?.tier||0;
+      // loop-cap: finite purchased tier progress; each reward consumes 20, leaving a remainder below 20.
       while(s.progress>=20) { s.progress-=20; ps.pushRewardOffer('hero'); }
     }
   }
@@ -287,13 +300,6 @@ function pairs(ps) {
   for(const p of ps.allChess()) if(!isHandLocked(p)&&!ps.gd.isGolden(p.id)) counts.set(p.id,(counts.get(p.id)||0)+1);
   return [...counts].filter(([id,n])=>n>=2 && ps.gd.mergeCount(id)===3).map(([id])=>id);
 }
-function cost(ps,id,s) {
-  if(id==='elise') return 1+s.uses;
-  if(id==='togwaggle') return Math.max(0,11-s.discount);
-  if(['zephrys','cenarius'].includes(id)) return 3;
-  if(id==='sylvanas'||id==='scabbs') return 2;
-  return ['cookie','galewing','faelin'].includes(id)?0:1;
-}
 
 export function useHeroPower(ps,msg) {
   const gate=ps._gate(); if(gate) return gate;
@@ -323,7 +329,7 @@ export function useHeroPower(ps,msg) {
   }
   if(msg.action!=='use' || passive.has(id) || s.choices.length || s.usedRound===r || r<s.nextRound) return fail();
   if(id==='alexstrasza' && ps.shop.level<4 || id==='sylvanas' && r<3 || id==='zephrys' && s.uses>=3 || id==='faelin') return fail();
-  const price=cost(ps,id,s); if(ps.funds<price) return fail(ERR.NO_FUNDS);
+  const price=heroPowerCost(id,s); if(ps.funds<price) return fail(ERR.NO_FUNDS);
   let run;
   if(id==='hollidae') {
     if(!room(ps))return fail(ERR.HAND_FULL);
@@ -386,6 +392,7 @@ export function useHeroPower(ps,msg) {
     run=()=>{
       // Each death is an equally likely ticket; remove a chosen identity to keep discover options distinct.
       let tickets=[...s.deaths];const picks=[];
+      // loop-cap: at most three picks; each iteration removes the chosen identity's tickets.
       while(tickets.length&&picks.length<3){const pick=choose(ps,tickets);picks.push(pick);tickets=tickets.filter(id=>id!==pick);}
       offer(ps,picks,{generated:true});
     };
@@ -436,13 +443,13 @@ export function heroView(ps) {
   const targets=[];
   if(['cookie','maiev'].includes(id)) ps.shop.slots.forEach((x,slot)=>{if(x&&!x.sold&&(id==='maiev'||x.kind==='chess')) targets.push({slot,id:x.id,kind:x.kind});});
   if(id==='cookie') for(const p of ps.allChess().filter(p=>!isHandLocked(p))) targets.push({uid:p.uid,id:p.id,kind:'chess'});
-  return {id,name:band.effectName,desc:heroDescription(ps),round:ps.m.round,passive:passive.has(id),price:cost(ps,id,s),used:s.usedRound===ps.m.round,
+  return {id,...(s.lastSpell ? { lastSpell: { ...s.lastSpell } } : {}),name:band.effectName,desc:heroDescription(ps),round:ps.m.round,passive:passive.has(id),price:heroPowerCost(id,s),used:s.usedRound===ps.m.round,
     remaining:id==='zephrys'?Math.max(0,3-s.uses):null,progress:s.progress,income:s.income,freeRefresh:s.freeRefresh,
     cooldown:Math.max(0,s.nextRound-ps.m.round),locked:handLockedCards(ps).map(p=>({kind:p.kind,id:p.id,round:p.unlockRound,level:p.unlockLevel})),flight:s.flight||0,pot:s.pot,roll:s.roll||0,
     choices:s.choices,sequence:s.sequence,targets,canPick:ps.alive&&!ps.ready&&ps.m.phase==='PREP',
     ...(ps.nguyenState?{ownerId:'nguyen',temporary:true,activeBandId:ps.bandId}:{}),
     teammates:[],sourcePlayer:mate?{playerId:mate.playerId,name:mate.name}:null,
-    disabled:!ps.alive||ps.ready||ps.m.phase!=='PREP'||s.usedRound===ps.m.round||ps.funds<cost(ps,id,s)||ps.m.round<s.nextRound
+    disabled:!ps.alive||ps.ready||ps.m.phase!=='PREP'||s.usedRound===ps.m.round||ps.funds<heroPowerCost(id,s)||ps.m.round<s.nextRound
       || id==='alexstrasza'&&ps.shop.level<4 || id==='sylvanas'&&(ps.m.round<3||!s.deaths.length) || id==='zephrys'&&s.uses>=3
       || (id==='tess'||id==='scabbs')&&(!mate?.alive||mate.left||!mate.lastHeroLineup?.length),
   };

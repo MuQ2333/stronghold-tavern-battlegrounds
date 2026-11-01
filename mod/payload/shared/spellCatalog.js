@@ -1054,6 +1054,11 @@ export const SPELL_CATALOG = Object.freeze({
     "poolDisabled": false
   }
 });
-export const customSpell = id => typeof id === "string" && Object.hasOwn(SPELL_CATALOG, id) ? SPELL_CATALOG[id] : null;
+const growthSharingCare = Object.freeze({...SPELL_CATALOG.mod_sharing_care,
+  desc:SPELL_CATALOG.mod_sharing_care.desc.replace('且未达999层','').replace('临时层数不占用永久层数上限。',''),
+  descRaw:SPELL_CATALOG.mod_sharing_care.descRaw.replace('且未达999层','').replace('临时层数不占用永久层数上限。',''),
+});
+export const customSpell = (id, growthMode = false) => growthMode && id==='mod_sharing_care' ? growthSharingCare
+  : typeof id === "string" && Object.hasOwn(SPELL_CATALOG, id) ? SPELL_CATALOG[id] : null;
 export const ALL_SPELLS = Object.freeze(Object.values(SPELL_CATALOG).filter(c => !c.spellOption));
 export const SHOP_SPELLS = Object.freeze(ALL_SPELLS.filter(c => !c.poolDisabled));

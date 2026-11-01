@@ -67,10 +67,10 @@ test('bundle controls, hero power, Bob preference and in-hand locks render on de
    globalThis.__tavernRequests=[];net.request=async(type,fields)=>{globalThis.__tavernRequests.push({type,...fields});if(type==='room.setTavernMods')store.patch('room',{tavernMods:fields.mods});return{t:'ok'};};
    render(html`<${RoomScreen} />`,document.querySelector('#app'));
   });
-  await page.waitForSelector('.tavern-mods input');assert.equal(await page.$$eval('.tavern-mods input',a=>a.length),3);
-  assert.ok(await page.$$eval('.tavern-mods input',a=>a.every(n=>n.checked)));
+  await page.waitForSelector('.tavern-mods input');assert.equal(await page.$$eval('.tavern-mods input',a=>a.length),4);
+  assert.ok(await page.$$eval('.tavern-mods input',a=>a.filter(n=>n.checked).length===3));
   await page.click('.tavern-mods input');await page.waitForFunction(()=>globalThis.__tavernRequests.length===1);
-  assert.deepEqual(await page.evaluate(()=>globalThis.__tavernRequests[0].mods),{spells:false,heroes:true});
+  assert.deepEqual(await page.evaluate(()=>globalThis.__tavernRequests[0].mods),{spells:false,heroes:true,growth:false});
   await page.screenshot({path:'.cache/tavern-bundle/room.png'});
   await page.setViewport({width:844,height:390});await new Promise(r=>setTimeout(r,300));
   assert.ok(await page.$$eval('.tavern-mods input',a=>a.every(n=>{const r=n.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;})));

@@ -151,6 +151,34 @@ test('Wisdomball consumes only two successful manual refreshes, stacks charges, 
   h.m.dispose();
 });
 
+for(const mode of WISDOM_OUTCOMES)test(`manual Wisdomball ${mode} announces the actual result and remaining charges`,()=>{
+  const {h,ps}=setup();deploy(h,ps);cast(ps,'智慧球');
+  const sample=ps.spellSample.bind(ps);
+  ps.spellSample=(list,n=1)=>list.includes(mode)?[mode]:sample(list,n);
+  const labels={mirror:'复制阵容',legendary:'六星干员',golden:'精锐干员',triple:'补齐三连',bond:'同盟约干员',higher:'高本干员',identical:'同名干员',utility:'功能干员',spells:'全法术'};
+  const notices=()=>h.sent.filter(([pid,m])=>pid===ps.playerId&&m.t==='m.toast'&&m.msgid?.startsWith('智慧球：')).map(([,m])=>m);
+  assert.equal(ps.refresh().ok,true);assert.equal(ps.spellData().lastWisdom,mode);assert.equal(ps.spellData().wisdom,1);
+  assert.equal(notices().length,1);assert.equal(notices()[0].params.count,1);
+  assert.equal(notices()[0].text,`智慧球：${labels[mode]}（剩余1次）`);
+  ps.rollShop();assert.equal(ps.spellData().wisdom,1);assert.equal(notices().length,1,'automatic rolls never claim a trigger');
+  ps.funds=0;ps.shop.freeRefreshes=0;assert.ok(ps.refresh().error);assert.equal(ps.spellData().wisdom,1);assert.equal(notices().length,1);
+  ps.shop.freeRefreshes=1;assert.equal(ps.refresh().ok,true);assert.equal(ps.spellData().wisdom,0);
+  assert.equal(notices().length,2);assert.equal(notices()[1].params.count,0);
+  assert.deepEqual(h.logs.error,[]);h.m.dispose();
+});
+
+test('Wisdomball golden never silently succeeds when Forge candidates have no elite form',()=>{
+  const {h,ps}=setup(),normal=ps.spellChessPool(),[upgradeable,plain]=normal;
+  const goldenIdOf=ps.gd.goldenIdOf.bind(ps.gd),sample=ps.spellSample.bind(ps);
+  ps.gd.goldenIdOf=id=>ps.gd.baseIdOf(id)===upgradeable?goldenIdOf(id):null;
+  ps.spellSample=(list,n=1)=>list.includes(plain)?[plain]:sample(list,n);
+  assert.equal(helpfulRefresh(ps,'golden'),'golden');
+  const gold=ps.shop.slots.find(s=>s?.spellGoldenReward);assert.ok(gold);assert.equal(gold.id,goldenIdOf(upgradeable));assert.equal(gold.heroGenerated,true);
+  ps.gd.goldenIdOf=()=>null;
+  const before=JSON.stringify(ps.shop);assert.equal(helpfulRefresh(ps,'golden'),null);assert.equal(JSON.stringify(ps.shop),before);
+  assert.deepEqual(h.logs.error,[]);h.m.dispose();
+});
+
 test('Wisdomball borrows merchandise positions but caps the complete row at maximum shop capacity', () => {
   const { h, ps } = setup();
   const ids = ps.spellChessPool(null, c => c.position === 'MELEE').slice(0, 8);

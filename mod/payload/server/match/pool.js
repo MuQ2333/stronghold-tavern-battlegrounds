@@ -5,14 +5,15 @@
 //   * Every visible (non-hidden, non-DIY) base chess that is not banned this match has `cap` copies
 //     (config.economy.poolCopies[tier], measured identity overrides; co-op shared stock doubled). `left` is the
 //     signed capacity minus occupation; the public left() and shop sampling clamp a deficit to zero.
-//   * Owning a piece takes copies: a normal piece holds 1, an elite holds 3 (merge of 3 normals). Shop displays
+//   * Ordinary acquisition takes copies: a normal piece holds 1, a directly drawn elite holds 3. Generated copies
+//     hold 0; merging sums actual claims and promotion retains them, without topping up (maintainer 2026-10-25). Shop displays
 //     do NOT reserve copies. An operator or equipment card already shown in the shop, or a reward already shown, can
 //     still be taken and overdraws (chess: a negative raw left; equipment: SharedItemPool's debt — GitHub #498, and
 //     the maintainer's decision of 2026-10-14 for equipment, #624). A slot that is already sold still fails SOLD_OUT.
 //     Future rolls exclude empty stock. 整备 and grants that are not an already-shown card stay stock-limited.
 //   * Pieces remember how many copies they hold (`piece.poolCopies`), so selling / elimination / temp wipes return
-//     exactly what was taken — chess granted by effects while the pool is empty (or hidden/banned chess) hold 0.
-//   * Invariant: raw left ≤ cap and raw left + Σ held copies == cap. Mimic can exceed stock, but its copies still occupy it.
+//     exactly what was taken. Displayed ordinary grants can overdraw; generated grants never take or return stock.
+//   * Invariant: raw left ≤ cap and raw left + Σ held copies == cap. Mimic and copies are generated, not stock debt.
 //
 // Rolls: each chess slot draws ONE copy uniformly from all remaining copies of eligible chess with tier ≤ shop level
 // ("copy-weighted"; duplicates within a roll allowed). The item slot picks a tier with the same tier shares, then a
@@ -149,8 +150,11 @@ export class SharedPool {
   /**
    * Item roll for the shop's item slot: tier by the chess tier shares at this level, uniform item within the tier,
    * falling back to lower tiers when a tier has no item. Returns an item id or null.
+   * `bias` (shopBias bondBias): a Set of active bond ids. A tier is drawn from items whose giveBondId is in that set
+   * when any remain after the stock gate; an empty filtered tier falls back to the official list of that tier.
+   * null or an empty Set keeps today's rng (one draw for the tier, one for the pick). Bias never grants an item.
    */
-  rollItem(rng, maxTier, stock = null) {
+  rollItem(rng, maxTier, stock = null, bias = null) {
     const shares = this.tierShares(maxTier);
     const tiers = Object.keys(shares).map(Number).sort((a, b) => a - b);
     let tier = null;
@@ -161,13 +165,26 @@ export class SharedPool {
     } else {
       tier = 1 + Math.floor(rng() * Math.max(1, maxTier));
     }
+    const useBias = bias instanceof Set && bias.size > 0;
+    const gated = (t) => (this.gd.shopItemsByTier[t] || []).filter((id) => !stock || stock.canGain(id));
+    const pick = (list) => (stock ? stock.pick(rng, list) : list[Math.floor(rng() * list.length)]);
+    const choose = (t) => {
+      const list = gated(t);
+      if (!list.length) return null;
+      if (!useBias) return pick(list);
+      const biased = list.filter((id) => {
+        const rec = this.gd.item(id);
+        return !!(rec && typeof rec.giveBondId === 'string' && bias.has(rec.giveBondId));
+      });
+      return pick(biased.length ? biased : list);
+    };
     for (let t = tier; t >= 1; t--) {
-      const list = (this.gd.shopItemsByTier[t] || []).filter(id => !stock || stock.canGain(id));
-      if (list.length) return stock ? stock.pick(rng, list) : list[Math.floor(rng() * list.length)];
+      const id = choose(t);
+      if (id) return id;
     }
     for (let t = tier + 1; t <= 6; t++) {
-      const list = (this.gd.shopItemsByTier[t] || []).filter(id => !stock || stock.canGain(id));
-      if (list.length) return stock ? stock.pick(rng, list) : list[Math.floor(rng() * list.length)];
+      const id = choose(t);
+      if (id) return id;
     }
     return null;
   }

@@ -18,7 +18,18 @@ test('spell preview mirrors Loadout: tier chips, filtered roster, detail, exclud
     await page.goto(`http://127.0.0.1:${server.port}/`, {waitUntil: 'networkidle0'});
     await page.evaluate(async () => { const {enterSession} = await import('/js/screens/title.js'); enterSession('法术预览测试'); });
     await page.waitForSelector('.lobby-screen .spell-preview-entry');
-    assert.equal(await page.$eval('[data-testid="loadout-open"]', el => el.nextElementSibling.classList.contains('spell-preview-entry')), true);
+    assert.equal(await page.$eval('.hub-right .spell-preview-entry', el => el.nextElementSibling.matches('[data-testid="loadout-open"]')), true);
+    assert.deepEqual(await page.evaluate(()=>{
+      const preview=getComputedStyle(document.querySelector('.hub-right .spell-preview-entry'));
+      const loadout=getComputedStyle(document.querySelector('.hub-right [data-testid="loadout-open"]'));
+      return ['backgroundImage','color','fontSize','minHeight','borderRadius'].filter(key=>preview[key]!==loadout[key]);
+    }),[],'lobby spell preview shares the neighboring plate style');
+    mkdirSync('.cache/spell-preview',{recursive:true});
+    await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.effect?.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{}))));
+    await page.screenshot({path:'.cache/spell-preview/lobby-desktop.png'});
+    await page.setViewport({width:844,height:390});
+    await page.screenshot({path:'.cache/spell-preview/lobby-narrow.png'});
+    await page.setViewport({width:1600,height:900});
     page.on('websocket', ws => ws.on('framesent', frame => { try { requests.push(JSON.parse(frame.payload).t); } catch { /* ping payload */ } }));
     await page.click('.spell-preview-entry');
     await page.waitForSelector('.spell-preview-row');

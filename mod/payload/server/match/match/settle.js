@@ -10,6 +10,7 @@ import { FLOW_TICKER_PRIORITY, DELAYS } from './common.js';
 import { msg } from '../../../shared/i18n.js';
 import { onSettle, resetRoundCounters } from '../botEmotes.js';
 import { creditedKillsOf } from '../../sim/spec.js';
+import {settleGrowthLayers} from '../growthLayerSettlement.js';
 
 export class MatchSettle {
   settle(plan, uniteResult) {
@@ -62,28 +63,21 @@ export class MatchSettle {
       if (coins > 0) { ps.pendingFunds += coins; ps.stats.fundsGained += coins; }
       for (const b of ps.bounties) b.roundsLeft--;
       ps.bounties = ps.bounties.filter((b) => b.roundsLeft > 0);
-      // IN_BATTLE layer gains (normal battles only), at most the room left under BOND_LAYER_CAP (999, as the battle's
-      // live copy: Battle.addLayers); a bond at the cap gains nothing and dispatches nothing
+      // IN_BATTLE permanent gains use the same mode cap as Battle.addLayers (native 999, growth uncapped).
       for (const [bondId, n] of Object.entries(r.layerGains || {})) {
         if (!this.gd.bond(bondId) || !(n > 0)) continue;
         const before = ps.layers[bondId] || 0;
-        const add = layerGainRoom(before, Math.floor(n));
+        const add = layerGainRoom(before, Math.floor(n), this.growthMode);
         if (!(add > 0)) continue;
         ps.layers[bondId] = before + add;
         this.dispatch(ps, 'onLayers', { bondId, from: before, to: ps.layers[bondId], reason: 'battle' });
       }
       this._charDamageTickers(ps, r);
+      if(!uniteResult?.synthetic)settleGrowthLayers(this,ps,up);
       this.dispatch(ps, 'onBattleResult', { result: r, lpLoss: loss, perfect: counted === 0 && r.perfect !== false, unite: uniteResult || null });
       ps.recompute();
     }
-    for (const ps of alive) {
-      if (ps.lp <= 0) {
-        ps.lp = 0;
-        ps.eliminate(this.round);
-        this.toast(ps, 'error', '你的目标生命值耗尽，已被淘汰');
-        this.tickerText(msg('{name}博士的目标生命值已耗尽', { name: ps.name }), FLOW_TICKER_PRIORITY);
-      }
-    }
+    this.eliminateBroken();
     this.fields = [];
     this.watchers.clear();
     this.markPublic();
@@ -114,6 +108,22 @@ export class MatchSettle {
     }
   }
 
+  /**
+   * Drop every alive player whose LP is already gone. Settlement calls this after the round's LP loss.
+   * An accepted test round jump calls the same helper before the next round starts, so LP 0 cannot be
+   * written back into a new prep. The LP command itself stays a raw write.
+   */
+  eliminateBroken() {
+    for (const ps of this.alivePlayers()) {
+      if (ps.lp <= 0) {
+        ps.lp = 0;
+        ps.eliminate(this.round);
+        this.toast(ps, 'error', '你的目标生命值耗尽，已被淘汰');
+        this.tickerText(msg('{name}博士的目标生命值已耗尽', { name: ps.name }), FLOW_TICKER_PRIORITY);
+      }
+    }
+  }
+
   afterSettle() {
     if (!this.alivePlayers().length) { this.finish({ victory: false, reason: 'eliminated' }); return; }
     resetRoundCounters(this); // AI bot merge-counter resets each round (server/match/botEmotes.js)
@@ -121,8 +131,12 @@ export class MatchSettle {
   }
 
   finish({ victory, hiddenCleared = false, reason = 'defeat' }) {
+    // A command that ends a test match must be audited/counted before publishing its result.
+    if (this.test && this._testApplying) { this._testOutcome = { victory, hiddenCleared, reason }; return; }
     if (this.ended || this.disposed) return;
+    this.offersDispose();
     this.ended = true;
+    this.externalAI?.close();
     if (this.runner) { try { this.runner.stop(); } catch { /* ignore */ } this.runner = null; }
     this._stopClientCombat();
     this.cancel(this._phaseTimer);
@@ -139,6 +153,11 @@ export class MatchSettle {
     } catch (e) {
       this.reportError('buildResult', e);
       result = { t: 'm.result', victory: !!victory, roundsPassed: 0, reason, modeId: this.modeId, difficulty: this.difficulty, players: [] };
+    }
+    if (this.test) {
+      result.test = true;
+      result.testActions = this.testActions;
+      if (this.testReplayable === false) result.testReplayable = false;
     }
     this.lastResultMsg = result;
     this.markPublic();

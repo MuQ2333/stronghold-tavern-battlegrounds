@@ -2,7 +2,7 @@ import { html, Icon } from './components.js';
 import { useEffect, useRef, useState } from '../../vendor/hooks.module.js';
 import { t } from '../../../shared/i18n.js';
 import { actions } from './gameActions.js';
-import { Img, BondGlyph, RichText } from './gameComponents.js';
+import { Img, BondGlyph, RichText, UnitThumb } from './gameComponents.js';
 import { data } from '../data.js';
 import {HERO_SOURCE_VERSION} from '../../../shared/heroCatalog.js';
 import {lockedCardText} from './lockedCards.js';
@@ -12,6 +12,15 @@ export function HeroPower({ priv, gd, picked = null, onTargetMode = null, canTar
   const routes=onRouteSelection?routeSelection:localRoutes, setRoutes=onRouteSelection||setLocalRoutes;
   const hold=useRef(null), hoverLeave=useRef(null), suppressClick=useRef(false), start=useRef(null), sending=useRef(false);
   const h=priv?.heroPower;
+  const [castOpen, setCastOpen] = useState(false);
+  const lastSpell = h?.lastSpell;
+  const castKey = lastSpell ? `${lastSpell.round}:${lastSpell.id}` : '';
+  useEffect(() => {
+    setCastOpen(!!castKey && lastSpell.round === h?.round);
+    if (!castKey) return;
+    const timer = setTimeout(() => setCastOpen(false), 4000);
+    return () => clearTimeout(timer);
+  }, [castKey, h?.round]);
   const pending=!!h?.choices.length;
   const passive=h?.passive||h?.id==='faelin';
   const available=!!h&&!passive&&!h.disabled&&!busy&&!pending;
@@ -32,18 +41,22 @@ export function HeroPower({ priv, gd, picked = null, onTargetMode = null, canTar
     if(x)send({action:'use',...(x.uid!==undefined?{uid:x.uid}:{slot:x.slot,expectedId:x.id})});
   },[picked]);
   useEffect(()=>{
-    if(!detailOpen&&!routes)return;
-    const cancel=e=>{if(e.key==='Escape'){setTargeting(false);setInspect(false);setHovered(false);setRoutes(false);}};
+    // Install before focus opens the detail; Escape must also work in the first painted frame.
+    const cancel=e=>{if(e.key==='Escape'){setTargeting(false);setInspect(false);setHovered(false);setRoutes(false);setCastOpen(false);}};
     window.addEventListener('keydown',cancel);
     return()=>window.removeEventListener('keydown',cancel);
-  },[detailOpen,routes]);
+  },[]);
   if(!h) return null;
   const label=x=>(x.kind==='item'?gd.item(x.id):gd.chess(x.id))?.name||x.id;
   const rotates=h.id==='tess'||h.id==='scabbs';
   const status=picking?t('请选择目标'):pending?t('待选择'):passive?t('被动技能'):h.cooldown?`${t('冷却')} ${h.cooldown}`:h.used?t('本轮已使用'):h.disabled?t('暂不可用'):t('发动技能');
   const icon=`/assets/heroes/power-${h.id}.jpg?v=${HERO_SOURCE_VERSION}`;
   const close=()=>{setTargeting(false);setInspect(false);setHovered(false);setRoutes(false);};
+  const lastSpellRec = lastSpell ? gd.item(lastSpell.id) : null;
+  const lastSpellName = lastSpellRec?.name || lastSpell?.id;
+  const castTarget = lastSpell?.targetId ? gd.chess(lastSpell.targetId)?.name || lastSpell.targetId : null;
   const facts=[
+    ...(lastSpell ? [[t('最近施放'), lastSpellName]] : []),
     ...(rotates?[[t('本轮队友'),h.sourcePlayer?.name||t('无可用队友')]]:[]),
     ...(h.progress?[[t('进度'),h.progress]]:[]),
     ...(h.cooldown?[[t('冷却'),h.cooldown]]:[]),
@@ -64,6 +77,14 @@ export function HeroPower({ priv, gd, picked = null, onTargetMode = null, canTar
     onPointerEnter=${e=>{if(e.pointerType==='mouse')showHover();}}
     onPointerLeave=${e=>{if(e.pointerType==='mouse')hideHover();}}
     onFocusOut=${e=>{if(!e.currentTarget.contains(e.relatedTarget))setHovered(false);}}>
+    ${castOpen && lastSpell ? html`<aside class="hero-power__cast" role="status" data-testid="hero-auto-spell">
+      <${UnitThumb} kind="item" id=${lastSpell.id} size="md" />
+      <div><b>${t('尤格-萨隆施放了{name}', { name: lastSpellName })}</b>
+        ${castTarget ? html`<p>${t('目标：{name}', { name: castTarget })}</p>` : null}
+        <${RichText} as="p" text=${lastSpellRec?.descRaw || lastSpellRec?.desc || ''} />
+      </div>
+      <button type="button" onClick=${() => setCastOpen(false)} aria-label=${t('关闭')}>×</button>
+    </aside>` : null}
     <div class="hero-power__control">
       <button type="button" class=${`hero-power__toggle ${available?'is-available':''} ${passive?'is-passive':''} ${!available&&!passive&&!pending?'is-unavailable':''} ${pending?'has-choice':''} ${picking?'is-targeting':''}`}
         onClick=${activate} onContextMenu=${e=>{e.preventDefault();stopHold();setInspect(true);}}

@@ -263,9 +263,12 @@
 
 /* Spell choices and purchase bonuses must remain readable on the shop card. */
 .scard__purchase{display:block;color:#e2c5ff;font-size:11px;line-height:1.35;font-weight:700}
-.scard__growth { position: absolute; z-index: 3; top: 0; left: 0; right: 0; height: .24rem; box-sizing: border-box; display: grid; place-items: center; color: #efdfff; background: #352443; border-bottom: 1px solid #ad7ce5; font-size: .12rem; line-height: 1; font-weight: 700; }
-.scard.has-growth .scard__art { top: .24rem; height: calc(100% - .24rem); }
-.scard.has-growth .scard__top { top: .28rem; }
+.scard-entry { position: relative; display: flex; flex: none; }
+.scard__growth { position: absolute; z-index: 3; bottom: calc(100% + .04rem); left: 0; right: 0; height: .21rem; box-sizing: border-box; display: grid; place-items: center; color: #efdfff; background: #352443; border-bottom: 1px solid #ad7ce5; font-size: .12rem; line-height: 1; font-weight: 700; }
+.shopbar.has-purchase-rewards .shopbar__row { padding-top: .34rem; }
+/* Padding keeps the header inside the horizontal scroll viewport without moving or shrinking the cards. */
+.shopbar.has-purchase-rewards .shopbar__cards,
+.shopbar.has-purchase-rewards .shopbar__reward { padding-top: .25rem; margin-top: -.25rem; }
 .scard.is-elite { border: 2px solid #e7bc56; box-shadow: inset 0 0 0 1px #6b4b19, 0 0 .1rem #e7bc5633; }
 .scard.is-elite .scard__bg { background: linear-gradient(150deg, #665026, #23221b 65%); }
 .scard.is-elite .scard__name { color: #ffe2a0; }

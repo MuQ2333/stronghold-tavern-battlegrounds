@@ -2,13 +2,19 @@
 // [ASSUMED] discover = up to three distinct eligible cards; no tier fallback; ties use stable ID order.
 import { SHOP_SPELLS, customSpell } from '../../../shared/spellCatalog.js';
 import { spellTarget } from '../../../shared/spells.js';
-import { ERR } from '../../../shared/constants.js';
+import { ERR, layerGainRoom } from '../../../shared/constants.js';
 import { pieceBonds } from '../bondsMeta.js';
 import { boardOrder, tileKey } from '../board.js';
 import { OK, fail } from './common.js';
 import { N_ } from '../../../shared/i18n.js';
-import {strategyPool,replaceHeroStrategy} from '../heroPowers.js';
-import { helpfulRefresh } from '../spellWisdom.js';
+import {strategyPool,replaceHeroStrategy,heroIdentityBand} from '../heroPowers.js';
+import { helpfulRefresh, wisdomFeedback } from '../spellWisdom.js';
+import {recordGrowthSpell,growthTargetSpellRepeats} from '../growthTraits.js';
+import {growthRewardAllowed} from '../growthRewardPolicy.js';
+import {growthBoardMap} from '../growthCombat.js';
+import {withGrowthSpell,growthSpellAmount,spellLayerParts,spellPurchaseParts,spellPartsAmount,grantSpellPurchase} from '../growthSpells.js';
+import {devourPurchaseSnapshot,grantDevourPurchase} from '../growthKazdel.js';
+import {addDevourLayers} from '../growthDevour.js';
 
 export class PlayerSpells {
   spellData() {
@@ -24,17 +30,17 @@ export class PlayerSpells {
     if (!this.m.spellShop || !s) return [];
     const out = [];
     const push = (id, name, desc, counter, params = {}) => out.push({ id, name, desc, counter, params, spellUi: true, iconKind: 'item', iconId: 'spell' });
-    if (s.growth) push('spell_growth', N_('商店购买奖励'), N_('每次购买干员后，使其所属盟约各增加显示层数。'), s.growth);
-    if (s.right) push('spell_right', N_('最右侧购买奖励'), N_('购买商店最右侧干员的额外盟约层数奖励。'), s.right);
+    if (s.growth) push('spell_growth', N_('商店购买奖励'), N_('每次购买干员后，使其所属盟约各增加显示层数。'), spellPartsAmount(this,spellLayerParts(s.growth,1)));
+    if (s.right) push('spell_right', N_('最右侧购买奖励'), N_('购买商店最右侧干员的额外盟约层数奖励。'), spellPartsAmount(this,spellLayerParts(s.right,3)));
     for (const [i, c] of s.conditions.entries()) {
-      push('spell_condition_' + i, N_('同盟约购买奖励'), '', c.n);
+      push('spell_condition_' + i, N_('同盟约购买奖励'), '', growthSpellAmount(this,c.n,'spell'));
       out.at(-1).spellBonds = c.ids;
     }
     if (s.income) push('spell_income', N_('永久额外收入'), N_('每回合开始时额外获得资金。'), s.income);
     if (s.armor) push('spell_armor', N_('护甲'), N_('优先抵扣生命损失及购买法术支付的生命值。'), s.armor);
     for (const x of s.supports) if (x.round === this.m.round) push('spell_support_' + x.uid, N_('支援待部署'), N_('地块 {row},{col}：战斗开始部署嘲讽普通星熊，可参与本轮协防。'), 1, { row: x.row, col: x.col });
     if (s.wisdom) push('spell_wisdom', N_('智慧球'), N_('接下来的主动刷新为有用的刷新。'), s.wisdom);
-    if (s.backToBack) push('spell_back_to_back', N_('背靠背'), N_('下一张背靠背使目标所属盟约层数+{layers}。'), s.backToBack, { layers: s.backToBack + 1 });
+    if (s.backToBack) push('spell_back_to_back', N_('背靠背'), N_('下一张背靠背使目标所属盟约层数+{layers}。'), s.backToBack, { layers: spellPartsAmount(this,[{n:1,count:s.backToBack+1}]) });
     if (s.attack) push('spell_attack', N_('诺兹多姆的子嗣'), N_('战斗开始时，使一名干员攻击力翻倍（优先靠右，靠下，每回合限使用一次）'), s.attack);
     if (s.sharing) push('spell_sharing', N_('分享关爱'), N_('下一场战斗临时借用队友盟约层数，不占永久层数上限。'), s.sharing);
     return out;
@@ -49,7 +55,7 @@ export class PlayerSpells {
       .filter(id => exact ? this.gd.item(id).tier === tier : this.gd.item(id).tier <= tier).sort();
   }
   spellChessPool(tier = null, predicate = () => true) {
-    return this.gd.visibleChess.filter(id => this.m.pool.entries.has(id) && this.m.pool.left(id) > 0
+    return this.gd.visibleChess.filter(id => growthRewardAllowed(this,id) && this.m.pool.entries.has(id) && this.m.pool.left(id) > 0
       && (tier == null ? this.gd.chess(id).tier <= this.shop.level : this.gd.chess(id).tier === tier)
       && predicate(this.gd.chess(id)));
   }
@@ -62,6 +68,7 @@ export class PlayerSpells {
     if (!slot || !this.spellStrategyPool().includes(slot.id)) return fail(ERR.BAD_TARGET);
     // Resolve an earned hero discover first; the spell offer stays queued and costs nothing more.
     if(this.heroState?.choices?.some(x=>!x.nguyen))return fail(ERR.BAD_TARGET);
+    this.initialBandId ??= heroIdentityBand(this);
     replaceHeroStrategy(this,slot.id);
     if (this.m.draft?.picks) this.m.draft.picks[this.playerId] = slot.id;
     this.offers.shift();
@@ -71,7 +78,7 @@ export class PlayerSpells {
       const id = buff.bbStr?.chess;
       for (let i = 0; i < (Number(buff.bb?.count) || 1); i++) {
         if (this.gd.item(id)) this.acquireItem(id, { source: 'band' });
-        else if (this.gd.chess(id)) this.acquireChess(id, { source: 'band' });
+        else if (this.gd.chess(id)) this.acquireChess(id, { source: 'band', fromPool: false });
       }
     }
     this.recompute(); this.m.markPublic();
@@ -84,27 +91,23 @@ export class PlayerSpells {
     this.offers.push({ tier: null, source: 'spell', label: source, ...extra, slots: this.spellSample([...new Set(ids)], 3).map(id => ({ kind, id, price: 0, sold: false })) });
     this.dirty(); return true;
   }
-  spellLayers(piece, n, active = false) {
+  spellLayers(piece, n, active = false, {devour=false}={}) {
     const ids = pieceBonds(this.gd, piece).filter(id => !active || this.bonds[id]?.active);
-    for (const id of ids) this.addLayers(id, n, { reason: 'spell' });
+    for (const id of ids)if(devour)addDevourLayers(this,id,n,{reason:'spell'});else this.addLayers(id, n, { reason: 'spell' });
   }
   spellBoardLayers(n, active = false, eliteExtra = 0) {
     // Snapshot membership and activation before any layer side effects run.
-    const work = boardOrder(this.board).filter(x => x.piece.kind === 'chess').map(({ piece }) => ({ ids: pieceBonds(this.gd, piece).filter(id => !active || this.bonds[id]?.active), n: n + (this.gd.isGolden(piece.id) ? eliteExtra : 0) }));
+    const work = boardOrder(growthBoardMap(this)).filter(x => x.piece.kind === 'chess').map(({ piece }) => ({ ids: pieceBonds(this.gd, piece).filter(id => !active || this.bonds[id]?.active), n: n + (this.gd.isGolden(piece.id) ? eliteExtra : 0) }));
     for (const x of work) for (const id of x.ids) this.addLayers(id, x.n, { reason: 'spell' });
   }
   spellExtraGarrisons(piece, hook, source = piece) {
     if (!this.m.spellShop || hook !== 'onPrepEnd' || !source.meta?.spellEcho) return 0;
-    this.spellLayers(piece, source.meta.spellEcho, true);
+    const parts=this.m.growthMode?spellLayerParts(source.meta.spellEcho,2):[{n:source.meta.spellEcho,count:1}];
+    for(const p of parts)for(let i=0;i<p.count;i++)this.spellLayers(piece,p.n,true);
     return 1;
   }
-  spellPurchaseBonus(slot) {
-    if (!this.m.spellShop || !slot || slot.kind !== 'chess') return 0;
-    const s = this.spellState;
-    const ids = this.gd.chess(slot.id)?.bonds || [];
-    const right = this.shop.slots.filter(x => x?.kind === 'chess' && !x.sold).at(-1);
-    return (slot.spellBonus || 0) + (s?.growth || 0) + (slot === right ? s?.right || 0 : 0)
-      + (s?.conditions || []).reduce((n, c) => n + (c.ids.some(id => ids.includes(id)) ? c.n : 0), 0);
+  spellPurchaseBonus(slot, {raw=false}={}) {
+    return spellPartsAmount(this,spellPurchaseParts(this,slot),{raw});
   }
   castCatalogSpell(item, rec, targetUid, tile = null, automatic = false) {
     if (!this.spellEligible(rec) || rec.spellOption) return fail(ERR.BAD_TARGET);
@@ -121,9 +124,10 @@ export class PlayerSpells {
     }
     // Playing the spell frees its inventory slot before it grants cards.
     const source = this.find(item.uid), deadline = this._tempDue.get(item.uid);
+    const repeats=rec.spellTarget==='chess'?growthTargetSpellRepeats(this,target):1;
     if(source)this._detach(source);
     if (rec.choices) {
-      this.offers.push({ source: 'spell', label: rec.name, spellChoice: { id: rec.id, targetUid }, slots: rec.choices.map((_, i) => ({ kind: 'item', id: rec.id + '_choice' + i, price: 0, sold: false })) });
+      this.offers.push({ source: 'spell', label: rec.name, spellChoice: { id: rec.id, targetUid,...(repeats>1?{growthRepeats:repeats}:{}) }, slots: rec.choices.map((_, i) => ({ kind: 'item', id: rec.id + '_choice' + i, price: 0, sold: false })) });
     } else {
       const result = this.resolveCatalogSpell(rec, target, tile);
       if (result?.error) {
@@ -133,12 +137,18 @@ export class PlayerSpells {
         else this.stow(item, { allowTemp: true });
         return result;
       }
+      // Repeat resolution, not casting: one consumed spell, one cast event, no retarget after destruction.
+      for(let i=1;i<repeats && this.alive;i++)if(this.find(target.uid))this.resolveCatalogSpell(rec,target,tile);
     }
     if (rec.oncePerRound) (this.spellData().usedRound ||= {})[rec.id] = this.m.round;
     const owned = this.find(item.uid); if (owned) this._detach(owned);
+    recordGrowthSpell(this);
     this.recompute(); return OK;
   }
   pickSpellChoice(offer, idx) {
+    return withGrowthSpell(this,{id:offer.spellChoice.id},()=>this._pickSpellChoice(offer,idx));
+  }
+  _pickSpellChoice(offer, idx) {
     const rec = customSpell(offer.spellChoice.id);
     const target = this.find(offer.spellChoice.targetUid)?.piece;
     if (!rec || (rec.spellTarget === 'chess' && idx === 0 && !target)) return fail(ERR.BAD_TARGET);
@@ -154,12 +164,18 @@ export class PlayerSpells {
         if (idx === 0) this.spellBoardLayers(2);
         else this.spellData().pending.push({ type: 'time', due: this.m.round + 1 });
       } else if (rec.name === '森林秘宝') {
-        if (idx === 0) this.spellLayers(target, 8); else this.spellBoardLayers(2);
+        const repeats=offer.spellChoice.growthRepeats || 1;
+        for(let i=0;i<repeats;i++) {
+          if (idx === 0) this.spellLayers(target, 8); else this.spellBoardLayers(2);
+        }
       }
     }
     this.recompute(); return OK;
   }
   resolveCatalogSpell(rec, target, tile) {
+    return withGrowthSpell(this,{id:rec.id},()=>this._resolveCatalogSpell(rec,target,tile));
+  }
+  _resolveCatalogSpell(rec, target, tile) {
     const s = this.spellData(), name = rec.name;
     const active = () => this.gd.bondIds.filter(id => this.bonds[id]?.active);
     const normalShop = () => this.shop.slots.filter(x => x?.kind === 'chess' && !x.sold);
@@ -196,7 +212,8 @@ export class PlayerSpells {
       case '腐蚀的盟约之币': this.addFunds(2, { reason: 'spell' }); break;
       case '智慧球': s.wisdom = (s.wisdom || 0) + 2; break;
       case '背靠背':
-        this.spellLayers(target, (s.backToBack || 0) + 1);
+        if(this.m.growthMode)for(let i=0;i<(s.backToBack || 0)+1;i++)this.spellLayers(target,1);
+        else this.spellLayers(target, (s.backToBack || 0) + 1);
         s.backToBack = (s.backToBack || 0) + 1; break;
       case '回响咆哮': target.meta.spellEcho = (target.meta.spellEcho || 0) + 2; break;
       case '沉睡者之拥':
@@ -211,18 +228,23 @@ export class PlayerSpells {
         this.transformChess(target, this.spellSample(ids)[0]); break;
       }
       case '闪亮的戒指': this.spellBoardLayers(1); break;
-      case '海鲜乱炖': this.spellLayers(target, 1 + active().length); break;
+      case '海鲜乱炖': {
+        const count=1+active().length;
+        if(this.m.growthMode)for(let i=0;i<count;i++)this.spellLayers(target,1);
+        else this.spellLayers(target,count);
+        break;
+      }
       case '乱放的茶具': for (const id of active()) this.addLayers(id, 4, { reason: 'spell' }); break;
       case '防御者的仪式': this.spellLayers(target, 3); target.meta.spellTaunt = true; break;
       case '克隆螺号': {
         const id = this.spellSample(this.spellChessPool())[0];
         if (!id) return fail(ERR.BAD_TARGET);
-        this.acquireChess(id, { source: 'spell' }); this.acquireChess(id, { source: 'spell' }); break;
+        this.acquireChess(id, { source: 'spell' }); this.acquireChess(id, { source: 'spell', fromPool: false }); break;
       }
       case '寒热骤变':
         // Use the current shop identity; 4_03 is the hidden legacy Kjera and cannot merge with 3_20.
         for (const id of ['chess_char_3_20_a', 'chess_char_4_24_a']) if (!this.gd.chess(id)) return fail(ERR.BAD_TARGET);
-        for (const id of ['chess_char_3_20_a', 'chess_char_4_24_a']) this.acquireChess(id, { source: 'spell' });
+        for (const id of ['chess_char_3_20_a', 'chess_char_4_24_a']) this.acquireChess(id, { source: 'spell', fromPool: false });
         break;
       case '武器锻造': {
         const id = SHOP_SPELLS.find(c => c.name === '尖利箭矢').id;
@@ -232,7 +254,7 @@ export class PlayerSpells {
       case '点金之触': {
         const candidates = normalShop().filter(slot => !this.gd.isGolden(slot.id) && this.gd.goldenIdOf(slot.id));
         if (!candidates.length) return fail(ERR.BAD_TARGET);
-        const slot = this.spellSample(candidates)[0]; slot.id = this.gd.goldenIdOf(slot.id); slot.spellGoldenReward = true; break;
+        const slot = this.spellSample(candidates)[0]; slot.id = this.gd.goldenIdOf(slot.id); slot.spellGoldenReward = true; slot.heroGenerated = true; break;
       }
       case '顶尖好酒': {
         const capacity = this.gd.shopSlots(this.shop.level);
@@ -252,14 +274,16 @@ export class PlayerSpells {
         const slots = this.spellSample(normalShop(), 3);
         if (!slots.length) return fail(ERR.BAD_TARGET);
         // Snapshot positional rewards before removing any selected shop card.
-        const meals = slots.map(slot => ({ slot, bonus: this.spellPurchaseBonus(slot) }));
+        const meals = slots.map(slot => devourPurchaseSnapshot(this,slot));
         const sum = slots.reduce((n, slot) => n + this.gd.chess(slot.id).tier, 0);
-        for (const { slot, bonus } of meals) {
+        for (const meal of meals) {
+          const {slot,bonus}=meal;
           slot.sold = true;
+          if(this.m.growthMode){grantDevourPurchase(this,meal);continue;}
           const piece = this.newPiece('chess', slot.id);
           this.m.dispatch(this, 'onBuy', { piece, slot, price: 0, kind: 'chess', spellBonus: bonus, source: 'devour' });
         }
-        this.spellLayers(target, Math.floor(sum / 2)); break;
+        this.spellLayers(target, Math.floor(sum / 2),false,{devour:this.m.growthMode}); break;
       }
       case '诺兹多姆的子嗣': s.attack++; break;
       case '哈缪尔遗失的法杖': {
@@ -278,7 +302,15 @@ export class PlayerSpells {
       case '大地母亲之眼':
         if (this.gd.chess(target.id).tier > 4 || this.gd.isGolden(target.id)) return fail(ERR.BAD_TARGET);
         this.promote(target); break;
-      case '完美形象': for (const id of pieceBonds(this.gd, target)) this.layers[id] = 30; break;
+      case '完美形象': {
+        // Assignment is exact (also lowers layers); positive changes still owe ordinary alliance milestones.
+        // Do not route through addLayers: spell-strength bonuses must not turn "set to 30" into a larger value.
+        const changes = pieceBonds(this.gd, target).map(bondId => ({bondId,from:this.layers[bondId] || 0,to:30,reason:'spell'}));
+        for (const x of changes) this.layers[x.bondId] = x.to;
+        this.recompute();
+        for (const x of changes) if (x.to > x.from) this.m.dispatch(this,'onLayers',x);
+        break;
+      }
       case '艾泽里特强化': this.spellBoardLayers(4); break;
       case '支援': s.supports.push({ uid: this.m.nextUid(), row: tile.row, col: tile.col, dir: 'RIGHT', round: this.m.round }); break;
       case '分享关爱': if (!this.spellMates().length) return fail(ERR.BAD_TARGET); s.sharing++; break;
@@ -295,11 +327,16 @@ export class PlayerSpells {
     }
     if (hook === 'onBuy' && ev.kind === 'chess' && ev.spellBonus > 0) {
       // Use the purchased identity even if acquireChess merged it into an elite.
-      this.spellLayers({ id: ev.slot.id, items: [] }, ev.spellBonus);
+      if(this.m.growthMode && ev.spellGrants)grantSpellPurchase(this,ev.slot,ev.spellGrants);
+      else this.spellLayers({ id: ev.slot.id, items: [] }, ev.spellBonus);
     }
     if (!s) return;
     if (hook === 'onRefresh' && s.wisdom > 0) {
-      if (helpfulRefresh(this)) { s.wisdom--; ev.slots = this.shop.slots; }
+      const outcome=helpfulRefresh(this);
+      if (outcome) {
+        s.wisdom--; ev.slots = this.shop.slots;
+        this.m.toast(this,'info',wisdomFeedback(outcome,s.wisdom));
+      }
     }
     if (hook === 'onBuy' && ev.kind === 'chess' && ev.slot?.spellShield && ev.piece) ev.piece.meta.spellShield = true;
     if (hook === 'onIncome') ev.income += s.income;
@@ -322,6 +359,7 @@ export class PlayerSpells {
     // [ASSUMED] deferred triples merge on unlock without replaying their already-resolved acquisition effects.
     for (const id of unlocked) {
       const need = this.gd.mergeCount(id);
+      // loop-cap: successful merges consume need ordinary copies; a failed merge breaks immediately.
       while (need > 1 && this.countCopies(id) >= need) { if (!this._mergeChess(id, null)) break; }
     }
     const due = s.pending.filter(x => x.due <= r);
@@ -331,7 +369,7 @@ export class PlayerSpells {
     for (const x of due) {
       if (x.type === 'time') { this.spellBoardLayers(2); this.spellBoardLayers(2); }
       if (x.type === 'layers') for (const id of x.ids) this.addLayers(id, x.n, { reason: 'spell' });
-      if (x.type === 'gift') this.acquireChess(x.id, { source: 'spell_gift' });
+      if (x.type === 'gift') this.acquireChess(x.id, { source: 'spell_gift', fromPool: !x.heroGenerated });
     }
   }
   spellCommitBattle() {
@@ -339,7 +377,7 @@ export class PlayerSpells {
     const s = this.spellState, temporary = {};
     // Roll once at the actual prep deadline, not during unit-stat/rehearsal previews.
     for (let i = 0; i < s.sharing; i++) {
-      const ids = this.gd.bondIds.filter(id => (this.layers[id] || 0) < 999).sort((a, b) => (this.layers[b] || 0) - (this.layers[a] || 0) || (a < b ? -1 : a > b ? 1 : 0));
+      const ids = this.gd.bondIds.filter(id => layerGainRoom(this.layers[id] || 0, Infinity, this.m.growthMode) > 0).sort((a, b) => (this.layers[b] || 0) - (this.layers[a] || 0) || (a < b ? -1 : a > b ? 1 : 0));
       const mate = this.spellSample(this.spellMates().filter(p => Object.values(p.bonds).some(b => b.active)))[0];
       if (!mate || !ids.length) continue;
       const donor = this.spellSample(mate.gd.bondIds.filter(id => mate.bonds[id]?.active))[0];

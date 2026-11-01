@@ -42,8 +42,8 @@ test('WebGL item plates keep distinct equipment/spell frames after the icon load
     const spell = new ItemView(ctx, { ...info, id: 9001, uid: 9001, spell: true });
     assert.notEqual(equipment.plate.texture, spell.plate.texture);
     await Promise.resolve();
-    assert.equal(equipment.plate.texture, itemTexture(info.defId, image, info.color));
-    assert.equal(spell.plate.texture, itemTexture(info.defId, image, info.color, true));
+    assert.equal(equipment.plate.texture, itemTexture(info.icon, image, info.color));
+    assert.equal(spell.plate.texture, itemTexture(info.icon, image, info.color, true));
     assert.notEqual(equipment.plate.texture, spell.plate.texture, 'loading the same icon keeps each frame');
     equipment.destroy(); spell.destroy();
   } finally { fake.restore(); }
