@@ -842,10 +842,10 @@ index ccf5b5184..a885d5132 100644
  | 插件没出现在列表里（被跳过）；启动日志和 check 写着原因 | `PLUGIN_FORGE_ZIP` | 这个包的文件不安全，没有解压：{detail} | 路径不能跳出包目录，不能有符号链接，单个包最多 5000 个文件、一共 200 MB。换一份包再导入。 |
  | 插件没出现在列表里（被跳过）；启动日志和 check 写着原因 | `PLUGIN_FORGE_JSON` | 包里的 JSON 读不了：{detail} | JSON 要能解析，不超过 8 MB，嵌套不超过 64 层。读 Forge 包时，±1e9 以内的有限数和安全整数都可以；非有限数和超出安全整数范围的数仍然拒绝。写进插件或游戏数据的数仍须在 ±1e9 以内。 |
 diff --git a/docs/PLUGINS.md b/docs/PLUGINS.md
-index eef1b86f3..7045f1a3b 100644
+index eef1b86f3..abdd37d59 100644
 --- a/docs/PLUGINS.md
 +++ b/docs/PLUGINS.md
-@@ -621,6 +621,23 @@ anchor unit id in `extra.id`. Absent effects are visual no-ops. Cross-plugin add
+@@ -621,6 +621,25 @@ anchor unit id in `extra.id`. Absent effects are visual no-ops. Cross-plugin add
  use cosmetic bindings. Loader/client extensions live outside the hashed shared/sim source, preserving vanilla and
  old plugin content hashes. Only sets using new fields gain new data/visual hashes.
  
@@ -864,12 +864,14 @@ index eef1b86f3..7045f1a3b 100644
 +
 +Forge `variants.json` can patch official records and mapped records from imported packs. Patches apply after record composition, only for the winning declaration of each axis; unknown targets or unsupported tables are reported, and unknown top-level fields reject the composition. Forge's keyed talent-list merge is retained. A target from another pack is noted in the import report and resolved when both packs are selected; if it remains unavailable, composition reports a warning. Source-to-target mappings are hashed and checked against the contributing plugin's record ownership. Packs imported before this mapping support need to be re-imported to provide cross-pack identities.
 +
++When a Forge Spine explicitly declares `anims`, the source mapping is not copied; the lock infers animation roles from the skeleton. The import report marks this as partial and names the affected model because inferred roles can differ from the pack's choices.
++
 +Imported Forge behaviour declarations also resolve conflicts by source pack ID. Native plugin rules continue to reject conflicting declarations; a Forge behaviour conflicting with a native rule is not silently selected.
 +
  Forge `fx.silentPhases` imports to `assets.fx.silentPhases`: union with built-in silent kinds, suppressing only the
  procedural phase flash; model form changes remain. Empty lists produce nothing; unknown fields remain named skips.
  At most 128 identifier-like names [ASSUMED].
-@@ -675,6 +692,8 @@ The match host takes rules from the verified content set, overriding any per-mat
+@@ -675,6 +694,8 @@ The match host takes rules from the verified content set, overriding any per-mat
  | `prepLoadout` | `locked` | `prep`: existing `room.loadout { entries, ops? }` also works during PREP before this seat is ready. Each submission overlays only named operators. Named defaults reset them; omitted operators retain their choices. INFO_CHECK remains a full replacement independent of ready. The prep HUD opens 干员调配 and closes it on ready or phase exit. [ASSUMED] `ops` uses the same merge semantics. |
  | `morphPairing` | `official` | `plus`: a morph (`canGiveBond`) is required; only the leftmost other item with a valid `giveBondId` grants a bond. The morph takes no equipment slot, at most one morph per operator; two ordinary slots remain. Replacing an item never destroys the morph. The same helper drives prep/effects, combat and client bond displays. |
  | `unequip` | `official` | `allow`: `g.unequip { itemUid }` moves an equipped item into the rightmost free hand slot, else a free temporary slot. Both full: atomic `HAND_FULL`, retaining the original equipment order. Same uid and stock, no content hook; bots never unequip. |
@@ -878,7 +880,7 @@ index eef1b86f3..7045f1a3b 100644
  
  The workshop defines both halves of morphPairing precisely, so the slot policy is implemented too. [ASSUMED]
  requesting the morph as a replacement falls back to the leftmost occupying item; a second morph returns BAD_TARGET.
-@@ -1771,7 +1790,7 @@ lacks). The table below is generated from it (`node tools/plugin.mjs errors --wr
+@@ -1771,7 +1792,7 @@ lacks). The table below is generated from it (`node tools/plugin.mjs errors --wr
  | The room will not switch it on; the panel says why | `PLUGIN_DEPENDENCY` | A plugin it requires is missing or out of its version range, or the load-order hints of some plugins form a cycle | Install the plugins its "requires" names (within their ranges), or remove the loadAfter / loadBefore entries that point at each other. |
  | The room will not switch it on; the panel says why | `PLUGIN_CONFLICT` | The chosen plugins conflict with each other | Switch one of them off; a plugin's "conflicts" says which ones it cannot be used with. |
  | The room will not switch it on; the panel says why | `PLUGIN_RULE_CONFLICT` | Two plugins set the same rule switch to different options ({path}) | Keep only one of the plugins, or make them choose the same option. |
@@ -887,7 +889,7 @@ index eef1b86f3..7045f1a3b 100644
  | The room will not switch it on; the panel says why | `PLUGIN_LIMIT` | Over this server's limit: {detail} | Switch on fewer plugins, or make them smaller (compress pictures and sounds, remove unused files, fewer whole-record references). |
  | The room will not switch it on; the panel says why | `PLUGIN_INCOMPATIBLE` | That gameplay plugin is not made for this server's game version (or its plugin API) | Use a version of the plugin made for this game version (its "app" says which), or ask its author for an update. |
  | The room will not switch it on; the panel says why | `PLUGIN_BUSY` | This server already runs as many plugin sets at once as it allows | Try again later, or pick the same plugins as a room already using some; the server owner can raise maxSets in plugins/config.json. |
-@@ -1922,6 +1941,10 @@ lacks). The table below is generated from it (`node tools/plugin.mjs errors --wr
+@@ -1922,6 +1943,10 @@ lacks). The table below is generated from it (`node tools/plugin.mjs errors --wr
  | The studio refuses the action and says why | `PLUGIN_INSTALL_ZIP` | This zip cannot be installed: {detail} | The zip needs plugin.json (optionally inside one folder named with the plugin id). No path traversal, symbolic links, encryption or too many files. |
  | The studio refuses the action and says why | `PLUGIN_INSTALL_CHECK` | The plugin failed its check and was not placed in plugins/: {detail} | Fix the plugin as node tools/plugin.mjs check says, then install again. A failed check deletes only the temporary files. |
  | The studio refuses the action and says why | `PLUGIN_INSTALL_EXISTS` | plugins/ already has this id: {detail} | Without --force nothing is overwritten. --force moves the old folder to plugins/_replaced/ and does not delete it. |
@@ -898,7 +900,7 @@ index eef1b86f3..7045f1a3b 100644
  | The plugin is not listed (skipped); the start log and check say why | `PLUGIN_FORGE_INPUT` | This is not a Forge pack that can be read: {detail} | Choose a workshop folder that contains pack.json, or a zip of that folder. |
  | The plugin is not listed (skipped); the start log and check say why | `PLUGIN_FORGE_ZIP` | This pack's files are not safe to unpack: {detail} | Paths must stay inside the pack, with no symbolic links, at most 5000 files and 200 MB. Import another pack. |
  | The plugin is not listed (skipped); the start log and check say why | `PLUGIN_FORGE_JSON` | JSON in the pack cannot be read: {detail} | JSON must parse, stay within 8 MB and 64 levels. A Forge pack may contain finite numbers within ±1e9 and safe integers; non-finite numbers and values past the safe-integer range are still refused. A number written into a plugin or into game data must still stay within ±1e9. |
-@@ -1949,6 +1972,8 @@ slots take). The `dsl` template is a content plugin (one operator and one prep s
+@@ -1949,6 +1974,8 @@ slots take). The `dsl` template is a content plugin (one operator and one prep s
  
  ## 16. Forge import
  
@@ -907,7 +909,7 @@ index eef1b86f3..7045f1a3b 100644
  A Forge workshop pack — a folder or a zip with `pack.json` at its root, one wrapping folder stripped — can be read
  into one or more of our plugins. The importer (`server/plugins/forgeImport.js`) is original code. It does not copy
  Forge's source, and it does not screen for official art, the same rule as the packer: what a plugin carries is its
-@@ -2073,7 +2098,7 @@ Modules (`statsBase`, `traitBase`, `talentsBase`), new garrisons and bonds remai
+@@ -2073,7 +2100,7 @@ Modules (`statsBase`, `traitBase`, `talentsBase`), new garrisons and bonds remai
  
  ### Mapping
  
@@ -916,7 +918,16 @@ index eef1b86f3..7045f1a3b 100644
  declares that switch's default (WORKSHOP §1.22–§1.23); the declaration is retained in the content hash and conflicts
  with a different option. Explicit null, non-string or unknown options remain invalid. A valid declaration
  implies gameplay (`combat: true` is not required on input) and produces a content plugin even with no other data.
-@@ -2468,3 +2493,16 @@ sets pin the runtime bytes. Match hosts, bot rehearsals, studio trials and the b
+@@ -2088,7 +2115,7 @@ keep the first and report the later one. This conversion does not import notices
+ | `bondIcons`, `itemIcons` | `assets.bonds`, `assets.items` | a bond already named by `art.bonds` is not imported again from `bondIcons` |
+ | `voices` | `audio.voiceJp` [ASSUMED: Forge documents that table as the Japanese dub] | a slot outside `^[A-Za-z][A-Za-z0-9]{0,31}$`, or a file that is not `.mp3` / `.ogg` |
+ | `voiceLangs.cn` (and `zh`), `voiceLangs.ja` / `jp`, `voiceLangs.en`, `voiceLangs.ko` / `kr` | `audio.voice`, `audio.voiceJp`, `audio.voiceEn`, `audio.voiceKr` | any other dub: no table of that language (an own-language dub is per operator, `audio.voiceNative`, which Forge has no table for) |
+-| `skins[]` | that operator's own `skins` variants (§9): `assets.chars[charId].skins[<the outfit's id>]`, its pictures, its model and `name`. Once the cosmetic plugin is composed onto the manifest, `public/js/ui/skins.js availableSkins(charId)` lists that id (docs/SKINS.md); the player wears it with `room.skins` `{ [charId]: skinId }` from 干员调配 or the 自选 detail. An outfit added to an operator this installation already has is a change to that entry, so the cosmetic plugin's `permissions` carries `assets.override` (§9) | a skin without `charId`; an outfit whose `id` is not a skin key (or no `id`) — its art is folded onto that operator's one overlay and is not a picker row |
++| `skins[]` | that operator's own `skins` variants (§9): `assets.chars[charId].skins[<the outfit's id>]`, its pictures, front and back Spine models, `name` and `series` as `group`. Once the cosmetic plugin is composed onto the manifest, `public/js/ui/skins.js availableSkins(charId)` lists that id (docs/SKINS.md); the player wears it with `room.skins` `{ [charId]: skinId }` from 干员调配 or the 自选 detail. An outfit added to an operator this installation already has is a change to that entry, so the cosmetic plugin's `permissions` carries `assets.override` (§9) | a skin without `charId`; an outfit whose `id` is not a skin key (or no `id`) — its art is folded onto that operator's one overlay and is not a picker row |
+ | `art.audio.bgm` of lobby, prep, combat, unite, boss; an unreferenced file whose basename is one of those | `audio.bgm` `{ loop }` | any other music key. `art.audio` is not a documented Forge table [ASSUMED] |
+ | `art.audio.bossBgm` | `audio.bossBgm` `{ loop, intro? }` | an id that is not an asset key, or a file that is not audio |
+ | `art.audio.sfx.ui`, `sfx.battle` | one audio file each | |
+@@ -2468,3 +2495,16 @@ sets pin the runtime bytes. Match hosts, bot rehearsals, studio trials and the b
  Workers still cannot fetch: the page verifies the runtime bytes before sending content. The standalone battle console
  does not replay preparation; use room test grants for gain effects. Forge's existing custom JavaScript handlers are
  not inferred from effect names or prose: this API does not automatically translate those handlers.
@@ -1290,10 +1301,10 @@ index 000000000..3947c2e43
 +
 +玩法插件的隔离宿主与测试房间日志/回放均保留显式酒馆开关，未传值的直接调用仍保持原版默认。锁定手牌不提前触发原生031插件特质；整店购买将插件获得钩子与原生获得钩子一起延迟至所有商品收集完成。分享关爱的临时借层不占用永久层数增长额度，服务端仍只信任BattleSpec中的临时层数并保留收益上限校验。
 diff --git a/docs/WINDOWS.md b/docs/WINDOWS.md
-index 422a4b7ce..061c6c8a7 100644
+index 422a4b7ce..3edb1f7c3 100644
 --- a/docs/WINDOWS.md
 +++ b/docs/WINDOWS.md
-@@ -43,14 +43,16 @@ node scripts/make-windows-bundle.mjs --node-version v22.23.3 --sha256 <64 位十
+@@ -43,14 +43,18 @@ node scripts/make-windows-bundle.mjs --node-version v22.23.3 --sha256 <64 位十
  node\node.exe            官方 Windows x64 便携版 Node（版本与 sha256 钉在仓库里，只取 node.exe）
  node\LICENSE-node.txt    Node 自己的许可证（MIT，与 node.exe 出自同一个官方归档）
  app\                     游戏本体：代码 + 生产依赖 + public（全部素材）+ data，完全离线
@@ -1310,18 +1321,24 @@ index 422a4b7ce..061c6c8a7 100644
  素材已经在包里，跳过联网准备，直接起服务器并打开浏览器）。
 +默认启用脚本沙箱。导入 Forge 包时打开启动窗口中的 Studio 地址，选择「从 Forge 包导入」，预览报告并确认；
 +回到房间后由房主选择导入的插件。数据与脚本拆为两个插件的包需要同时启用；报告列出未导入的玩法时不视为完整兼容。
++如果打包机已缓存完整且有效的六份官方角色数据表，便携包会仅复制这六份文件，供离线导入工坊角色；
++缺失或损坏时不会复制不完整的数据表，打包日志会提示，玩家首次导入部分角色时需联网获取。
  卸载＝删除文件夹（不写注册表、不放系统目录）。素材约 330 MB 是硬成本，包因此比较大。
  
  ## 3. 包里放了什么、没放什么
-@@ -120,5 +122,5 @@ Linux 上是这一档）→ Windows 自带的 `Expand-Archive`。
- * `app\` 里只有版本库跟踪的文件 + 生产依赖 + 素材 + 3D 棋盘清单，被 `.gitignore` 排除的本机文件
+@@ -117,8 +121,8 @@ Linux 上是这一档）→ Windows 自带的 `Expand-Archive`。
+ 
+ * 便携包里的 `node.exe` 来自 nodejs.org 官方发行版，**按仓库里钉死的 sha256 校验**后才复制，未做任何修改；
+   同时取出同一个归档里的 `LICENSE` 作为 `node\LICENSE-node.txt` 一起发出去。
+-* `app\` 里只有版本库跟踪的文件 + 生产依赖 + 素材 + 3D 棋盘清单，被 `.gitignore` 排除的本机文件
++* `app\` 里只有版本库跟踪的文件 + 生产依赖 + 素材 + 3D 棋盘清单，以及可选的六份经校验官方数据表；被 `.gitignore` 排除的其他本机文件
    （`.env`、`.claude/`、`scripts/service.env.cmd` 等）不会进包。
  * 游戏不写注册表、不装服务；`启动游戏.bat` 内容只有几行（切到 UTF-8 代码页 → 找 `node\node.exe` →
 -  跑 `app\scripts\launch.mjs --no-setup`）。
 +  跑 `app\scripts\launch.mjs --no-setup --scripts sandbox`）。
  * 想做成随开机启动的 Windows 服务，用仓库自带的 `scripts/install-service-windows.ps1`（面向整合包/源码部署，见 [DEPLOY.md](DEPLOY.md)）。
 diff --git a/docs/design/client.md b/docs/design/client.md
-index 5f6f21f39..6ee89bb4e 100644
+index 5f6f21f39..5c4efb1a6 100644
 --- a/docs/design/client.md
 +++ b/docs/design/client.md
 @@ -2,8 +2,41 @@
@@ -1521,6 +1538,13 @@ index 5f6f21f39..6ee89bb4e 100644
  ### Finished battle presentation
  
  The field view receives an explicit completion signal (`finishBattle`): the local runner's `done`, or the server's public field `live: false`. Missing snapshots and solo pause never imply completion. After rendering the final buffered snapshot/events, surviving units return to idle with temporary crowd-control and skill pose flags cleared for presentation only, retaining flight, stealth-driven forms and other persistent flags; knocked-out/dead poses remain. Official and plugin persistent effects stop, while one-shot effects advance on the presentation clock and are removed after at most two presentation seconds [ASSUMED]. Studio playback continues to use its external clock, including zero-time paused frames. This does not tick the simulation, delay results, or change golden outcomes.
+@@ -1056,3 +1221,6 @@ window is [ASSUMED]; damage, attack timing and targeting are unchanged.
+ Skill model fallback (#786, §35.90): when facing up, a skill with an authored Front clip and only an attack fallback
+ on Back uses Front through the skill clip and ending. Back-authored skills keep Back. [ASSUMED] This model choice
+ is presentation inferred from the available animation roles; simulation facing and targeting do not change.
++
++Forge skin imports preserve both declared Spine sides and map a valid outfit series to the skin group. The normal
++cosmetic overlay and lock validation still apply, including for an outfit without a usable skin ID.
 diff --git a/docs/design/engine.md b/docs/design/engine.md
 index b10e49a8b..f3570aecb 100644
 --- a/docs/design/engine.md
@@ -2270,7 +2294,7 @@ index 69f6c6222..a74b44794 100644
  
  - **Requested / sources:** after the maintainer's keep / drop list for the new UI PR #643 (2026-10-15: keep the parts in
 diff --git a/docs/history/0.3.3.md b/docs/history/0.3.3.md
-index 56bc0e27c..6c6857486 100644
+index 56bc0e27c..341d50425 100644
 --- a/docs/history/0.3.3.md
 +++ b/docs/history/0.3.3.md
 @@ -4,6 +4,77 @@ Part of [DESIGN.md](../DESIGN.md)。0.3.3 于 2026-10-25 作为 0.3.2 的热修
@@ -2351,6 +2375,20 @@ index 56bc0e27c..6c6857486 100644
  ### 36.1 第一期商店装备核查与空栏显示（round53 shopequip，2026-10-25）
  
  维护者在 0.3.2 的第一期游玩中报告「商店一直没有装备」，并确认官方第一期会出售装备。本次接受这条
+@@ -229,6 +300,13 @@ Part of [DESIGN.md](../DESIGN.md)。0.3.3 于 2026-10-25 作为 0.3.2 的热修
+ 更新当前约定：`docs/design/client.md`「Official versions」与 `docs/ASSETS.md`「Id scope」。没有新的
+ 玩法推断或 `[ASSUMED]` 规则，没有修改服务端、模拟、生成数据或原始素材。
+ 
++Forge 0.21 本地适配：导入时装时保留声明的正面和背面 Spine 模型，并把时装系列写入皮肤分组；没有可用
++时装 ID 的回退外观也保留两面。真实结城理工坊包中的模型与合成夹具均用于验证；其复杂战斗 kit 和动画
++形态声明仍需适配，不以外观导入成功代替技能功能验证。
++模型指定的 `anims` 尚未映射，导入报告标明需要人工适配，避免把骨架自动推断的动作误认为原包动作。
++Windows 个人便携包在打包机具备完整有效数据时，仅携带六份明确列出的官方角色数据表，以支持离线导入；
++不会整份复制本机缓存，缺少数据时提示后续联网获取。
++
+ #### 验证范围
+ 
+ `test/ui/version-icon-cache.e2e.test.js` 单文件运行：大厅双向切换、原同盟内单人全票切换并切回、换版后刷新
 diff --git a/mods/hero-strategies/README.md b/mods/hero-strategies/README.md
 new file mode 100644
 index 000000000..3ee3dde60
@@ -11034,7 +11072,7 @@ index d3f532356..eb0f56fed 100644
        }
      },
 diff --git a/scripts/make-windows-bundle.mjs b/scripts/make-windows-bundle.mjs
-index 589cd7cbe..7fe1ea11a 100644
+index 589cd7cbe..bc8547092 100644
 --- a/scripts/make-windows-bundle.mjs
 +++ b/scripts/make-windows-bundle.mjs
 @@ -7,7 +7,7 @@
@@ -11046,7 +11084,38 @@ index 589cd7cbe..7fe1ea11a 100644
  //   启动游戏-插件沙箱.bat    the same with --scripts sandbox (script plugins in the SES sandbox, docs/PLUGINS.md §13)
  //   README-开箱即用.md       给玩家看的说明（含非官方 / 严禁盈利 / 素材版权声明）
  //   LICENSE / NOTICE.md / THIRD-PARTY-NOTICES.md
-@@ -99,7 +99,7 @@ const HELP = `node scripts/make-windows-bundle.mjs — 生成 Windows 开箱即
+@@ -30,6 +30,7 @@ import crypto from 'node:crypto';
+ import os from 'node:os';
+ import { spawnSync } from 'node:child_process';
+ import { fileURLToPath } from 'node:url';
++import { ensureOfficialTables } from '../tools/assets/official-tables.mjs';
+ 
+ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+ const IS_WIN = process.platform === 'win32';
+@@ -69,6 +70,22 @@ const LEGAL_FILES = ['LICENSE', 'NOTICE.md', 'THIRD-PARTY-NOTICES.md'];
+ const LOCAL_ASSET_MANIFEST = path.join('data', 'local-assets.json');
+ /** 本机提取的官方战斗特效的文件清单（tools/local-extract/fx.py，DESIGN §33；文件在 public/assets/local/fx）。 */
+ const LOCAL_FX_MANIFEST = path.join('data', 'local-fx.json');
++/** Only these public game-data tables, never the whole local cache or personal configuration. */
++const OFFICIAL_TABLES = ['character_table', 'skill_table', 'range_table', 'uniequip_table', 'battle_equip_table', 'activity_table']
++  .map(name => `.cache/gamedata/excel/${name}.json`);
++
++/** Copy a validated, explicit table set for offline Forge imports; incomplete sets are omitted. */
++export async function copyOfficialTables(dst, root = ROOT) {
++  for (const rel of OFFICIAL_TABLES) {
++    try {
++      const stat = await fsp.lstat(path.join(root, rel));
++      if (!stat.isFile() || stat.isSymbolicLink()) return { files: 0, bytes: 0 };
++    } catch { return { files: 0, bytes: 0 }; }
++  }
++  const checked = await ensureOfficialTables(root, 'offline Forge imports', { offline: true });
++  if (checked.failures.length) return { files: 0, bytes: 0 };
++  return copyFiles(OFFICIAL_TABLES, dst, root);
++}
+ 
+ function parseArgs(argv) {
+   const o = { out: '', node: true, force: false, nodeSpec: '', sha256: '' };
+@@ -99,7 +116,7 @@ const HELP = `node scripts/make-windows-bundle.mjs — 生成 Windows 开箱即
    data/local-assets.json 存在时（本机提取过 3D 棋盘贴图）会一起收，否则贴图进了包也用不上。
  
    不压缩、不改 index.html、不装开始界面：包里的 启动游戏.bat 就是
@@ -11055,7 +11124,7 @@ index 589cd7cbe..7fe1ea11a 100644
  `;
  
  /**
-@@ -382,6 +382,11 @@ async function extractPortableNode(bundleNodeDir, version, zipPath) {
+@@ -382,6 +399,11 @@ async function extractPortableNode(bundleNodeDir, version, zipPath) {
  }
  
  /** 启动 .bat（内容保持纯 ASCII，中文只出现在文件名里）。 */
@@ -11067,7 +11136,7 @@ index 589cd7cbe..7fe1ea11a 100644
  function bat(body) {
    return `@echo off\r\nchcp 65001 >nul\r\nsetlocal\r\nset "HERE=%~dp0"\r\nset "NODE="\r\nif exist "%HERE%node\\node.exe" set "NODE=%HERE%node\\node.exe"\r\nif not defined NODE set "NODE=node"\r\n${body}\r\nset "CODE=%ERRORLEVEL%"\r\nif not "%CODE%"=="0" pause\r\nexit /b %CODE%\r\n`;
  }
-@@ -399,13 +404,13 @@ export function bundleReadme({ version, withNode }) {
+@@ -399,13 +421,13 @@ export function bundleReadme({ version, withNode }) {
      ? `node\\node.exe            便携版 Node ${version}（官方 x64，已经 sha256 校验）
  node\\LICENSE-node.txt    Node 自己的许可证（MIT）
  app\\                    游戏本体：server / shared / public（全部素材）/ data / scripts / tools
@@ -11085,7 +11154,7 @@ index 589cd7cbe..7fe1ea11a 100644
  README-开箱即用.md       本文件
  LICENSE / NOTICE.md / THIRD-PARTY-NOTICES.md
  
-@@ -437,14 +442,16 @@ Noto Sans SC 这类网页字体（\`index.html\` 里那条外链这次没有改
+@@ -437,14 +459,17 @@ Noto Sans SC 这类网页字体（\`index.html\` 里那条外链这次没有改
  ## 怎么玩
  
  \`\`\`
@@ -11105,10 +11174,22 @@ index 589cd7cbe..7fe1ea11a 100644
 +启动游戏后，在浏览器打开 http://localhost:3000/studio/；选择「从 Forge 包导入」，选择工坊包的 zip 或文件夹，
 +先查看预览报告，再确认导入。返回游戏后由房主在房间选择导入的插件；如果导入同时生成数据插件与脚本插件，
 +需一并启用。默认启动入口已开启脚本沙箱。报告中若列出未导入的玩法或脚本，该包仍需适配，不能按完整兼容处理。
++部分新增官方角色需要官方数据表：本包若未包含这些表，首次导入相应工坊包时需要联网下载。
  
  ## 目录结构
  
-@@ -568,8 +575,8 @@ async function main() {
+@@ -543,6 +568,10 @@ async function main() {
+     console.log(`    带上 ${LOCAL_FX_MANIFEST}（官方战斗特效的清单，文件本体在 public/assets/local/fx）`);
+   }
+ 
++  const tables = await copyOfficialTables(appDir);
++  if (tables.files) console.log(`    带上 ${tables.files} 份官方数据表 / ${MB(tables.bytes)}，供离线导入工坊角色`);
++  else console.log('    ! 官方数据表不完整；导入部分工坊角色时需要联网获取。');
++
+   // 3) 生产依赖
+   await installProductionDeps(appDir);
+   const deps = await dirSize(path.join(appDir, 'node_modules'));
+@@ -568,8 +597,8 @@ async function main() {
      await fsp.copyFile(src, path.join(out, f));
    }
  
@@ -16138,7 +16219,7 @@ index 942519ec4..4b99081b8 100644
    const rules = composed.rules;
    const cs = contentHashOf({ app: base.identity.app, sim: base.identity.sim, data: hashes, plugins: parts, settings, ...(Object.keys(i18n).length ? { i18n } : {}), ...(rules ? { rules } : {}) });
 diff --git a/server/plugins/forgeImport.js b/server/plugins/forgeImport.js
-index 451431625..4dca544fa 100644
+index 451431625..7cecb6275 100644
 --- a/server/plugins/forgeImport.js
 +++ b/server/plugins/forgeImport.js
 @@ -263,11 +263,11 @@ function allocateIds(base, roles, primaryName) {
@@ -16316,7 +16397,41 @@ index 451431625..4dca544fa 100644
      const [zh, en] = SKIP_TOP[key];
      skip(`pack.json:${key}`, zh, en);
    }
-@@ -1492,11 +1608,19 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -1273,7 +1389,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+     remember(atlas.src, atlas.dest);
+     const value = { skel: skel.dest, atlas: atlasDest, ...(textures.length ? { textures } : {}), ...(spec.pma === true ? { pma: true } : {}) };
+     setAt(assets, [...container, key, ...field], value);
+-    if (spec.anims != null) assume('spine-anims', '模型上的 anims 没有照抄：剪辑由 plugin.lock.json 从骨架里读。', 'anims on a model were not copied: clip data is read from the skeleton into plugin.lock.json.');
++    if (spec.anims != null) {
++      assume('spine-anims', '模型上的 anims 没有照抄：剪辑由 plugin.lock.json 从骨架里读。', 'anims on a model were not copied: clip data is read from the skeleton into plugin.lock.json.');
++      manualReasons.push({ path: `${[...container, key, ...field].join('.')}#anims`,
++        zh: '工坊包指定的动画映射未导入；当前使用从骨架自动推断的动作，可能与原包不同。',
++        en: 'The pack\'s animation mapping was not imported; actions inferred from the skeleton may differ from the original.' });
++    }
+     importedAssets.push(`${[...container, key, ...field].join('.')} ← ${skel.src}`);
+   };
+ 
+@@ -1354,15 +1475,17 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+         const name = typeof skin.name === 'string' ? skin.name.trim() : '';
+         if (name && [...name].length <= 64) setAt(assets, ['chars', skin.charId, 'skins', key, 'name'], name);
+         else if (name) skip(`skins.${key}.name`, '时装的显示名不在 1–64 字以内，没有写入。', 'The outfit\'s display name is not within 1–64 characters, so it was not written.');
++        if (typeof skin.series === 'string' && [...skin.series].length <= 64) setAt(assets, ['chars', skin.charId, 'skins', key, 'group'], skin.series);
++        else if (skin.series != null) skip(`skins.${key}.series`, '时装系列不是 64 字以内的文本，没有写入。', 'The outfit series is not text within 64 characters, so it was not written.');
+         if (isObj(skin.art)) {
+           for (const field of CHAR_FIELDS) if (typeof skin.art[field] === 'string') putFileAt(['chars', skin.charId, 'skins', key, field], skin.art[field]);
+-          if (isObj(skin.art.spine?.front)) putSpine(['chars', skin.charId, 'skins'], key, ['spine', 'front'], skin.art.spine.front);
++          for (const side of ['front', 'back']) if (isObj(skin.art.spine?.[side])) putSpine(['chars', skin.charId, 'skins'], key, ['spine', side], skin.art.spine[side]);
+         }
+       } else {
+         assume('skins', 'Forge 的时装没有能当皮肤键的 id，收成该干员的一份外观叠加，不会成为皮肤栏里的一行。', 'A Forge outfit has no id a skin key can use, so it was collapsed into one overlay of that operator and is not a row in the skin picker.');
+         if (isObj(skin.art)) {
+           for (const field of CHAR_FIELDS) if (typeof skin.art[field] === 'string') putImage(['chars'], skin.charId, [field], skin.art[field]);
+-          if (isObj(skin.art.spine?.front)) putSpine(['chars'], skin.charId, ['spine', 'front'], skin.art.spine.front);
++          for (const side of ['front', 'back']) if (isObj(skin.art.spine?.[side])) putSpine(['chars'], skin.charId, ['spine', side], skin.art.spine[side]);
+         }
+       }
+       if (isObj(skin.voices)) putVoices(`skins.${skin.id || skin.charId}`, ['audio', 'voiceJp'], { [skin.charId]: skin.voices });
+@@ -1492,11 +1615,19 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
    };
    /** @type {any[]} */
    const operators = [];
@@ -16336,7 +16451,7 @@ index 451431625..4dca544fa 100644
    /** @type {string[]} */
    const rewrittenData = [];
    const seenIds = new Set();
-@@ -1508,7 +1632,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -1508,7 +1639,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
  
    const declaredContent = Array.isArray(pack.content) ? pack.content.filter((n) => typeof n === 'string') : [];
    for (const name of declaredContent) {
@@ -16345,7 +16460,7 @@ index 451431625..4dca544fa 100644
      skip(`content:${name}`, '这不是 Forge 的数据文件名，也不能当成模式导入。', 'This is not a Forge data-file name, and it was not imported as a mode.');
  
    }
-@@ -1519,6 +1643,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -1519,6 +1650,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
      table, allocate: (prefix, id) => namespaced(prefix, recordNs, id, seenIds), skip, assume,
    });
    const gameplayRecords = gameplay.records;
@@ -16358,7 +16473,7 @@ index 451431625..4dca544fa 100644
    const recordIds = gameplay.ids;
    for (const [name, entries] of gameplay.additions) dataCache.set(name, { ...table(name), ...entries });
    for (const [old, id] of recordIds) { importedData.push(`${old} → ${id}`); rewrittenData.push(`${old} → ${id}`); }
-@@ -2243,6 +2373,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -2243,6 +2380,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
      }
      if (Object.keys(exact).length) op.art = { ...(op.art ?? {}), assets: exact };
      operators.push(op);
@@ -16366,7 +16481,7 @@ index 451431625..4dca544fa 100644
      importedData.push(`${label} → ${charId}（${as === 'diy' ? '自选 · recruit pool' : `第 ${tier} 阶棋子 · tier-${tier} piece`}）`);
      rewrittenData.push(`${baseId} → ${charId}`);
    };
-@@ -2304,6 +2435,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -2304,6 +2442,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
          if (!declared) { skip(`${name}:${id}`, '这条官方记录没有写进 overrides，按 Forge 的规矩不能默默覆盖，没有导入。', 'This official record is not in overrides. Forge refuses a silent replace, so it was not imported.'); continue; }
          if (!PATCH_TABLE[name] && name !== 'units') { skip(`${name}:${id}`, '这张表对不上我们的补丁文件，没有导入。', 'This table does not match a patch file of ours, so it was not imported.'); continue; }
          patchRecord(name, id, rec);
@@ -16374,7 +16489,7 @@ index 451431625..4dca544fa 100644
          continue;
        }
        if (name === 'chess') { newChess.set(id, rec); continue; }
-@@ -2363,6 +2495,65 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -2363,6 +2502,65 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
    for (let i = 0; i < gameplayRecords.length; i++) gameplayRecords[i] = rewriteForgeIds(gameplayRecords[i], recordIds);
    for (let i = 0; i < operators.length; i++) operators[i] = rewriteForgeIds(operators[i], recordIds);
    for (let i = 0; i < patches.length; i++) patches[i] = rewriteForgeIds(patches[i], recordIds);
@@ -16440,7 +16555,7 @@ index 451431625..4dca544fa 100644
  
    // ---- kits/<id>.js → one sandboxed script plugin (Addition 3, round 43; forgeKits.js) --------------------------------
    /** @type {{ source: string, registered: { file: string, register: string, carried: string[], kind: string, label: string }[], mapped: string[], overrides: string[] } | null} */
-@@ -2711,11 +2902,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -2711,11 +2909,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
    /** @type {string[]} */
    const roles = [];
    const contentI18n = translations.filter((t) => t.kind === 'content');
@@ -16454,7 +16569,7 @@ index 451431625..4dca544fa 100644
    for (const panel of panels) roles.push(panel.role || `ui:${panel.slot}`);
    for (const t of translations.filter((x) => x.kind === 'ui')) roles.push(`lang:${t.lang}`);
    if (!roles.length && notices.length) roles.push('cosmetic');
-@@ -2754,7 +2946,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
+@@ -2754,7 +2953,7 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
    for (const bucket of ['chars', 'enemies', 'tokens', 'bonds', 'bands', 'items', 'skills', 'modules']) if (isObj(assets[bucket])) kept.push(...Object.keys(assets[bucket]).map(k => `${bucket}:${k}`));
    const cosmeticBare = asked.length > 0 && asked.every(bareKey) && kept.every(bareKey);
  
@@ -16463,7 +16578,7 @@ index 451431625..4dca544fa 100644
    return { meta, roles };
  }
  
-@@ -2859,6 +3051,36 @@ function buildProducts(meta, ids, primaryRole) {
+@@ -2859,6 +3058,36 @@ function buildProducts(meta, ids, primaryRole) {
        man.data = ['data/patch.json'];
        files.set('data/patch.json', `${JSON.stringify({ patch: 1, ops: meta.patches }, null, 2)}\n`);
      }
@@ -16500,7 +16615,7 @@ index 451431625..4dca544fa 100644
      if (meta.gameplayRecords.length) {
        perms.push('data.add');
        man.data = ['data/records.json', ...(man.data ?? [])];
-@@ -2883,7 +3105,7 @@ function buildProducts(meta, ids, primaryRole) {
+@@ -2883,7 +3112,7 @@ function buildProducts(meta, ids, primaryRole) {
        }
      }
      if (meta.rules) man.rules = meta.rules;
@@ -16509,7 +16624,7 @@ index 451431625..4dca544fa 100644
      if (!perms.length && !meta.contentI18n.length && !meta.rules) perms.push('data.patch');
      if (perms.length) man.permissions = [...new Set(perms)];
      files.set('README.md', readme(ids.content, 'content', ['- 数值补丁、干员和敌人见 data/、operators/、enemies/。', '- 技能脚本没有执行，映射不上的用通用 kit。', ...(meta.rules ? ['- 规则开关写在 plugin.json 的 rules 里。公告没有导入。'] : [])]));
-@@ -2937,6 +3159,31 @@ function buildProducts(meta, ids, primaryRole) {
+@@ -2937,6 +3166,31 @@ function buildProducts(meta, ids, primaryRole) {
      const imported = meta.script.registered.map((r) => `${r.file} → sim/index.js · sp.kits.register("${r.register}")（${r.label}）${r.carried.length ? ` + ${r.carried.join(', ')}` : ''}`);
      products.push({ id: ids.script, class: 'script', role: 'script', files, imported, rewritten: [...meta.script.mapped], manifest: man });
    }
@@ -16541,7 +16656,7 @@ index 451431625..4dca544fa 100644
    for (const panel of meta.panels) {
      const role = panel.role || `ui:${panel.slot}`;
      const id = ids[role];
-@@ -3271,7 +3518,7 @@ export async function importForge(source, opts = {}) {
+@@ -3271,7 +3525,7 @@ export async function importForge(source, opts = {}) {
              else if (got.set?.problems?.length || got.set?.warnings?.length) issues.push({ code: 'PLUGIN_INVALID', detail: `${p.id}: visual set ${got.set.problems?.length || 0} problems, ${got.set.warnings?.length || 0} warnings` });
            }
            if (p.class === 'content') {
@@ -16550,7 +16665,7 @@ index 451431625..4dca544fa 100644
              if (!set || set.problems?.length) issues.push({ code: set?.problems?.[0]?.code || 'PLUGIN_INVALID', detail: `${p.id}: ${set?.problems?.[0]?.message || set?.problems?.[0]?.code || 'content set failed'}` });
              else if (set.warnings?.length) issues.push({ code: 'PLUGIN_INVALID', detail: `${p.id}: content set ${set.warnings.length} warnings` });
            }
-@@ -3286,7 +3533,7 @@ export async function importForge(source, opts = {}) {
+@@ -3286,7 +3540,7 @@ export async function importForge(source, opts = {}) {
        const report = publicReport({ meta: planned.meta, products: built.products, primaryId: primary.id, wrote: !dryRun, dryRun, check: 'check --strict 与 pack 通过；外观走 visual set，数据走 content set。', issues: [] });
        const md = report.markdown;
        if (!dryRun) {
@@ -39601,7 +39716,7 @@ index 000000000..5cdcb414b
 +  assert.equal(disabled.rules, undefined);
 +});
 diff --git a/test/plugins/forgeImport.test.js b/test/plugins/forgeImport.test.js
-index a70fc1872..0079a55d4 100644
+index a70fc1872..9db122416 100644
 --- a/test/plugins/forgeImport.test.js
 +++ b/test/plugins/forgeImport.test.js
 @@ -31,6 +31,9 @@ import { DataSource } from '../../server/sim/simdata.js';
@@ -39614,7 +39729,24 @@ index a70fc1872..0079a55d4 100644
  
  const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
  const FIXTURES = path.join(ROOT, 'test', 'fixtures', 'forge');
-@@ -410,7 +413,7 @@ test('malicious zip and directory input is refused and a script in the pack is n
+@@ -152,7 +155,7 @@ test('one outfit per skin: an id that is a skin key becomes that operator\'s own
+   fs.writeFileSync(path.join(pack, 'pack.json'), JSON.stringify({
+     id: 'rose-wardrobe', name: '玫瑰衣柜', version: '1.0.0', license: 'CC0-1.0', content: [],
+     skins: [
+-      { id: 'char_102_texas@sightseer#2', charId: 'char_102_texas', name: '悠然假日', art: { portrait: 'chars/sightseer.png' } },
++      { id: 'char_102_texas@sightseer#2', charId: 'char_102_texas', name: '悠然假日', series: '联动', art: { portrait: 'chars/sightseer.png' } },
+       { charId: 'char_112_siege', art: { avatar: 'chars/sightseer.png' } },
+     ],
+   }));
+@@ -163,6 +166,7 @@ test('one outfit per skin: an id that is a skin key becomes that operator\'s own
+     const dir = path.join(out, 'rose-wardrobe');
+     const overlay = JSON.parse(fs.readFileSync(path.join(dir, 'assets.json'), 'utf8'));
+     assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].name, '悠然假日');
++    assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].group, '联动');
+     assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].portrait, 'files/chars/sightseer.png');
+     assert.equal(overlay.chars.char_112_siege.avatar, 'files/chars/sightseer.png', 'no skin key: the operator\'s own overlay, as before');
+     assert.equal(overlay.chars.char_112_siege.skins, undefined);
+@@ -410,7 +414,7 @@ test('malicious zip and directory input is refused and a script in the pack is n
      const linked = path.join(parent, 'linked');
      fs.mkdirSync(linked);
      fs.writeFileSync(path.join(linked, 'pack.json'), '{"id":"rose-linked","name":"x","version":"1.0.0"}');
@@ -39623,7 +39755,7 @@ index a70fc1872..0079a55d4 100644
      const sym = await importForge(linked, opts);
      assert.equal(sym.issues[0].code, 'PLUGIN_FORGE_ZIP');
      assert.match(sym.issues[0].detail, /symbolic link/);
-@@ -1387,9 +1390,11 @@ test('a Forge built-in language imports as a global lang overlay, separate from
+@@ -1387,9 +1391,11 @@ test('a Forge built-in language imports as a global lang overlay, separate from
    } finally { fs.rmSync(parent, { recursive: true, force: true }); }
  });
  
@@ -39637,7 +39769,45 @@ index a70fc1872..0079a55d4 100644
    const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'sp-forge-panels-'));
    try {
      for (const [slot, expected] of Object.entries(mounts)) {
-@@ -1825,6 +1830,279 @@ test('P9: an engine resource container reports partial/manual even with no produ
+@@ -1417,6 +1423,37 @@ test('all nine Forge UI mounts distinguish adaptation from uncopied scripts, inc
+   } finally { fs.rmSync(parent, { recursive: true, force: true }); }
+ });
+ 
++test('Forge skin imports and locks both Spine sides, including an unkeyed skin', async () => {
++  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'sp-forge-skin-sides-'));
++  const pack = path.join(parent, 'pack');
++  const pair = { front: { skel: 'front/model.skel', atlas: 'front/model.atlas', textures: ['front/page.png'], anims: { idle: 'Idle' } },
++    back: { skel: 'back/model.skel', atlas: 'back/model.atlas', textures: ['back/page.png'] } };
++  writePack(pack, { id: 'skin-sides', name: '双面时装', version: '1.0.0', license: 'CC0-1.0', content: [],
++    skins: [{ id: 'wardrobe', charId: 'char_102_texas', art: { spine: pair } },
++      { charId: 'char_112_siege', art: { spine: pair } }] }, {
++    'front/model.skel': skel(), 'front/model.atlas': atlas(['page.png']), 'front/page.png': png(4, 4),
++    'back/model.skel': skel(), 'back/model.atlas': atlas(['page.png']), 'back/page.png': png(4, 4),
++  });
++  const out = path.join(parent, 'skin-sides');
++  try {
++    const imported = await importForge(pack, { ...forgeOpts(parent), out });
++    assert.equal(imported.ok, true, imported.markdown);
++    assert.equal(imported.report.partial, true, 'unmapped authored animation roles must not look fully compatible');
++    assert.ok(imported.report.manualReasons.some((s) => s.path.endsWith('#anims')));
++    const assets = JSON.parse(fs.readFileSync(path.join(out, 'assets.json'), 'utf8'));
++    const lock = JSON.parse(fs.readFileSync(path.join(out, 'plugin.lock.json'), 'utf8'));
++    for (const spine of [assets.chars.char_102_texas.skins.wardrobe.spine, assets.chars.char_112_siege.spine]) {
++      assert.equal(spine.front.skel, 'files/front/model.skel');
++      assert.equal(spine.back.skel, 'files/back/model.skel');
++    }
++    assert.ok(lock.spine['files/front/model.skel']);
++    assert.ok(lock.spine['files/back/model.skel']);
++    assert.equal(imported.report.skipped.some((s) => s.path.startsWith('back/')), false);
++    const check = await quiet(['check', out, '--strict', '--root', ROOT]);
++    assert.equal(check.code, 0, check.out);
++  } finally { fs.rmSync(parent, { recursive: true, force: true }); }
++});
++
+ test('a Spine import writes clip data the way pack does, and drops only an unreadable skeleton', async () => {
+   const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'sp-forge-spine-'));
+   const pack = path.join(parent, 'pack');
+@@ -1825,6 +1862,279 @@ test('P9: an engine resource container reports partial/manual even with no produ
    assert.ok(got.report.manualReasons.some(r => r.path === 'pack.json:assets' && /spresources/.test(r.en)));
  });
  
@@ -45417,10 +45587,10 @@ index 0b8680549..8588ec23a 100644
    assert.equal(r.status, 0, r.stderr);
  });
 diff --git a/test/windows-bundle.test.js b/test/windows-bundle.test.js
-index 115bd1022..8a9cb8a58 100644
+index 115bd1022..c9457f5f3 100644
 --- a/test/windows-bundle.test.js
 +++ b/test/windows-bundle.test.js
-@@ -121,6 +121,14 @@ describe('make-windows-bundle.mjs: --force 只肯删空目录或上一次的包'
+@@ -121,6 +121,34 @@ describe('make-windows-bundle.mjs: --force 只肯删空目录或上一次的包'
    });
  });
  
@@ -45432,10 +45602,30 @@ index 115bd1022..8a9cb8a58 100644
 +  assert.equal(serverEnv(opts,{SP_TEST_MODE:'force'}).SP_TEST_MODE,undefined);
 +});
 +
++test('offline Forge tables copy only a complete valid public table set, never nearby secrets', async () => {
++  const { copyOfficialTables } = await mod('scripts/make-windows-bundle.mjs');
++  const base = await fsp.mkdtemp(path.join(os.tmpdir(), 'sp-offline-tables-'));
++  const root = path.join(base, 'source'), dst = path.join(base, 'bundle');
++  const dir = path.join(root, '.cache', 'gamedata', 'excel');
++  try {
++    await fsp.mkdir(dir, { recursive: true });
++    const tables = { character_table: { c: { phases: [] } }, skill_table: { s: { levels: [] } },
++      range_table: { r: { grids: [] } }, uniequip_table: { equipDict: {}, charEquip: {} },
++      battle_equip_table: { e: { phases: [] } }, activity_table: { autoChessData: {} } };
++    for (const [name, value] of Object.entries(tables)) await fsp.writeFile(path.join(dir, `${name}.json`), JSON.stringify(value));
++    await fsp.writeFile(path.join(root, '.cache', '.studio-key'), 'private');
++    assert.equal((await copyOfficialTables(dst, root)).files, 6);
++    assert.equal(await fsp.readFile(path.join(dst, '.cache', 'gamedata', 'excel', 'character_table.json'), 'utf8'), JSON.stringify(tables.character_table));
++    await assert.rejects(fsp.access(path.join(dst, '.cache', '.studio-key')));
++    await fsp.writeFile(path.join(dir, 'skill_table.json'), '{');
++    assert.equal((await copyOfficialTables(path.join(base, 'invalid'), root)).files, 0);
++  } finally { await fsp.rm(base, { recursive: true, force: true }); }
++});
++
  describe('make-windows-bundle.mjs: 包内说明的措辞', () => {
    test('不再声称「不访问外网」，改成联网 / 断网两种情况都讲清', async () => {
      const { bundleReadme } = await mod('scripts/make-windows-bundle.mjs');
-@@ -131,6 +139,7 @@ describe('make-windows-bundle.mjs: 包内说明的措辞', () => {
+@@ -131,6 +159,7 @@ describe('make-windows-bundle.mjs: 包内说明的措辞', () => {
      assert.match(r, /断网/, '断网时的回退也要写');
      assert.match(r, /不需要安装 Node/);
      assert.match(r, /node\\node\.exe/);

@@ -1,5 +1,5 @@
 {
-  "version": "0.2.4-beta.1",
+  "version": "0.2.4-beta.2",
   "gameVersion": "0.3.3",
   "upstreamCommit": "f07b8965061bbc311ad7aa815879b09264a1e47d",
   "files": [
@@ -61,7 +61,7 @@
     {
       "path": "docs/PLUGINS.md",
       "before": "22aab1e2a8f60e93146241d5c4d29891729e749643f0e7acfe6332570bd51b86",
-      "after": "6b09efc2ced8bb90adf97e25ce80f6e508344e23da495e8491e26a12e5a1089b"
+      "after": "7fa1f732085c0720f1f1790ae94235c24f5413dcf8e5e161172f8899fa0ab8a6"
     },
     {
       "path": "docs/SIM.md",
@@ -81,12 +81,12 @@
     {
       "path": "docs/WINDOWS.md",
       "before": "f932e3cea02b81aebcf81a5456d82894a869125453fbb91bb90e1a24d08b4da4",
-      "after": "5ecd7fbad16cb2b21b4bbaa1ff82abe8f620b16367b54e9ab497ee5e8d80898e"
+      "after": "da60fc20ec4c3aca592565867263f3b9ca9fff4df6c0c1fd47f464f070b67cfb"
     },
     {
       "path": "docs/design/client.md",
       "before": "376ca3237be5b67a184a4096f164c216e8f8b21d44cbcfa01803ef9584cb2fe0",
-      "after": "2d0e89ec293eea508200b68d9f8f95019382bf8b2121930f68a6b2379bbbebb9"
+      "after": "dd29a83d67b281abe9c98f9e28407e5aacd029db94111bc933e37244b33c78dc"
     },
     {
       "path": "docs/design/engine.md",
@@ -121,7 +121,7 @@
     {
       "path": "docs/history/0.3.3.md",
       "before": "242139ee509e22c8b292ccdf8a2ce763ba2c512804f82d935acf4b9ee02ea7a7",
-      "after": "aed9ad106d6cb5661bc650e296cb0fc5dc258d0cd6a82e7aecd4a5701b098358"
+      "after": "790935fa5c5b327041d33b926436545569f361295e651a06d741dc9b49b10fd3"
     },
     {
       "path": "mods/hero-strategies/README.md",
@@ -486,7 +486,7 @@
     {
       "path": "scripts/make-windows-bundle.mjs",
       "before": "75ea43f28cf5ad4ae511e2ab90f2dd1c7a885d1e79d1377dc2462941a10731d3",
-      "after": "1a415628311d4701ebd56c0833408a51c280bc8a89fd1e40bafc5e89b3837562"
+      "after": "8c21d6133426dc8af0c26bcce689cf86be00a685e6b06499bb5ce5b0d1f5dac7"
     },
     {
       "path": "server/http/routes.js",
@@ -826,7 +826,7 @@
     {
       "path": "server/plugins/forgeImport.js",
       "before": "b30b9914ca955e641ff18cc8cd9d028aa5b1f954799fa107006dea9fc05a8ed4",
-      "after": "7f792fecb7e0bf1c2a7098cc3f3df8d908fdb69b9c24936d4f26b093aecbeb1a"
+      "after": "f22b732d21493a7a597c62ad041333213ee88c579aa099d6b087ae1710171518"
     },
     {
       "path": "server/plugins/forgeRecords.js",
@@ -1531,7 +1531,7 @@
     {
       "path": "test/plugins/forgeImport.test.js",
       "before": "482972435fa8bd421703bd831172f422a74e887f406b49d39cf558180d779888",
-      "after": "7f3e5d02b819e577483277893d8804a8e6f3f83d6452361abb3f35bc78c87db7"
+      "after": "c0242262c1172f45c7e0cc823334ff4d7b2b51a571bdef38bef76e88e2aee717"
     },
     {
       "path": "test/plugins/install.test.js",
@@ -1911,7 +1911,7 @@
     {
       "path": "test/windows-bundle.test.js",
       "before": "ed703d8907b8875c0c41261e5fcb54b7314993e2fe8b0342f2700f1967d095a4",
-      "after": "a6e9731dae00cea6a82ae8b98f6d505a6c707b42282bcbda92c3459e394c0a23"
+      "after": "6e71c9eb8c1705bcea41f89a7bd598787d0e82dc7d559b5d80c3a2d97ee2772c"
     },
     {
       "path": "tools/assets/versions.mjs",

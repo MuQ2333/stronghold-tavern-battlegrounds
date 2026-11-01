@@ -1221,3 +1221,6 @@ window is [ASSUMED]; damage, attack timing and targeting are unchanged.
 Skill model fallback (#786, §35.90): when facing up, a skill with an authored Front clip and only an attack fallback
 on Back uses Front through the skill clip and ending. Back-authored skills keep Back. [ASSUMED] This model choice
 is presentation inferred from the available animation roles; simulation facing and targeting do not change.
+
+Forge skin imports preserve both declared Spine sides and map a valid outfit series to the skin group. The normal
+cosmetic overlay and lock validation still apply, including for an outfit without a usable skin ID.

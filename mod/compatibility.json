@@ -1,7 +1,7 @@
 {
   "name": "卫戍协议：酒馆战棋模组",
   "version": "0.3.3",
-  "bundleVersion": "0.2.4-beta.1",
+  "bundleVersion": "0.2.4-beta.2",
   "upstream": "https://github.com/sganggs/Stronghold-Protocol",
   "commit": "f07b8965061bbc311ad7aa815879b09264a1e47d",
   "versionBase": "0.3.3",
@@ -12,7 +12,7 @@
     "bob": false
   },
   "controls": "Room host controls spells and heroes before a match; Bob is a browser-local preference.",
-  "patchSha256": "08ba3e3845205ce0e04e13bdbfe551062cd76d24358b85d3719e401300425fcd",
+  "patchSha256": "6a3564530d869f0304aa7e9e228322d3c9ccbfb35262f9b86187ceeb40d8b5ce",
   "patchFiles": [
     "docs/ARCHITECTURE.md",
     "docs/ASSETS.md",
@@ -407,7 +407,7 @@
   ],
   "noGameArtInPatch": true,
   "notes": [
-    "0.2.4-beta.1 is a local-use test build based on upstream 0.3.3. Forge imports are partial; see the import report. No dedicated server distribution."
+    "0.2.4-beta.2 is a local-use test build based on upstream 0.3.3. Forge imports are partial; see the import report. No dedicated server distribution."
   ],
   "releaseDate": "2026-11-01"
 }

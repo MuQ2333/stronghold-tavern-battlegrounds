@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = 'f07b8965061bbc311ad7aa815879b09264a1e47d'
-VERSION = '0.2.4-beta.1'
+VERSION = '0.2.4-beta.2'
 HIDDEN = {'creationflags': subprocess.CREATE_NO_WINDOW} if hasattr(subprocess, 'CREATE_NO_WINDOW') else {}
 
 def main():

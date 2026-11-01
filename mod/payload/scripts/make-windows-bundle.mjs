@@ -30,6 +30,7 @@ import crypto from 'node:crypto';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { ensureOfficialTables } from '../tools/assets/official-tables.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const IS_WIN = process.platform === 'win32';
@@ -69,6 +70,22 @@ const LEGAL_FILES = ['LICENSE', 'NOTICE.md', 'THIRD-PARTY-NOTICES.md'];
 const LOCAL_ASSET_MANIFEST = path.join('data', 'local-assets.json');
 /** 本机提取的官方战斗特效的文件清单（tools/local-extract/fx.py，DESIGN §33；文件在 public/assets/local/fx）。 */
 const LOCAL_FX_MANIFEST = path.join('data', 'local-fx.json');
+/** Only these public game-data tables, never the whole local cache or personal configuration. */
+const OFFICIAL_TABLES = ['character_table', 'skill_table', 'range_table', 'uniequip_table', 'battle_equip_table', 'activity_table']
+  .map(name => `.cache/gamedata/excel/${name}.json`);
+
+/** Copy a validated, explicit table set for offline Forge imports; incomplete sets are omitted. */
+export async function copyOfficialTables(dst, root = ROOT) {
+  for (const rel of OFFICIAL_TABLES) {
+    try {
+      const stat = await fsp.lstat(path.join(root, rel));
+      if (!stat.isFile() || stat.isSymbolicLink()) return { files: 0, bytes: 0 };
+    } catch { return { files: 0, bytes: 0 }; }
+  }
+  const checked = await ensureOfficialTables(root, 'offline Forge imports', { offline: true });
+  if (checked.failures.length) return { files: 0, bytes: 0 };
+  return copyFiles(OFFICIAL_TABLES, dst, root);
+}
 
 function parseArgs(argv) {
   const o = { out: '', node: true, force: false, nodeSpec: '', sha256: '' };
@@ -452,6 +469,7 @@ Noto Sans SC 这类网页字体（\`index.html\` 里那条外链这次没有改�
 启动游戏后，在浏览器打开 http://localhost:3000/studio/；选择「从 Forge 包导入」，选择工坊包的 zip 或文件夹，
 先查看预览报告，再确认导入。返回游戏后由房主在房间选择导入的插件；如果导入同时生成数据插件与脚本插件，
 需一并启用。默认启动入口已开启脚本沙箱。报告中若列出未导入的玩法或脚本，该包仍需适配，不能按完整兼容处理。
+部分新增官方角色需要官方数据表：本包若未包含这些表，首次导入相应工坊包时需要联网下载。
 
 ## 目录结构
 
@@ -549,6 +567,10 @@ async function main() {
     await fsp.copyFile(fxManifest, path.join(appDir, LOCAL_FX_MANIFEST));
     console.log(`    带上 ${LOCAL_FX_MANIFEST}（官方战斗特效的清单，文件本体在 public/assets/local/fx）`);
   }
+
+  const tables = await copyOfficialTables(appDir);
+  if (tables.files) console.log(`    带上 ${tables.files} 份官方数据表 / ${MB(tables.bytes)}，供离线导入工坊角色`);
+  else console.log('    ! 官方数据表不完整；导入部分工坊角色时需要联网获取。');
 
   // 3) 生产依赖
   await installProductionDeps(appDir);

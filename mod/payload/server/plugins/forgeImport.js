@@ -1389,7 +1389,12 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
     remember(atlas.src, atlas.dest);
     const value = { skel: skel.dest, atlas: atlasDest, ...(textures.length ? { textures } : {}), ...(spec.pma === true ? { pma: true } : {}) };
     setAt(assets, [...container, key, ...field], value);
-    if (spec.anims != null) assume('spine-anims', '模型上的 anims 没有照抄：剪辑由 plugin.lock.json 从骨架里读。', 'anims on a model were not copied: clip data is read from the skeleton into plugin.lock.json.');
+    if (spec.anims != null) {
+      assume('spine-anims', '模型上的 anims 没有照抄：剪辑由 plugin.lock.json 从骨架里读。', 'anims on a model were not copied: clip data is read from the skeleton into plugin.lock.json.');
+      manualReasons.push({ path: `${[...container, key, ...field].join('.')}#anims`,
+        zh: '工坊包指定的动画映射未导入；当前使用从骨架自动推断的动作，可能与原包不同。',
+        en: 'The pack\'s animation mapping was not imported; actions inferred from the skeleton may differ from the original.' });
+    }
     importedAssets.push(`${[...container, key, ...field].join('.')} ← ${skel.src}`);
   };
 
@@ -1470,15 +1475,17 @@ export function planForgeImport(files, { id: idOverride, contentId, dataDir, van
         const name = typeof skin.name === 'string' ? skin.name.trim() : '';
         if (name && [...name].length <= 64) setAt(assets, ['chars', skin.charId, 'skins', key, 'name'], name);
         else if (name) skip(`skins.${key}.name`, '时装的显示名不在 1–64 字以内，没有写入。', 'The outfit\'s display name is not within 1–64 characters, so it was not written.');
+        if (typeof skin.series === 'string' && [...skin.series].length <= 64) setAt(assets, ['chars', skin.charId, 'skins', key, 'group'], skin.series);
+        else if (skin.series != null) skip(`skins.${key}.series`, '时装系列不是 64 字以内的文本，没有写入。', 'The outfit series is not text within 64 characters, so it was not written.');
         if (isObj(skin.art)) {
           for (const field of CHAR_FIELDS) if (typeof skin.art[field] === 'string') putFileAt(['chars', skin.charId, 'skins', key, field], skin.art[field]);
-          if (isObj(skin.art.spine?.front)) putSpine(['chars', skin.charId, 'skins'], key, ['spine', 'front'], skin.art.spine.front);
+          for (const side of ['front', 'back']) if (isObj(skin.art.spine?.[side])) putSpine(['chars', skin.charId, 'skins'], key, ['spine', side], skin.art.spine[side]);
         }
       } else {
         assume('skins', 'Forge 的时装没有能当皮肤键的 id，收成该干员的一份外观叠加，不会成为皮肤栏里的一行。', 'A Forge outfit has no id a skin key can use, so it was collapsed into one overlay of that operator and is not a row in the skin picker.');
         if (isObj(skin.art)) {
           for (const field of CHAR_FIELDS) if (typeof skin.art[field] === 'string') putImage(['chars'], skin.charId, [field], skin.art[field]);
-          if (isObj(skin.art.spine?.front)) putSpine(['chars'], skin.charId, ['spine', 'front'], skin.art.spine.front);
+          for (const side of ['front', 'back']) if (isObj(skin.art.spine?.[side])) putSpine(['chars'], skin.charId, ['spine', side], skin.art.spine[side]);
         }
       }
       if (isObj(skin.voices)) putVoices(`skins.${skin.id || skin.charId}`, ['audio', 'voiceJp'], { [skin.charId]: skin.voices });

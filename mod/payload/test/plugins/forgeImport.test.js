@@ -155,7 +155,7 @@ test('one outfit per skin: an id that is a skin key becomes that operator\'s own
   fs.writeFileSync(path.join(pack, 'pack.json'), JSON.stringify({
     id: 'rose-wardrobe', name: '玫瑰衣柜', version: '1.0.0', license: 'CC0-1.0', content: [],
     skins: [
-      { id: 'char_102_texas@sightseer#2', charId: 'char_102_texas', name: '悠然假日', art: { portrait: 'chars/sightseer.png' } },
+      { id: 'char_102_texas@sightseer#2', charId: 'char_102_texas', name: '悠然假日', series: '联动', art: { portrait: 'chars/sightseer.png' } },
       { charId: 'char_112_siege', art: { avatar: 'chars/sightseer.png' } },
     ],
   }));
@@ -166,6 +166,7 @@ test('one outfit per skin: an id that is a skin key becomes that operator\'s own
     const dir = path.join(out, 'rose-wardrobe');
     const overlay = JSON.parse(fs.readFileSync(path.join(dir, 'assets.json'), 'utf8'));
     assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].name, '悠然假日');
+    assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].group, '联动');
     assert.equal(overlay.chars.char_102_texas.skins['char_102_texas@sightseer#2'].portrait, 'files/chars/sightseer.png');
     assert.equal(overlay.chars.char_112_siege.avatar, 'files/chars/sightseer.png', 'no skin key: the operator\'s own overlay, as before');
     assert.equal(overlay.chars.char_112_siege.skins, undefined);
@@ -1419,6 +1420,37 @@ test('all sixteen current Forge UI mounts distinguish adaptation from uncopied s
         assert.ok(['hud.right', 'stats.tab', 'room.panel'].includes(got.report.manualPanels[0].suggestedSlot));
       }
     }
+  } finally { fs.rmSync(parent, { recursive: true, force: true }); }
+});
+
+test('Forge skin imports and locks both Spine sides, including an unkeyed skin', async () => {
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'sp-forge-skin-sides-'));
+  const pack = path.join(parent, 'pack');
+  const pair = { front: { skel: 'front/model.skel', atlas: 'front/model.atlas', textures: ['front/page.png'], anims: { idle: 'Idle' } },
+    back: { skel: 'back/model.skel', atlas: 'back/model.atlas', textures: ['back/page.png'] } };
+  writePack(pack, { id: 'skin-sides', name: '双面时装', version: '1.0.0', license: 'CC0-1.0', content: [],
+    skins: [{ id: 'wardrobe', charId: 'char_102_texas', art: { spine: pair } },
+      { charId: 'char_112_siege', art: { spine: pair } }] }, {
+    'front/model.skel': skel(), 'front/model.atlas': atlas(['page.png']), 'front/page.png': png(4, 4),
+    'back/model.skel': skel(), 'back/model.atlas': atlas(['page.png']), 'back/page.png': png(4, 4),
+  });
+  const out = path.join(parent, 'skin-sides');
+  try {
+    const imported = await importForge(pack, { ...forgeOpts(parent), out });
+    assert.equal(imported.ok, true, imported.markdown);
+    assert.equal(imported.report.partial, true, 'unmapped authored animation roles must not look fully compatible');
+    assert.ok(imported.report.manualReasons.some((s) => s.path.endsWith('#anims')));
+    const assets = JSON.parse(fs.readFileSync(path.join(out, 'assets.json'), 'utf8'));
+    const lock = JSON.parse(fs.readFileSync(path.join(out, 'plugin.lock.json'), 'utf8'));
+    for (const spine of [assets.chars.char_102_texas.skins.wardrobe.spine, assets.chars.char_112_siege.spine]) {
+      assert.equal(spine.front.skel, 'files/front/model.skel');
+      assert.equal(spine.back.skel, 'files/back/model.skel');
+    }
+    assert.ok(lock.spine['files/front/model.skel']);
+    assert.ok(lock.spine['files/back/model.skel']);
+    assert.equal(imported.report.skipped.some((s) => s.path.startsWith('back/')), false);
+    const check = await quiet(['check', out, '--strict', '--root', ROOT]);
+    assert.equal(check.code, 0, check.out);
   } finally { fs.rmSync(parent, { recursive: true, force: true }); }
 });
 

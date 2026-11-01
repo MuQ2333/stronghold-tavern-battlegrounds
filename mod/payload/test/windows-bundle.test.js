@@ -129,6 +129,26 @@ test('public bundle launcher keeps developer test rooms disabled even with an in
   assert.equal(serverEnv(opts,{SP_TEST_MODE:'force'}).SP_TEST_MODE,undefined);
 });
 
+test('offline Forge tables copy only a complete valid public table set, never nearby secrets', async () => {
+  const { copyOfficialTables } = await mod('scripts/make-windows-bundle.mjs');
+  const base = await fsp.mkdtemp(path.join(os.tmpdir(), 'sp-offline-tables-'));
+  const root = path.join(base, 'source'), dst = path.join(base, 'bundle');
+  const dir = path.join(root, '.cache', 'gamedata', 'excel');
+  try {
+    await fsp.mkdir(dir, { recursive: true });
+    const tables = { character_table: { c: { phases: [] } }, skill_table: { s: { levels: [] } },
+      range_table: { r: { grids: [] } }, uniequip_table: { equipDict: {}, charEquip: {} },
+      battle_equip_table: { e: { phases: [] } }, activity_table: { autoChessData: {} } };
+    for (const [name, value] of Object.entries(tables)) await fsp.writeFile(path.join(dir, `${name}.json`), JSON.stringify(value));
+    await fsp.writeFile(path.join(root, '.cache', '.studio-key'), 'private');
+    assert.equal((await copyOfficialTables(dst, root)).files, 6);
+    assert.equal(await fsp.readFile(path.join(dst, '.cache', 'gamedata', 'excel', 'character_table.json'), 'utf8'), JSON.stringify(tables.character_table));
+    await assert.rejects(fsp.access(path.join(dst, '.cache', '.studio-key')));
+    await fsp.writeFile(path.join(dir, 'skill_table.json'), '{');
+    assert.equal((await copyOfficialTables(path.join(base, 'invalid'), root)).files, 0);
+  } finally { await fsp.rm(base, { recursive: true, force: true }); }
+});
+
 describe('make-windows-bundle.mjs: 包内说明的措辞', () => {
   test('不再声称「不访问外网」，改成联网 / 断网两种情况都讲清', async () => {
     const { bundleReadme } = await mod('scripts/make-windows-bundle.mjs');

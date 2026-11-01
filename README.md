@@ -1,6 +1,6 @@
 # 卫戍协议：酒馆战棋（本地测试版）
 
-基于 [卫戍协议 0.3.3](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.3) 的非官方、非商业同人版本。包含酒馆模式、法术、策略与工坊导入；本版本仍在测试，玩法与数值可能调整。
+当前本地测试版 **0.2.4-beta.2** 基于 [卫戍协议 0.3.3](https://github.com/sganggs/Stronghold-Protocol/tree/v0.3.3)，是非官方、非商业同人版本。包含酒馆模式、法术、策略与工坊导入；本版本仍在测试，玩法与数值可能调整。
 
 ## 本地使用
 
